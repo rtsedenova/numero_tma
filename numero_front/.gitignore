@@ -25,6 +25,7 @@ dist-ssr
 
 *.pem
 
-.env
+.env.prod
+.env.dev
 .structure.txt
 .dokidoki060104.pem
