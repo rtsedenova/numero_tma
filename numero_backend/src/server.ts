@@ -1,18 +1,30 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
+import https from 'https';
 import dotenv from 'dotenv';
 import s3Routes from './routes/s3Routes';
 
-dotenv.config(); 
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 443;
 
-app.use(cors({ origin: "*" }));
+
+const httpsOptions = {
+  key: fs.readFileSync('/etc/letsencrypt/live/numero-tma-server.com/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/numero-tma-server.com/fullchain.pem'),
+};
+
+app.use(cors({ origin: '*' }));
 app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.send('Server is working with HTTPS!');
+});
 
 app.use('/api', s3Routes);
 
-app.listen(Number(PORT), '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
+https.createServer(httpsOptions, app).listen(PORT, () => {
+  console.log(`HTTPS сервер запущен на https://numero-tma-server.com`);
 });
