@@ -20,9 +20,15 @@ export default defineConfig({
   ],
   publicDir: './public',
   server: {
-    // Exposes your dev server and makes it accessible for the devices in the same network.
+    proxy: {
+      '/api': {
+        target: 'https://numero-tma-server.com', 
+        changeOrigin: true,
+        secure: false, 
+      }
+    },
     host: true,
     allowedHosts: true
-  },
+  }
 });
 
