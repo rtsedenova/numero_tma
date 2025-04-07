@@ -1,0 +1,45 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    paths:
+      - 'numero_front/**'
+      - '.github/workflows/deploy_front.yml'
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Build frontend
+        run: |
+          cd numero_front
+          npm ci
+          npm run build
+
+      - name: Deploy to EC2 frontend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST_FRONT }}
+          username: ${{ secrets.EC2_USER_FRONT }}
+          key: ${{ secrets.EC2_KEY_FRONT }}
+          script: |
+            cd ${{ secrets.EC2_PATH_FRONT }}
+            git pull origin main
+            cd numero_front
+            npm ci
+            npm run build
+            sudo cp -r dist/* ${{ secrets.EC2_PATH_NGINX }}
+            sudo systemctl restart nginx
+
+
