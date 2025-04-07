@@ -1,0 +1,47 @@
+name: CI for Numero Project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install frontend dependencies
+        run: |
+          cd numero_front
+          npm ci
+
+      - name: Lint frontend
+        run: |
+          cd numero_front
+          npm run lint
+
+      - name: Build frontend
+        run: |
+          cd numero_front
+          npm run build
+
+      - name: Install backend dependencies
+        run: |
+          cd numero_backend
+          npm ci
+
+      - name: Build backend
+        run: |
+          cd numero_backend
+          npm run build
