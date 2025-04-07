@@ -1,0 +1,43 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    paths:
+      - 'numero_backend/**'
+      - '.github/workflows/deploy_backend.yml'
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies and build backend
+        run: |
+          cd numero_backend
+          npm ci
+          npm run build
+
+      - name: Deploy to EC2 backend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST_BACK }}
+          username: ${{ secrets.EC2_USER_BACK }}
+          key: ${{ secrets.EC2_KEY_BACK }}
+          script: |
+            cd ${{ secrets.EC2_PATH_BACK }}
+            git pull origin main
+            cd numero_backend
+            npm ci
+            NODE_OPTIONS="--max-old-space-size=4096" npm run build
+            pm2 restart numero_backend
+
