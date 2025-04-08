@@ -1,7 +1,7 @@
 import { classNames, type RGB as RGBType } from '@telegram-apps/sdk-react';
 import type { FC } from 'react';
 
-import './RGB.css';
+import '@/styles/components/rgb.scss';
 
 export type RGBProps = JSX.IntrinsicElements['div'] & {
   color: RGBType;
