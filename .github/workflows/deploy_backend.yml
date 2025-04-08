@@ -2,9 +2,6 @@ name: Deploy Backend to EC2
 
 on:
   push:
-    paths:
-      - 'numero_backend/**'
-      - '.github/workflows/deploy_backend.yml'
     branches:
       - main
 
@@ -21,7 +18,7 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies and build backend
+      - name: Check that backend builds correctly
         run: |
           cd numero_backend
           npm ci
@@ -34,10 +31,8 @@ jobs:
           username: ${{ secrets.EC2_USER_BACK }}
           key: ${{ secrets.EC2_KEY_BACK }}
           script: |
-            cd ${{ secrets.EC2_PATH_BACK }}
+            cd ~/numero_tma/numero_backend
             git pull origin main
-            cd numero_backend
             npm ci
             NODE_OPTIONS="--max-old-space-size=4096" npm run build
             pm2 restart numero_backend
-
