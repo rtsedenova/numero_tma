@@ -2,9 +2,6 @@ name: Deploy Frontend to EC2
 
 on:
   push:
-    paths:
-      - 'numero_front/**'
-      - '.github/workflows/deploy_front.yml'
     branches:
       - main
 
@@ -21,7 +18,7 @@ jobs:
         with:
           node-version: 18
 
-      - name: Build frontend
+      - name: Build frontend (optional)
         run: |
           cd numero_front
           npm ci
@@ -34,12 +31,9 @@ jobs:
           username: ${{ secrets.EC2_USER_FRONT }}
           key: ${{ secrets.EC2_KEY_FRONT }}
           script: |
-            cd ${{ secrets.EC2_PATH_FRONT }}
+            cd ~/numero_tma/numero_front
             git pull origin main
-            cd numero_front
             npm ci
             npm run build
-            sudo cp -r dist/* ${{ secrets.EC2_PATH_NGINX }}
+            sudo cp -r dist/* /var/www/html
             sudo systemctl restart nginx
-
-
