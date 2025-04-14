@@ -1,5 +1,7 @@
 import AWS from 'aws-sdk';
 import { uploadToS3 } from '../services/s3/uploadToS3'; 
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.test' });
 
 jest.mock('aws-sdk', () => {
   const uploadMock = jest.fn().mockReturnValue({
