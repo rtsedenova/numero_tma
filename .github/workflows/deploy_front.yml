@@ -35,5 +35,4 @@ jobs:
             git pull origin main
             npm ci
             npm run build
-            sudo cp -r dist/* /var/www/html
             sudo systemctl restart nginx
