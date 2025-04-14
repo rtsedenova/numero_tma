@@ -1,4 +1,5 @@
 .env
+.env.test
 structure.txt
 node_modules
 dist
