@@ -1,7 +1,8 @@
-import AWS from 'aws-sdk';
-import { getFromS3 } from '../services/s3/getFromS3';
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.test' });
+
+import AWS from 'aws-sdk';
+import { getFromS3 } from '../services/s3/getFromS3';
 
 jest.mock('aws-sdk', () => {
   const getObjectMock = jest.fn().mockReturnValue({
