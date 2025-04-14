@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
-import { uploadFile, getFile } from '../controllers/s3Controller';
+import { getFile } from '../controllers/s3/getFile';
+import { uploadFile } from '../controllers/s3/uploadFile';
 
 const router = express.Router();
 const upload = multer(); 
