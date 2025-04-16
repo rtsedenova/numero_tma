@@ -5,6 +5,8 @@ import { InitDataPage } from '@/pages/InitDataPage.tsx';
 import { LaunchParamsPage } from '@/pages/LaunchParamsPage.tsx';
 import { ThemeParamsPage } from '@/pages/ThemeParamsPage.tsx';
 import { TONConnectPage } from '@/pages/TONConnectPage/TONConnectPage';
+import { ProfilePage } from '@/pages/ProfilePage/ProfilePage';
+import { DestinyNumberPage } from '@/pages/DestinyNumberPage/DestinyNumberPage';
 
 interface Route {
   path: string;
@@ -41,4 +43,6 @@ export const routes: Route[] = [
       </svg>
     ),
   },
+  { path: '/profile', Component: ProfilePage, title: 'Profile Page' },
+  { path: '/calculate-destiny-number', Component: DestinyNumberPage, title: 'Destiny Number Page' },
 ];

@@ -1,48 +1,46 @@
-import { FC, useState } from "react";
-import { DateInput } from "@/components/DateInput/DateInput";
-import { CheckButton } from "@/components/CheckButton/CheckButton";
-import { ResultBlock } from "@/components/ResultBlock/ResultBlock";
-import { calculateDestinyNumber } from "@/helpers/calculateDestinyNumber";
+import { FC } from "react";
+import { Page } from "@/components/Page";
+import { useNavigate } from "react-router-dom";
+import { useSignal } from "@telegram-apps/sdk-react";
+import { initData } from "@telegram-apps/sdk-react";
 import "@/styles/pages/index-page.scss";
 
 export const IndexPage: FC = () => {
-  const [birthDate, setBirthDate] = useState<string>("");
-  const [result, setResult] = useState<string>("");
-  const [calculationSteps, setCalculationSteps] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleCheckClick = async () => {
-    if (!birthDate) {
-      alert("Введите дату рождения");
-      return;
-    }
+  const initDataState = useSignal(initData.state);
 
-    setIsLoading(true);
-    setResult("");
-    setCalculationSteps([]);
+  const username = initDataState?.user?.username;
+  const avatarUrl = initDataState?.user?.photoUrl;
+  const firstName = initDataState?.user?.firstName;
+  const lastName = initDataState?.user?.lastName;
 
-    try {
-      const { destinyNumber, steps } = calculateDestinyNumber(birthDate);
-      setCalculationSteps(steps);
+  const handleProfileClick = () => {
+    navigate("/profile");
+  };
 
-      const response = await fetch("https://numero-tma-server.com/api/file/num_data.json");
-      if (!response.ok) throw new Error("Ошибка загрузки данных");
-
-      const data = await response.json();
-      setResult(data[destinyNumber] || "Нет данных для этого числа");
-    } catch (error) {
-      console.error(error);
-      setResult("Произошла ошибка при загрузке данных");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleDestinyClick = () => {
+    navigate("/calculate-destiny-number");
   };
 
   return (
-    <div className="index-page">
-    <DateInput value={birthDate} onChange={setBirthDate} />
-    <CheckButton onClick={handleCheckClick} disabled={!birthDate || isLoading} isLoading={isLoading} />
-    <ResultBlock steps={calculationSteps} result={result} />
-  </div>
+    <Page back={false}>
+      <div className="index-page">
+        <header className="index-page__header" onClick={handleProfileClick}>
+          {avatarUrl && (
+            <img src={avatarUrl} alt="Аватар" className="index-page__avatar" />
+          )}
+          <div className="index-page__username">
+            {firstName} {lastName} (@{username})
+          </div>
+        </header>
+
+        <main className="index-page__main">
+          <button className="index-page__button" onClick={handleDestinyClick}>
+            🔮 Число судьбы
+          </button>
+        </main>
+      </div>
+    </Page>
   );
 };
