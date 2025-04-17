@@ -1,4 +1,4 @@
-jest.mock('../config/env', () => ({
+jest.mock('../config/awsConfig', () => ({
   AWS_CONFIG: {
     accessKeyId: 'mock-access-key',
     secretAccessKey: 'mock-secret-key',
