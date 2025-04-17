@@ -1,7 +1,41 @@
 .index-page {
-    padding: 20px;
+  padding: 16px;
+
+  &__header {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
     align-items: center;
+    cursor: pointer;
+    margin-bottom: 24px;
   }
+
+  &__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 12px;
+  }
+
+  &__username {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  &__main {
+    display: flex;
+    justify-content: center;
+  }
+
+  &__button {
+    padding: 12px 24px;
+    font-size: 16px;
+    background: #663399;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+
+    &:hover {
+      background: #512d8a;
+    }
+  }
+}
