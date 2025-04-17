@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
+import { config } from 'dotenv';
 
-dotenv.config();
+config(); 
 
 export const AWS_CONFIG = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID!,

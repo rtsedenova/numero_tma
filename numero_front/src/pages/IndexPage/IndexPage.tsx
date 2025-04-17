@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { Page } from "@/components/Page";
 import { useNavigate } from "react-router-dom";
 import { useSignal } from "@telegram-apps/sdk-react";
@@ -14,6 +14,22 @@ export const IndexPage: FC = () => {
   const avatarUrl = initDataState?.user?.photoUrl;
   const firstName = initDataState?.user?.firstName;
   const lastName = initDataState?.user?.lastName;
+
+  useEffect(() => {
+    const telegramId = initDataState?.user?.id;
+  
+    if (telegramId) {
+      fetch(`${import.meta.env.VITE_API_URL}/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ telegram_id: telegramId }),
+      }).catch((error) => {
+        console.error("Failed to register user:", error);
+      });
+    }
+  }, [initDataState]);
 
   const handleProfileClick = () => {
     navigate("/profile");
