@@ -35,6 +35,6 @@ jobs:
             git pull origin main
             npm ci
             NODE_OPTIONS="--max-old-space-size=4096" npm run build
-            pm2 restart numero_backend || pm2 start dist/server.js --name numero_backend
-            pm2 save
+            sudo pm2 restart numero_backend || sudo pm2 start dist/server.js --name numero_backend
+            sudo pm2 save
 
