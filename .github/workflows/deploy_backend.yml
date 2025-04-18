@@ -31,10 +31,11 @@ jobs:
           username: ${{ secrets.EC2_USER_BACK }}
           key: ${{ secrets.EC2_KEY_BACK }}
           script: |
-            cd ~/numero_tma/numero_backend
-            git pull origin main
-            npm ci
-            NODE_OPTIONS="--max-old-space-size=4096" npm run build
-            sudo pm2 restart numero_backend || sudo pm2 start dist/server.js --name numero_backend
-            sudo pm2 save
+           cd ~/numero_tma/numero_backend
+           git config pull.rebase false
+           git pull origin main
+           npm ci
+           NODE_OPTIONS="--max-old-space-size=4096" npm run build
+           sudo pm2 restart numero_backend || sudo pm2 start dist/server.js --name numero_backend
+           sudo pm2 save
 
