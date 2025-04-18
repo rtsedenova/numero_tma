@@ -34,7 +34,7 @@ jobs:
            cd ~/numero_tma/numero_backend
            git config pull.rebase false
            git pull origin main
-           npm ci
+           npm ci || (rm -rf node_modules package-lock.json && npm install)
            NODE_OPTIONS="--max-old-space-size=4096" npm run build
            sudo pm2 restart numero_backend || sudo pm2 start dist/server.js --name numero_backend
            sudo pm2 save
