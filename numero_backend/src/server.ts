@@ -16,10 +16,6 @@ const httpsOptions = {
   cert: fs.readFileSync('/etc/letsencrypt/live/numero-tma-server.com/fullchain.pem'),
 };
 
-const apiRouter = express.Router();
-apiRouter.use(s3Routes);
-apiRouter.use(userRoutes);
-
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
@@ -27,7 +23,8 @@ app.get('/', (req, res) => {
   res.send('Server is working with HTTPS!');
 });
 
-app.use('/api', apiRouter);
+app.use('/api', s3Routes);
+app.use('/api', userRoutes);
 
 https.createServer(httpsOptions, app).listen(PORT, () => {
   console.log(`HTTPS сервер запущен на https://numero-tma-server.com`);
