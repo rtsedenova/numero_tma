@@ -13,16 +13,18 @@ export const getUsersHandler = async (_req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-    const { telegram_id, coins, username } = req.body;
-  
-    try {
-      const user = await addUser(telegram_id, coins, username);
-      res.status(201).json({ message: 'User added successfully', user });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(500).json({ message: 'Failed to add user', error: error.message });
-      } else {
-        res.status(500).json({ message: 'Failed to add user', error: 'Unknown error' });
-      }
+  const { telegram_id, coins, username } = req.body;
+
+  console.log('Received user:', { telegram_id, coins, username });
+
+  try {
+    const user = await addUser(telegram_id, coins, username);
+    res.status(201).json({ message: 'User added successfully', user });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: 'Failed to add user', error: error.message });
+    } else {
+      res.status(500).json({ message: 'Failed to add user', error: 'Unknown error' });
     }
-  };
+  }
+};

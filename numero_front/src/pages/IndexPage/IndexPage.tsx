@@ -3,11 +3,12 @@ import { Page } from "@/components/Page";
 import { useNavigate } from "react-router-dom";
 import { useSignal } from "@telegram-apps/sdk-react";
 import { initData } from "@telegram-apps/sdk-react";
+import { UserResponse } from "@/types/api";
+import { addUserToDB } from "@/api/user"; 
 import "@/styles/pages/index-page.scss";
 
 export const IndexPage: FC = () => {
   const navigate = useNavigate();
-
   const initDataState = useSignal(initData.state);
 
   const username = initDataState?.user?.username;
@@ -20,15 +21,17 @@ export const IndexPage: FC = () => {
     const username = initDataState?.user?.username;
   
     if (telegramId && username) {
-      fetch("https://numero-tma-server.com/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ telegram_id: telegramId, username }),
-      }).catch((error) => {
-        console.error("Failed to register user:", error);
-      });
+      addUserToDB(telegramId, 0, username)
+        .then((res: UserResponse) => {
+          console.log("[IndexPage] Пользователь добавлен:", res.user);
+        })
+        .catch((err: unknown) => {
+          if (err instanceof Error) {
+            console.error("[IndexPage] Ошибка:", err.message);
+          } else {
+            console.error("[IndexPage] Неизвестная ошибка:", err);
+          }
+        });
     } else {
       console.warn("Пользователь не определён или отсутствует username");
     }
