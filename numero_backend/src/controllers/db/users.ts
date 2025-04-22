@@ -13,10 +13,10 @@ export const getUsersHandler = async (_req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-    const { telegram_id, coins } = req.body;
+    const { telegram_id, coins, username } = req.body;
   
     try {
-      const user = await addUser(telegram_id, coins);
+      const user = await addUser(telegram_id, coins, username);
       res.status(201).json({ message: 'User added successfully', user });
     } catch (error: unknown) {
       if (error instanceof Error) {
