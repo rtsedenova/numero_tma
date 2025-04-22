@@ -17,17 +17,20 @@ export const IndexPage: FC = () => {
 
   useEffect(() => {
     const telegramId = initDataState?.user?.id;
+    const username = initDataState?.user?.username;
   
-    if (telegramId) {
-      fetch(`${import.meta.env.VITE_API_URL}/users`, {
+    if (telegramId && username) {
+      fetch("https://numero-tma-server.com/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ telegram_id: telegramId }),
+        body: JSON.stringify({ telegram_id: telegramId, username }),
       }).catch((error) => {
         console.error("Failed to register user:", error);
       });
+    } else {
+      console.warn("Пользователь не определён или отсутствует username");
     }
   }, [initDataState]);
 

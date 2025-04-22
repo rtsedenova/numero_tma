@@ -6,11 +6,12 @@ export const useInitUser = () => {
   useEffect(() => {
     const state = initData.state();
 
-    if (!state?.user) return;
+    if (!state?.user || !state.user.username) return;
 
     const telegram_id = state.user.id;
+    const username = state.user.username;
 
-    addUserToDB(telegram_id)
+    addUserToDB(telegram_id, 0, username)
       .then((res) => {
         console.log('[useInitUser] Пользователь добавлен:', res);
       })
