@@ -3,6 +3,7 @@ import cors from 'cors';
 import fs from 'fs';
 import https from 'https';
 import dotenv from 'dotenv';
+import { errorHandler } from './middlewares/errorHandler';
 import s3Routes from './routes/s3Routes';
 import userRoutes from './routes/userRoutes';
 
@@ -25,6 +26,8 @@ app.get('/', (req, res) => {
 
 app.use('/api', s3Routes);
 app.use('/api', userRoutes);
+
+app.use(errorHandler);
 
 https.createServer(httpsOptions, app).listen(PORT, () => {
   console.log(`HTTPS сервер запущен на https://numero-tma-server.com`);

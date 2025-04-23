@@ -1,9 +1,24 @@
 import { Router } from 'express';
-import { getUsersHandler, createUser } from '../controllers/db/users';
+import { createUserController, getAllUsersController } from '@/controllers/db/users';
 
 const router = Router();
 
-router.get('/users', getUsersHandler);
-router.post('/users', createUser); 
+router.get('/users', async (req, res) => {
+  try {
+    await getAllUsersController(req, res);  
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+router.post('/users', async (req, res) => {
+  try {
+    await createUserController(req, res);  
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
 
 export default router;
