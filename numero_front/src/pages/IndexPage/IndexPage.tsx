@@ -2,13 +2,11 @@ import { FC } from "react";
 import { Page } from "@/components/Page";
 import { useNavigate } from "react-router-dom";
 import { useTelegramUser } from "@/hooks/useTelegramUser";
-import { useSendInitData } from "@/hooks/useSendInitData"; 
 import "@/styles/pages/index-page.scss";
 
 export const IndexPage: FC = () => {
   const navigate = useNavigate();
   const { user } = useTelegramUser();
-  useSendInitData(); 
 
   const handleProfileClick = () => navigate("/profile");
   const handleDestinyClick = () => navigate("/calculate-destiny-number");
