@@ -2,7 +2,7 @@ import { useLaunchParams, miniApp, useSignal } from '@telegram-apps/sdk-react';
 import { AppRoot } from '@telegram-apps/telegram-ui';
 import { Navigate, Route, Routes, HashRouter } from 'react-router-dom';
 
-import { useInitUser } from '@/hooks/useInitUser';
+import { useSendInitData } from '@/hooks/useSendInitData';
 
 import { routes } from '@/navigation/routes.tsx';
 
@@ -12,7 +12,7 @@ export function App() {
   const lp = useLaunchParams();
   const isDark = useSignal(miniApp.isDark);
 
-  useInitUser();
+  useSendInitData();
 
   return (
     <AppRoot
