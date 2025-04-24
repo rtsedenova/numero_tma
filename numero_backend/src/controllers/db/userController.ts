@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { createUser, getAllUsers } from '@/services/db/userService';
-import { UserFromDB, NewUser } from '@/types/user';
+import { createUser, getAllUsers } from '../../services/db/userService';
+import { UserFromDB, NewUser } from '../../types/user';
 
 export async function createUserController(req: Request, res: Response) {
   try {
