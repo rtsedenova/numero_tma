@@ -1,12 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useTelegramUser } from './useTelegramUser';
 
 export const useSendInitData = () => {
   const { user, initDataRaw } = useTelegramUser();
-  const hasSent = useRef(false); 
 
   useEffect(() => {
-    if (hasSent.current || !user || !initDataRaw) return;
+
+    if (!user || !initDataRaw) return;
+
+    console.log("user", user);
 
     const sendData = async () => {
       try {
@@ -19,14 +21,13 @@ export const useSendInitData = () => {
             first_name: user.firstName,
             last_name: user.lastName,
             language_code: user.languageCode,
-            is_bot: user.isBot,
             is_premium: user.isPremium,
             photo_url: user.photoUrl,
             init_data_raw: initDataRaw,
           }),
         });
 
-        hasSent.current = true;
+        console.log("Данные успешно отправлены");
       } catch (error) {
         console.error('Ошибка при отправке initData:', error);
       }
