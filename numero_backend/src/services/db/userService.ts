@@ -8,7 +8,6 @@ export async function createUser(user: NewUser): Promise<UserFromDB> {
     first_name,
     last_name,
     language_code,
-    is_bot,
     is_premium,
     photo_url,
     init_data_raw,
@@ -16,8 +15,7 @@ export async function createUser(user: NewUser): Promise<UserFromDB> {
 
   const query = `
     INSERT INTO users (
-      telegram_id, username, first_name, last_name, language_code,
-      is_bot, is_premium, photo_url, init_data_raw
+      telegram_id, username, first_name, last_name, language_code, is_premium, photo_url, init_data_raw
     )
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING *;
@@ -29,7 +27,6 @@ export async function createUser(user: NewUser): Promise<UserFromDB> {
     first_name ?? null,
     last_name ?? null,
     language_code ?? null,
-    is_bot,
     is_premium,
     photo_url ?? null,
     init_data_raw,
