@@ -17,7 +17,7 @@ export async function createUser(user: NewUser): Promise<UserFromDB> {
     INSERT INTO users (
       telegram_id, username, first_name, last_name, language_code, is_premium, photo_url, init_data_raw
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     RETURNING *;
   `;
 
