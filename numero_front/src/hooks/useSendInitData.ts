@@ -8,8 +8,6 @@ export const useSendInitData = () => {
 
     if (!user || !initDataRaw) return;
 
-    console.log("user", user);
-
     const sendData = async () => {
       try {
         await fetch("https://numero-tma-server.com/api/users", {
@@ -22,12 +20,9 @@ export const useSendInitData = () => {
             last_name: user.lastName,
             language_code: user.languageCode,
             is_premium: user.isPremium,
-            photo_url: user.photoUrl,
-            init_data_raw: initDataRaw,
           }),
         });
 
-        console.log("Данные успешно отправлены");
       } catch (error) {
         console.error('Ошибка при отправке initData:', error);
       }

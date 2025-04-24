@@ -6,7 +6,7 @@ export async function createUserController(req: Request, res: Response) {
   try {
     const userData: NewUser = req.body;
 
-    if (!userData || !userData.telegram_id || !userData.init_data_raw) {
+    if (!userData || !userData.telegram_id ) {
       return res.status(400).json({ error: 'Missing required user fields' });
     }
 
