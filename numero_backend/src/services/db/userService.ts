@@ -1,5 +1,5 @@
-import { db } from '@/config/dbConfig';
-import { NewUser, UserFromDB } from '@/types/user';
+import { db } from '../../config/dbConfig';
+import { NewUser, UserFromDB } from '../../types/user';
 
 export async function createUser(user: NewUser): Promise<UserFromDB> {
   const {
