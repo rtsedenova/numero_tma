@@ -23,6 +23,8 @@ export const useSendInitData = () => {
           }),
         });
 
+        console.log(user)
+
       } catch (error) {
         console.error('Ошибка при отправке initData:', error);
       }

@@ -4,8 +4,9 @@ import fs from 'fs';
 import https from 'https';
 import dotenv from 'dotenv';
 import { errorHandler } from './middlewares/errorHandler';
-import s3Routes from './routes/s3Routes';
-import userRoutes from './routes/userRoutes';
+import s3Routes from './routes/s3.routes';
+import userRoutes from './routes/users.routes';
+import predictionRoutes from './routes/predictions.routes';
 
 dotenv.config();
 
@@ -24,8 +25,9 @@ app.get('/', (req, res) => {
   res.send('Server is working with HTTPS!');
 });
 
-app.use('/api', s3Routes);
-app.use('/api', userRoutes);
+app.use('/api/s3', s3Routes);
+app.use('/api/users', userRoutes);
+app.use('/api/predictions', predictionRoutes);
 
 app.use(errorHandler);
 
