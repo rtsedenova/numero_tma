@@ -1,8 +1,9 @@
 import s3 from '../../utils/awsClient';
+import { AWS_CONFIG } from '../../config/awsConfig';
 
 export const getFileFromS3 = async (fileName: string) => {
   const params = {
-    Bucket: process.env.BUCKET_NAME || '', 
+    Bucket: AWS_CONFIG.bucketName, 
     Key: fileName,
   };
 
