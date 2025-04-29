@@ -1,8 +1,9 @@
 import s3 from '../../utils/awsClient';
+import { AWS_CONFIG } from '../../config/awsConfig';
 
 export const uploadFileToS3 = async (fileName: string, fileContent: Buffer) => {
   const params = {
-    Bucket: process.env.BUCKET_NAME || '', 
+    Bucket: AWS_CONFIG.bucketName,
     Key: fileName,
     Body: fileContent,
   };
