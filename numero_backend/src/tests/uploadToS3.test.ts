@@ -8,7 +8,7 @@ jest.mock('../config/awsConfig', () => ({
   }));
   
   import AWS from 'aws-sdk';
-  import { uploadToS3 } from '../services/s3/uploadFile.service';
+  import { uploadFileToS3 } from '../services/s3/uploadFile.service';
   
   jest.mock('aws-sdk', () => {
     const uploadMock = jest.fn().mockReturnValue({
@@ -27,7 +27,7 @@ jest.mock('../config/awsConfig', () => ({
     const fileContent = Buffer.from('Hello, S3!');
   
     it('должен вернуть URL загруженного файла', async () => {
-      const result = await uploadToS3(fileName, fileContent);
+      const result = await uploadFileToS3(fileName, fileContent);
       expect(result).toEqual({ Location: 'https://s3.amazonaws.com/mock-bucket/test.txt' });
     });
   
@@ -35,7 +35,7 @@ jest.mock('../config/awsConfig', () => ({
       const mockS3Instance = new AWS.S3();
       const uploadSpy = jest.spyOn(mockS3Instance, 'upload');
   
-      await uploadToS3(fileName, fileContent);
+      await uploadFileToS3(fileName, fileContent);
   
       expect(uploadSpy).toHaveBeenCalledWith({
         Bucket: 'mock-bucket',
