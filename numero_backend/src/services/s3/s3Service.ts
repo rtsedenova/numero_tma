@@ -1,4 +1,4 @@
-import { uploadToS3 } from './uploadToS3';
-import { getFromS3 } from './getFromS3';
+import { uploadFileToS3 } from './uploadFile.service';
+import { getFileFromS3 } from './getFile.service';
 
-export { uploadToS3, getFromS3 };
+export { uploadFileToS3, getFileFromS3 };
