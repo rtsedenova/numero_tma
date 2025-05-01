@@ -16,8 +16,10 @@ export async function createUser(user: NewUser): Promise<UserFromDB> {
         telegram_id, username, first_name, last_name, language_code, is_premium
       )
       VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (telegram_id) DO NOTHING
       RETURNING *;
     `;
+
   
     const values = [
       telegram_id,
