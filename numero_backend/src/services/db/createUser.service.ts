@@ -2,39 +2,48 @@ import { db } from '../../config/dbConfig';
 import { NewUser, UserFromDB } from '../../types/user';
 
 export async function createUser(user: NewUser): Promise<UserFromDB> {
-    const {
-      telegram_id,
-      username,
-      first_name,
-      last_name,
-      language_code,
-      is_premium,
-    } = user;
-  
-    const query = `
-      INSERT INTO users (
-        telegram_id, username, first_name, last_name, language_code, is_premium
-      )
-      VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (telegram_id) DO NOTHING
-      RETURNING *;
-    `;
+  const {
+    telegram_id,
+    username,
+    first_name,
+    last_name,
+    language_code,
+    is_premium,
+  } = user;
 
-  
-    const values = [
-      telegram_id,
-      username ?? null,
-      first_name ?? null,
-      last_name ?? null,
-      language_code ?? null,
-      is_premium,
-    ];
-  
-    try {
-      const result = await db.query(query, values);
-      return result.rows[0];
-    } catch (error) {
-      console.error('Ошибка при добавлении пользователя:', error);
-      throw new Error('Не получилось добавить пользователя');
+  const insertQuery = `
+    INSERT INTO users (
+      telegram_id, username, first_name, last_name, language_code, is_premium
+    )
+    VALUES ($1, $2, $3, $4, $5, $6)
+    ON CONFLICT (telegram_id) DO NOTHING
+    RETURNING *;
+  `;
+
+  const values = [
+    telegram_id,
+    username ?? null,
+    first_name ?? null,
+    last_name ?? null,
+    language_code ?? null,
+    is_premium,
+  ];
+
+  try {
+    const insertResult = await db.query(insertQuery, values);
+
+    if (insertResult.rows.length > 0) {
+      return insertResult.rows[0];
     }
+
+    const selectQuery = `
+      SELECT * FROM users WHERE telegram_id = $1;
+    `;
+    const selectResult = await db.query(selectQuery, [telegram_id]);
+
+    return selectResult.rows[0];
+  } catch (error) {
+    console.error('Ошибка при создании или получении пользователя:', error);
+    throw new Error('Не удалось создать или получить пользователя');
   }
+}
