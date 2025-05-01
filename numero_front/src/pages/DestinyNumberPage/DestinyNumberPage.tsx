@@ -4,7 +4,8 @@ import { DateInput } from "@/components/DateInput/DateInput";
 import { CheckButton } from "@/components/CheckButton/CheckButton";
 import { calculateDestinyNumber } from "@/helpers/calculateDestinyNumber";
 import { usePredictionAttempts } from "@/storage/usePredictionAttempts";
-import { updatePredictionsOnServer } from "@/api/updatePredictions"; 
+import { updatePredictionsOnServer } from "@/api/updatePredictions";
+import { useTelegramUser } from "@/hooks/useTelegramUser"; 
 import "@/styles/pages/destiny-number-page.scss";
 
 interface DestinyNumberData {
@@ -27,7 +28,9 @@ export const DestinyNumberPage: FC = () => {
   const [calculationSteps, setCalculationSteps] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { freePredictionsLeft, decrement } = usePredictionAttempts(); 
+  const { freePredictionsLeft, decrement } = usePredictionAttempts();
+  const { user } = useTelegramUser();
+  const telegramId = user?.id;
 
   const handleCheckClick = async () => {
     if (!birthDate) {
@@ -37,6 +40,11 @@ export const DestinyNumberPage: FC = () => {
 
     if (freePredictionsLeft <= 0) {
       alert("Бесплатные предсказания закончились! Предлагаем оплатить через Telegram Stars 🚀");
+      return;
+    }
+
+    if (!telegramId) {
+      alert("Ошибка: не удалось определить Telegram ID пользователя");
       return;
     }
 
@@ -59,7 +67,7 @@ export const DestinyNumberPage: FC = () => {
       setResult(numberData || null);
 
       decrement(); 
-      await updatePredictionsOnServer(freePredictionsLeft - 1); 
+      await updatePredictionsOnServer(`${telegramId}`, freePredictionsLeft - 1);
 
     } catch (error) {
       console.error(error);
