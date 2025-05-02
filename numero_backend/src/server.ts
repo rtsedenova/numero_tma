@@ -25,9 +25,9 @@ app.get('/', (req, res) => {
   res.send('Server is working with HTTPS!');
 });
 
-app.use('/api/s3', s3Routes);
-app.use('/api/users', userRoutes);
-app.use('/api/predictions', predictionRoutes);
+app.use('/api', s3Routes);
+app.use('/api', userRoutes);
+app.use('/api', predictionRoutes);
 
 app.use(errorHandler);
 
