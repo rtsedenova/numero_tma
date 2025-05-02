@@ -67,7 +67,9 @@ export const DestinyNumberPage: FC = () => {
       setResult(numberData || null);
 
       decrement(); 
+      console.log('Перед вызовом updateUserPredictions');
       await updatePredictionsOnServer(`${telegramId}`, freePredictionsLeft - 1);
+      console.log('После вызова updateUserPredictions');
 
     } catch (error) {
       console.error(error);
