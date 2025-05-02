@@ -56,7 +56,7 @@ export const DestinyNumberPage: FC = () => {
       const { destinyNumber, steps } = calculateDestinyNumber(birthDate);
       setCalculationSteps(steps);
 
-      const response = await fetch("https://numero-tma-server.com/api/file/num_data.json");
+      const response = await fetch("https://numero-tma-server.com/api/s3/file/num_data.json");
       if (!response.ok) throw new Error("Ошибка загрузки данных");
 
       const data = await response.json();

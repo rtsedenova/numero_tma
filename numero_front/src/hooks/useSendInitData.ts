@@ -10,7 +10,7 @@ export const useSendInitData = () => {
 
     const sendData = async () => {
       try {
-        await fetch("https://numero-tma-server.com/api/users", {
+        await fetch("https://numero-tma-server.com/api/db/users", {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
