@@ -4,7 +4,7 @@ import { getAllUsersController } from '../controllers/db/getAllUsers.controller'
 
 const router = Router();
 
-router.get('/users', async (req, res) => {
+router.get('/getusers', async (req, res) => {
   try {
     await getAllUsersController(req, res);  
   } catch (error) {
@@ -13,7 +13,7 @@ router.get('/users', async (req, res) => {
   }
 });
 
-router.post('/users', async (req, res) => {
+router.post('/create-user', async (req, res) => {
   try {
     await createUserController(req, res);  
   } catch (error) {

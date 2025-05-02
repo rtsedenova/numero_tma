@@ -26,8 +26,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/s3', s3Routes);
-app.use('/api/db', userRoutes);
-app.use('/api/db', predictionRoutes);
+app.use('/api/db/users', userRoutes);
+app.use('/api/db/predictions', predictionRoutes);
 
 app.use(errorHandler);
 

@@ -1,5 +1,5 @@
 export async function updatePredictionsOnServer(telegramId: string, predictionsLeft: number) {
-  const response = await fetch("https://numero-tma-server.com/api/db/users/update-predictions", {
+  const response = await fetch("https://numero-tma-server.com/api/db/predictions/update-predictions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
