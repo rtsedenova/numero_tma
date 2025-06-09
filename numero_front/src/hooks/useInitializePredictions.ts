@@ -1,0 +1,14 @@
+import { useEffect } from 'react';
+import { useTelegramUser } from './useTelegramUser';
+import { usePredictionAttempts } from '@/storage/usePredictionAttempts';
+
+export const useInitializePredictions = () => {
+  const { user } = useTelegramUser();
+  const { fetchPredictions } = usePredictionAttempts();
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchPredictions(user.id);
+    }
+  }, [user?.id, fetchPredictions]);
+};

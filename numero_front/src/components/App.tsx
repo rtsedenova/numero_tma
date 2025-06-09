@@ -3,6 +3,7 @@ import { AppRoot } from '@telegram-apps/telegram-ui';
 import { Navigate, Route, Routes, HashRouter } from 'react-router-dom';
 
 import { useSendInitData } from '@/hooks/useSendInitData';
+import { useInitializePredictions } from '@/hooks/useInitializePredictions';
 
 import { routes } from '@/navigation/routes.tsx';
 
@@ -13,6 +14,7 @@ export function App() {
   const isDark = useSignal(miniApp.isDark);
 
   useSendInitData();
+  useInitializePredictions();
 
   return (
     <AppRoot

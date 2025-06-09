@@ -7,13 +7,13 @@ export async function createUserController(req: Request, res: Response) {
     const userData: NewUser = req.body;
 
     if (!userData || !userData.telegram_id) {
-      return res.status(400).json({ error: 'Не хватает нужных полей для создания пользователя' });
+      return res.status(400).json({ error: 'Not enough fields to create user' });
     }
 
     const user = await createUser(userData);
     return res.status(201).json(user);
   } catch (error) {
-    console.error('Проблема в createUserController:', error);
-    return res.status(500).json({ error: 'Не удалось создать пользователя' });
+    console.error('Error: unable to create user:', error);
+    return res.status(500).json({ error: 'Unable to create user' });
   }
 }
