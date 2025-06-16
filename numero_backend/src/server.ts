@@ -8,6 +8,7 @@ import { errorHandler } from './middlewares/errorHandler';
 import s3Routes from './routes/s3.routes';
 import userRoutes from './routes/users.routes';
 import predictionRoutes from './routes/predictions.routes';
+import paymentRoutes from './routes/payment.routes';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 app.use('/api/s3', s3Routes);
 app.use('/api/db/users', userRoutes);
 app.use('/api/db/predictions', predictionRoutes);
+app.use('/api/payment', paymentRoutes);
 
 app.use(errorHandler);
 

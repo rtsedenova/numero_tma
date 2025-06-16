@@ -16,6 +16,9 @@ export const API_ENDPOINTS = {
       update: '/api/db/predictions/update-predictions',
       get: '/api/db/predictions/user/:telegramId'
     }
+  },
+  payment: {
+    createInvoice: '/api/payment/create-invoice'
   }
 } as const;
 

@@ -2,6 +2,7 @@ import { FC, useState, useEffect } from "react";
 import { Page } from "@/components/Page";
 import { DateInput } from "@/components/DateInput/DateInput";
 import { CheckButton } from "@/components/CheckButton/CheckButton";
+import BuyPredictionsButton from "@/components/BuyPredictionsButton/BuyPredictionsButton";
 import { calculateDestinyNumber } from "@/helpers/calculateDestinyNumber";
 import { usePredictionAttempts } from "@/storage/usePredictionAttempts";
 import { updatePredictionsOnServer } from "@/api/updatePredictions";
@@ -86,11 +87,14 @@ export const DestinyNumberPage: FC = () => {
     <Page>
       <div className="destiny-number-page">
         <DateInput value={birthDate} onChange={setBirthDate} />
-        <CheckButton
-          onClick={handleCheckClick}
-          disabled={!birthDate || isLoading}
-          isLoading={isLoading}
-        />
+        <div className="buttons-container">
+          <CheckButton
+            onClick={handleCheckClick}
+            disabled={!birthDate || isLoading}
+            isLoading={isLoading}
+          />
+          <BuyPredictionsButton price={3} />
+        </div>
 
         <CalculationSteps steps={calculationSteps} />
         {result && <DestinyResult result={result} />}
