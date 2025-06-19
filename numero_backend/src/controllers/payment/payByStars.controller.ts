@@ -22,7 +22,7 @@ export class StarsController {
 
       res.json({ success: true, invoiceLink });
     } catch (error: any) {
-      console.error("💥 Error in createInvoiceLink:", error);
+      console.error("Error in createInvoiceLink:", error);
       res.status(500).json({
         success: false,
         error: error.message || "Internal server error",

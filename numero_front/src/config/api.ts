@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://v37450-5-77-206-202.ru.tuna.am';
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 30000;
 
-// Type-safe API endpoints
 export const API_ENDPOINTS = {
   s3: {
     numData: '/api/s3/file/num_data.json'
@@ -22,7 +22,6 @@ export const API_ENDPOINTS = {
   }
 } as const;
 
-// Create axios instance with default config
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
@@ -31,15 +30,8 @@ export const apiClient = axios.create({
   },
 });
 
-// Add request interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    // Can add auth token here
-    // For instance in future
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
     return config;
   },
   (error) => {
@@ -47,7 +39,6 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -73,7 +64,6 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Type-safe API methods
 export const api = {
   get: <T>(endpoint: string) => apiClient.get<T>(endpoint),
   post: <T>(endpoint: string, data?: unknown) => apiClient.post<T>(endpoint, data),

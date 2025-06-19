@@ -13,6 +13,7 @@ interface InvoiceResponse {
 }
 
 const validPrices = [3, 4, 5]; 
+
 const BuyPredictionsButton: React.FC<BuyPredictionsButtonProps> = ({
   price,
 }) => {
@@ -40,7 +41,7 @@ const BuyPredictionsButton: React.FC<BuyPredictionsButtonProps> = ({
 
     try {
       const response = await api.post<InvoiceResponse>(API_ENDPOINTS.payment.createInvoice, {
-        payload: `User_${userId}`,
+        payload: `User_${userId}_${Date.now()}`,
         currency: "XTR",
         prices: [{ amount: price }],
       });

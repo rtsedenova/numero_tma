@@ -9,6 +9,7 @@ import s3Routes from './routes/s3.routes';
 import userRoutes from './routes/users.routes';
 import predictionRoutes from './routes/predictions.routes';
 import paymentRoutes from './routes/payment.routes';
+import { TelegramStarsService } from './services/payment/payByStars.service';
 
 dotenv.config();
 
@@ -30,6 +31,13 @@ app.use('/api/db/predictions', predictionRoutes);
 app.use('/api/payment', paymentRoutes);
 
 app.use(errorHandler);
+
+TelegramStarsService.attachHandlers();
+TelegramStarsService.getBotInstance().launch().then(() => {
+  console.log("✅ Telegram bot запущен и слушает события!");
+}).catch((err) => {
+  console.error("❌ Ошибка запуска Telegram бота:", err);
+});
 
 if (isProduction) {
   const httpsOptions = {

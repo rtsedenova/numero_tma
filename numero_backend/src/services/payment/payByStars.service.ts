@@ -14,6 +14,7 @@ export class TelegramStarsService {
 
   static attachHandlers() {
     bot.on("pre_checkout_query", async (ctx) => {
+      console.log("pre_checkout_query received:", ctx.update.pre_checkout_query);
       try {
         await ctx.answerPreCheckoutQuery(true);
       } catch (err) {
@@ -63,7 +64,7 @@ export class TelegramStarsService {
         title,
         description,
         payload,
-        provider_token: TELEGRAM_BOT_TOKEN,
+        provider_token: "",
         currency,
         prices: [{ label, amount }],
       });
