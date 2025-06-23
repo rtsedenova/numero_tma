@@ -32,10 +32,11 @@ jobs:
           key: ${{ secrets.EC2_KEY_BACK }}
           script: |
            cd ~/numero_tma/numero_backend
-           git config pull.rebase false
-           git pull origin main
-           npm ci || (rm -rf node_modules package-lock.json && npm install)
-           NODE_OPTIONS="--max-old-space-size=4096" npm run build
-           sudo pm2 restart numero_backend || sudo pm2 start dist/server.js --name numero_backend
+           git fetch origin main
+           git reset --hard origin/main
+           rm -rf node_modules
+           npm ci || npm install --legacy-peer-deps
+           NODE_OPTIONS="--max-old-space-size=4096" npm run build || { echo "Build failed"; exit 1; }
+           sudo pm2 restart numero_backend --update-env || sudo pm2 start dist/server.js --name numero_backend -f
            sudo pm2 save
 
