@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "deploy": "gh-pages -d dist",
-    "dev": "vite",
-    "dev:https": "cross-env HTTPS=true vite",
-    "build": "tsc --noEmit && vite build",
+    "dev": "vite --mode dev",
+    "dev:https": "cross-env HTTPS=true vite --mode dev",
+    "build": "tsc --noEmit && vite build --mode prod",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
     "test": "vitest run",
@@ -21,6 +21,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@tonconnect/ui-react": "^2.0.5",
+    "@twa-dev/sdk": "^8.0.2",
     "@types/axios": "^0.14.4",
     "@types/jsdom": "^21.1.7",
     "@vitest/ui": "^3.1.1",
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@eslint/js": "^9.2.0",
     "@testing-library/jest-dom": "^6.6.3",
+    "@twa-dev/types": "^8.0.2",
     "@types/node": "^20.12.11",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",

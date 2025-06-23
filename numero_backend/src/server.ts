@@ -2,35 +2,54 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import https from 'https';
+import http from 'http';
 import dotenv from 'dotenv';
 import { errorHandler } from './middlewares/errorHandler';
 import s3Routes from './routes/s3.routes';
 import userRoutes from './routes/users.routes';
 import predictionRoutes from './routes/predictions.routes';
+import paymentRoutes from './routes/payment.routes';
+import { TelegramStarsService } from './services/payment/payByStars.service';
 
 dotenv.config();
 
 const app = express();
-const PORT = 443;
-
-const httpsOptions = {
-  key: fs.readFileSync('/etc/letsencrypt/live/numero-tma-server.com/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/numero-tma-server.com/fullchain.pem'),
-};
+const isProduction = process.env.NODE_ENV === 'production';
+const HTTPS_PORT = 443;
+const HTTP_PORT = 3000;
 
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('Server is working with HTTPS!');
+  res.send(`Server is working on ${isProduction ? 'HTTPS (prod)' : 'HTTP (dev)'}!`);
 });
 
 app.use('/api/s3', s3Routes);
-app.use('/api/db', userRoutes);
-app.use('/api/db', predictionRoutes);
+app.use('/api/db/users', userRoutes);
+app.use('/api/db/predictions', predictionRoutes);
+app.use('/api/payment', paymentRoutes);
 
 app.use(errorHandler);
 
-https.createServer(httpsOptions, app).listen(PORT, () => {
-  console.log(`HTTPS сервер запущен на https://numero-tma-server.com`);
+TelegramStarsService.attachHandlers();
+TelegramStarsService.getBotInstance().launch().then(() => {
+  console.log("✅ Telegram bot запущен и слушает события!");
+}).catch((err) => {
+  console.error("❌ Ошибка запуска Telegram бота:", err);
 });
+
+if (isProduction) {
+  const httpsOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/numero-tma-server.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/numero-tma-server.com/fullchain.pem'),
+  };
+
+  https.createServer(httpsOptions, app).listen(HTTPS_PORT, () => {
+    console.log(`HTTPS сервер запущен на https://numero-tma-server.com`);
+  });
+} else {
+  http.createServer(app).listen(HTTP_PORT, () => {
+    console.log(`HTTP сервер запущен на http://localhost:${HTTP_PORT}`);
+  });
+}

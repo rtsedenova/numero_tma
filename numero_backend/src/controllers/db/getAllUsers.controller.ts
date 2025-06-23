@@ -6,7 +6,7 @@ export async function getAllUsersController(_req: Request, res: Response) {
     const users = await getAllUsers();
     return res.status(200).json(users);
   } catch (error) {
-    console.error('Ошибка в getAllUsersController:', error);
-    return res.status(500).json({ error: 'Не удалось получить пользователей' });
+    console.error('Error: unable to get users:', error);
+    return res.status(500).json({ error: 'Unable to get users' });
   }
 }

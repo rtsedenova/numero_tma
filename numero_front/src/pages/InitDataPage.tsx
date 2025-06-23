@@ -1,24 +1,11 @@
 import { type FC, useMemo } from 'react';
-import { initData, type User, useSignal } from '@telegram-apps/sdk-react';
-import { List, Placeholder } from '@telegram-apps/telegram-ui';
+import { initData, useSignal } from '@telegram-apps/sdk-react';
+import { Placeholder } from '@telegram-apps/telegram-ui';
 
-import { DisplayData, type DisplayDataRow } from '@/components/DisplayData/DisplayData.tsx';
 import { Page } from '@/components/Page.tsx';
-
-function getUserRows(user: User): DisplayDataRow[] {
-  return [
-    { title: 'id', value: user.id.toString() },
-    { title: 'username', value: user.username },
-    { title: 'photo_url', value: user.photoUrl },
-    { title: 'last_name', value: user.lastName },
-    { title: 'first_name', value: user.firstName },
-    { title: 'is_bot', value: user.isBot },
-    { title: 'is_premium', value: user.isPremium },
-    { title: 'language_code', value: user.languageCode },
-    { title: 'allows_to_write_to_pm', value: user.allowsWriteToPm },
-    { title: 'added_to_attachment_menu', value: user.addedToAttachmentMenu },
-  ];
-}
+import { DataSection } from '@/components/DataSection/DataSection';
+import { getUserRows, getChatRows } from '@/helpers/userDataHelpers';
+import { type DisplayDataRow } from '@/components/DisplayData/DisplayData';
 
 export const InitDataPage: FC = () => {
   const initDataRaw = useSignal(initData.raw);
@@ -52,37 +39,16 @@ export const InitDataPage: FC = () => {
   }, [initDataState, initDataRaw]);
 
   const userRows = useMemo<DisplayDataRow[] | undefined>(() => {
-    return initDataState && initDataState.user
-      ? getUserRows(initDataState.user)
-      : undefined;
+    return initDataState?.user ? getUserRows(initDataState.user) : undefined;
   }, [initDataState]);
 
   const receiverRows = useMemo<DisplayDataRow[] | undefined>(() => {
-    return initDataState && initDataState.receiver
-      ? getUserRows(initDataState.receiver)
-      : undefined;
+    return initDataState?.receiver ? getUserRows(initDataState.receiver) : undefined;
   }, [initDataState]);
 
   const chatRows = useMemo<DisplayDataRow[] | undefined>(() => {
-    if (!initDataState?.chat) {
-      return;
-    }
-    const {
-      id,
-      title,
-      type,
-      username,
-      photoUrl,
-    } = initDataState.chat;
-
-    return [
-      { title: 'id', value: id.toString() },
-      { title: 'title', value: title },
-      { title: 'type', value: type },
-      { title: 'username', value: username },
-      { title: 'photo_url', value: photoUrl },
-    ];
-  }, [initData]);
+    return initDataState?.chat ? getChatRows(initDataState.chat) : undefined;
+  }, [initDataState]);
 
   if (!initDataRows) {
     return (
@@ -100,14 +66,13 @@ export const InitDataPage: FC = () => {
       </Page>
     );
   }
+
   return (
     <Page>
-      <List>
-        <DisplayData header={'Init Data'} rows={initDataRows}/>
-        {userRows && <DisplayData header={'User'} rows={userRows}/>}
-        {receiverRows && <DisplayData header={'Receiver'} rows={receiverRows}/>}
-        {chatRows && <DisplayData header={'Chat'} rows={chatRows}/>}
-      </List>
+      <DataSection header="Init Data" rows={initDataRows} />
+      <DataSection header="User" rows={userRows} />
+      <DataSection header="Receiver" rows={receiverRows} />
+      <DataSection header="Chat" rows={chatRows} />
     </Page>
   );
 };
