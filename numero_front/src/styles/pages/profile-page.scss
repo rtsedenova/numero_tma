@@ -1,20 +1,17 @@
-.profile-page__theme-toggle {
-    margin-top: 1.5rem;
-    label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 1rem;
+.profile-page {
+    background: var(--bg);
+    color: var(--text);
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 12px 0 rgba(44, 19, 56, 0.08);
+  
+    &__header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    &__name {
+      color: var(--primary);
+    }
+    &__username {
+      color: var(--text-subtle);
     }
   }
-  
-.dark .profile-page {
-  background: #181818;
-  color: #fff;
-}
-
-.light .profile-page {
-  background: #fff;
-  color: #181818;
-}
-  
