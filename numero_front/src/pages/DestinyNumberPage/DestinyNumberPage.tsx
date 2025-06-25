@@ -4,7 +4,7 @@ import { DateInput } from "@/components/DateInput/DateInput";
 import { CheckButton } from "@/components/CheckButton/CheckButton";
 import BuyPredictionsButton from "@/components/BuyPredictionsButton/BuyPredictionsButton";
 import { calculateDestinyNumber } from "@/helpers/calculateDestinyNumber";
-import { usePredictionAttempts } from "@/storage/usePredictionAttempts";
+import { usePredictionAttempts } from "@/storage/predictionAttempts";
 import { updatePredictionsOnServer } from "@/api/updatePredictions";
 import { useTelegramUser } from "@/hooks/useTelegramUser";
 import { api, API_ENDPOINTS } from "@/config/api";

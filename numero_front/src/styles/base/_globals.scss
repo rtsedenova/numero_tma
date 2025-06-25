@@ -5,3 +5,12 @@ body {
   padding: 0;
   margin: 0;
 }
+
+body.dark {
+  background: #181818;
+  color: #fff;
+}
+body.light {
+  background: #fff;
+  color: #181818;
+}

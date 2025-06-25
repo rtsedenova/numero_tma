@@ -4,6 +4,8 @@ import { useSignal } from "@telegram-apps/sdk-react";
 import { initData } from "@telegram-apps/sdk-react";
 import "@/styles/pages/profile-page.scss";
 
+import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";
+
 export const ProfilePage: FC = () => {
   const initDataState = useSignal(initData.state);
   const user = initDataState?.user;
@@ -42,6 +44,10 @@ export const ProfilePage: FC = () => {
           <div><strong>Премиум:</strong> {user.isPremium ? "Да" : "Нет"}</div>
           <div><strong>Bot:</strong> {user.isBot ? "Да" : "Нет"}</div>
           <div><strong>ID:</strong> {user.id}</div>
+        </div>
+
+        <div className="profile-page__theme-toggle">
+          <ThemeToggle />
         </div>
       </div>
     </Page>
