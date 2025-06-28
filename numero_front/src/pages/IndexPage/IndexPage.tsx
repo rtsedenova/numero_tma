@@ -2,7 +2,6 @@ import { FC } from "react";
 import { Page } from "@/components/Page";
 import { useNavigate } from "react-router-dom";
 import { useTelegramUser } from "@/hooks/useTelegramUser";
-import "@/styles/pages/index-page.scss";
 import { ArrowRight } from "phosphor-react";
 
 export const IndexPage: FC = () => {
