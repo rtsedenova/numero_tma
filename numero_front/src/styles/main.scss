@@ -1,3 +1,16 @@
 @import "base/variables";
 @import "base/globals"; 
+@import "base/fonts"; 
+@import "base/datepicker"; 
+
+@import "components/bottom-navbar";
+@import "components/calculation-steps";
+@import "components/buy-prediction-button";
+@import "components/check-button";
+@import "components/destiny-result";
+
 @import "pages/index-page"; 
+@import "pages/profile-page"; 
+@import "pages/destiny-number-page"; 
+
+

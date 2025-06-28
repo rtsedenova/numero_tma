@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useTelegramUser } from './useTelegramUser';
-import { usePredictionAttempts } from '@/storage/usePredictionAttempts';
+import { usePredictionAttempts } from '@/storage/predictionAttempts';
 
 export const useInitializePredictions = () => {
   const { user } = useTelegramUser();

@@ -1,5 +1,5 @@
 import { api, API_ENDPOINTS } from '@/config/api';
-import { usePredictionAttempts } from '@/storage/usePredictionAttempts';
+import { usePredictionAttempts } from '@/storage/predictionAttempts';
 
 interface GetPredictionsResponse {
   predictions_left: number;

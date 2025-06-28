@@ -1,34 +1,36 @@
-import { FC } from "react";
 import { Link, useLocation } from 'react-router-dom';
-import "@/styles/components/bottom-navbar.scss";
+import { House, Eye, User } from 'phosphor-react';
 
-export const BottomNavbar: FC = () => {
-    const location = useLocation();
-  
-    const navItems = [
-      { href: '/profile', label: 'Профиль' },
-      { href: '/calculate-destiny-number', label: 'Число судьбы' },
-      { href: '/tasks', label: 'Задачи' },
-      { href: '/settings', label: 'Настройки' },
-    ];
-  
-    return (
-      <nav className="bottom-navbar">
-        <ul className="bottom-navbar__list">
-          {navItems.map((item) => (
+const navItems = [
+  { to: '/', icon: <House size={28} />, label: 'Home' },
+  { to: '/destiny-number', icon: <Eye size={28} />, label: 'Destiny' },
+  { to: '/profile', icon: <User size={28} />, label: 'Profile' },
+];
+
+export function BottomNavbar() {
+  const location = useLocation();
+
+  return (
+    <nav className="bottom-navbar" aria-label="Bottom navigation">
+      <ul className="bottom-navbar__list">
+        {navItems.map(({ to, icon, label }, idx) => {
+          const isActive = location.pathname === to;
+          return (
             <li
-              key={item.href}
-              className={`bottom-navbar__item ${
-                location.pathname === item.href ? 'bottom-navbar__item--active' : ''
-              }`}
+              key={idx}
+              className={`bottom-navbar__item${isActive ? ' bottom-navbar__item--active' : ''}`}
             >
-              <Link to={item.href} className="bottom-navbar__link">
-                {item.label}
+              <Link
+                to={to}
+                className="bottom-navbar__link"
+                aria-label={label}
+              >
+                {icon}
               </Link>
             </li>
-          ))}
-        </ul>
-      </nav>
-    );
-  };
-
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}

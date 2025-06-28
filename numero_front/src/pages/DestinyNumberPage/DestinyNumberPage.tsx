@@ -1,20 +1,21 @@
 import { FC, useState, useEffect } from "react";
 import { Page } from "@/components/Page";
-import { DateInput } from "@/components/DateInput/DateInput";
 import { CheckButton } from "@/components/CheckButton/CheckButton";
 import BuyPredictionsButton from "@/components/BuyPredictionsButton/BuyPredictionsButton";
 import { calculateDestinyNumber } from "@/helpers/calculateDestinyNumber";
-import { usePredictionAttempts } from "@/storage/usePredictionAttempts";
+import { usePredictionAttempts } from "@/storage/predictionAttempts";
 import { updatePredictionsOnServer } from "@/api/updatePredictions";
 import { useTelegramUser } from "@/hooks/useTelegramUser";
 import { api, API_ENDPOINTS } from "@/config/api";
 import { CalculationSteps } from "@/components/CalculationSteps/CalculationSteps";
 import { DestinyResult } from "@/components/DestinyResult/DestinyResult";
 import { type DestinyNumberData, type DestinyNumberResponse } from "@/types/destiny";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import "@/styles/pages/destiny-number-page.scss";
 
 export const DestinyNumberPage: FC = () => {
-  const [birthDate, setBirthDate] = useState<string>("");
+  const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [result, setResult] = useState<DestinyNumberData | null>(null);
   const [calculationSteps, setCalculationSteps] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,27 +32,22 @@ export const DestinyNumberPage: FC = () => {
 
   const handleCheckClick = async () => {
     if (!birthDate) {
-      alert("Please insert your birth date");
+      alert("Пожалуйста, выбери дату рождения");
       return;
     }
 
-    if (isPredictionsLoading) {
-      alert("Please, wait while we load the data...");
-      return;
-    }
-
-    if (freePredictionsLeft === null) {
-      alert("Please, wait while we load the data...");
+    if (isPredictionsLoading || freePredictionsLeft === null) {
+      alert("Загружаем данные, подожди немного...");
       return;
     }
 
     if (freePredictionsLeft <= 0) {
-      alert("Free predictions are over! We offer to pay through Telegram Stars");
+      alert("Бесплатные предсказания закончились! Можно купить через Telegram Stars.");
       return;
     }
 
     if (!telegramId) {
-      alert("Error: unable to determine Telegram ID of the user");
+      alert("Ошибка: не удалось определить Telegram ID");
       return;
     }
 
@@ -60,24 +56,19 @@ export const DestinyNumberPage: FC = () => {
     setCalculationSteps([]);
 
     try {
-      const { destinyNumber, steps } = calculateDestinyNumber(birthDate);
+      const dateStr = birthDate.toISOString().split("T")[0];
+      const { destinyNumber, steps } = calculateDestinyNumber(dateStr);
       setCalculationSteps(steps);
 
       const { data } = await api.get<DestinyNumberResponse>(API_ENDPOINTS.s3.numData);
       const numberData = data[destinyNumber] || data[parseInt(destinyNumber.toString().slice(0, 1))];
 
-      // First update the server
-      const newPredictionsLeft = Math.max(0, freePredictionsLeft - 1);
-      await updatePredictionsOnServer(`${telegramId}`, newPredictionsLeft);
-      
-      // Only after successful server update, update local state
+      await updatePredictionsOnServer(`${telegramId}`, Math.max(0, freePredictionsLeft - 1));
       decrement();
       setResult(numberData || null);
-
     } catch (error) {
-      console.error('Error in handleCheckClick:', error);
-      setResult(null);
-      alert("Error: unable to update predictions. Please try again.");
+      console.error("Error in handleCheckClick:", error);
+      alert("Ошибка при получении данных. Попробуй снова.");
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +77,22 @@ export const DestinyNumberPage: FC = () => {
   return (
     <Page>
       <div className="destiny-number-page">
-        <DateInput value={birthDate} onChange={setBirthDate} />
+        <div className="date-picker-container">
+          <label htmlFor="birthdate">Дата рождения</label>
+          <DatePicker
+            selected={birthDate}
+            onChange={(date: Date | null) => setBirthDate(date)}
+            dateFormat="dd.MM.yyyy"
+            placeholderText="Выбери дату"
+            maxDate={new Date()}
+            showMonthDropdown
+            showYearDropdown
+            dropdownMode="select"
+            className="styled-datepicker"
+            id="birthdate"
+          />
+        </div>
+
         <div className="buttons-container">
           <CheckButton
             onClick={handleCheckClick}
@@ -96,7 +102,7 @@ export const DestinyNumberPage: FC = () => {
           <BuyPredictionsButton price={3} />
         </div>
 
-        <CalculationSteps steps={calculationSteps} />
+        {calculationSteps.length > 0 && <CalculationSteps steps={calculationSteps} />}
         {result && <DestinyResult result={result} />}
       </div>
     </Page>

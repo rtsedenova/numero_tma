@@ -17,9 +17,9 @@ interface Route {
 
 export const routes: Route[] = [
   { path: '/', Component: IndexPage },
-  { path: '/init-data', Component: InitDataPage, title: 'Init Data' },
-  { path: '/theme-params', Component: ThemeParamsPage, title: 'Theme Params' },
-  { path: '/launch-params', Component: LaunchParamsPage, title: 'Launch Params' },
+  { path: '/init-data', Component: InitDataPage, title: 'Init Data Page' },
+  { path: '/theme-params', Component: ThemeParamsPage, title: 'Theme Params Page' },
+  { path: '/launch-params', Component: LaunchParamsPage, title: 'Launch Params Page' },
   {
     path: '/ton-connect',
     Component: TONConnectPage,
@@ -44,5 +44,5 @@ export const routes: Route[] = [
     ),
   },
   { path: '/profile', Component: ProfilePage, title: 'Profile Page' },
-  { path: '/calculate-destiny-number', Component: DestinyNumberPage, title: 'Destiny Number Page' },
+  { path: '/destiny-number', Component: DestinyNumberPage, title: 'Destiny Number Page' },
 ];
