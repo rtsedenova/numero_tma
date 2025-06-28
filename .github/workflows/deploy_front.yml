@@ -34,5 +34,5 @@ jobs:
             cd ~/numero_tma/numero_front
             git pull origin main
             npm ci
-            npm run build
+            node --max_old_space_size=4096 node_modules/vite/bin/vite.js build --mode prod
             sudo systemctl restart nginx
