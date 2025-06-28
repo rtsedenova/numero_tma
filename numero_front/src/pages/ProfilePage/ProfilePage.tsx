@@ -1,14 +1,17 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Page } from '@/components/Page';
 import { useSignal } from "@telegram-apps/sdk-react";
 import { initData } from "@telegram-apps/sdk-react";
 import "@/styles/pages/profile-page.scss";
 
+import { GearSix } from "phosphor-react"; // иконка настроек
 import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";
 
 export const ProfilePage: FC = () => {
   const initDataState = useSignal(initData.state);
   const user = initDataState?.user;
+
+  const [showSettings, setShowSettings] = useState(false);
 
   if (!user) {
     return (
@@ -37,17 +40,40 @@ export const ProfilePage: FC = () => {
               <div className="profile-page__username">@{user.username}</div>
             )}
           </div>
+          <button
+            className="profile-page__settings-icon"
+            onClick={() => setShowSettings(!showSettings)}
+          >
+            <GearSix size={24} weight="bold" />
+          </button>
         </div>
 
-        <div className="profile-page__details">
-          <div><strong>Язык:</strong> {user.languageCode}</div>
-          <div><strong>Премиум:</strong> {user.isPremium ? "Да" : "Нет"}</div>
-          <div><strong>Bot:</strong> {user.isBot ? "Да" : "Нет"}</div>
-          <div><strong>ID:</strong> {user.id}</div>
+        <div className="profile-page__coins">
+          💰 <strong>124</strong> монеты
         </div>
 
-        <div className="profile-page__theme-toggle">
-          <ThemeToggle />
+        <ul className="profile-page__settings">
+          <li>Язык: {user.languageCode?.toUpperCase() || "RU"}</li>
+          {user.isPremium && <li>Премиум: Активен ✨</li>}
+          {showSettings && (
+            <li className="profile-page__theme-section">
+              <span>Тема:</span>
+              <ThemeToggle />
+            </li>
+          )}
+        </ul>
+
+        <div className="profile-page__section">
+          <h3>Моя статистика</h3>
+          <ul>
+            <li>Всего предсказаний: 15</li>
+            <li>Избранные: 3</li>
+            <li>Процент совпадений: 80%</li>
+          </ul>
+        </div>
+
+        <div className="profile-page__invite">
+          <button className="profile-page__button">Пригласить друзей</button>
         </div>
       </div>
     </Page>

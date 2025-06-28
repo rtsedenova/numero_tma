@@ -1,28 +1,33 @@
 :root {
-    --bg: #f6f3ee;
-    --surface: #fff;
-    --primary: #7c3aed;
-    --accent: #ffd700;
-    --text: #2d1e2f;
-    --text-subtle: #7c6f8e;
-    --border: #e0d6f6;
-  }
-  
-  body.dark {
-    --bg: #18122b;
-    --surface: #231942;
-    --primary: #a084ee;
-    --accent: #ffe066;
-    --text: #f6f3ee;
-    --text-subtle: #b8a1d9;
-    --border: #3d2c5a;
-  }
-  body.light {
-    --bg: #f6f3ee;
-    --surface: #fff;
-    --primary: #7c3aed;
-    --accent: #ffd700;
-    --text: #2d1e2f;
-    --text-subtle: #7c6f8e;
-    --border: #e0d6f6;
-  }
+  /* Светлая тема (по умолчанию) */
+  --bg: #ffffff; /* base light */
+  --surface: #f6f3fe; /* мягкая светлая поверхность */
+  --primary: #886abd;
+  --primary-light: #cbbbe2;
+  --accent: #886abd; /* тот же, чтобы гармонировал */
+  --text: #2d1e2f;
+  --text-subtle: #7c6f8e;
+  --border: #ddd3ec;
+}
+
+body.light {
+  --bg: #ffffff;
+  --surface: #f6f3fe;
+  --primary: #886abd;
+  --primary-light: #cbbbe2;
+  --accent: #a38acc;
+  --text: #2d1e2f;
+  --text-subtle: #7c6f8e;
+  --border: #ddd3ec;
+}
+
+body.dark {
+  --bg: #0f071c; /* clr-surface-a0 */
+  --surface: #252131; /* clr-surface-a10 */
+  --primary: #cbbbe2; /* clr-primary-a50 */
+  --primary-light: #b09ad3; /* для hover и акцентов */
+  --accent: #b09ad3; /* может совпадать с primary-light */
+  --text: #ffffff; /* clr-light-a0 */
+  --text-subtle: #908c99; /* clr-surface-tonal-a50 */
+  --border: #3c3847; /* clr-surface-a20 */
+}
