@@ -11,8 +11,6 @@ import { CalculationSteps } from "@/components/CalculationSteps/CalculationSteps
 import { DestinyResult } from "@/components/DestinyResult/DestinyResult";
 import { type DestinyNumberData, type DestinyNumberResponse } from "@/types/destiny";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import "@/styles/pages/destiny-number-page.scss";
 
 export const DestinyNumberPage: FC = () => {
   const [birthDate, setBirthDate] = useState<Date | null>(null);

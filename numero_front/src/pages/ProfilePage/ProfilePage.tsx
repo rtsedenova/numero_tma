@@ -2,7 +2,6 @@ import { FC, useState } from "react";
 import { Page } from '@/components/Page';
 import { useSignal } from "@telegram-apps/sdk-react";
 import { initData } from "@telegram-apps/sdk-react";
-import "@/styles/pages/profile-page.scss";
 
 import { GearSix } from "phosphor-react"; // иконка настроек
 import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";

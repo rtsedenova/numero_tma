@@ -1,5 +1,4 @@
 import { FC } from "react";
-import "@/styles/components/check-button.scss";
 
 interface CheckButtonProps {
   onClick: () => void;

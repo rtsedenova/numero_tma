@@ -1,5 +1,4 @@
 import { FC } from "react";
-import "@/styles/components/date-input.scss";
 
 interface DateInputProps {
   value: string;

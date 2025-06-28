@@ -5,7 +5,6 @@ import type { FC, ReactNode } from 'react';
 import { RGB } from '@/components/RGB/RGB.tsx';
 import { Link } from '@/components/Link/Link.tsx';
 
-import '@/styles/components/display-data.scss';
 
 export type DisplayDataRow =
   & { title: string }
