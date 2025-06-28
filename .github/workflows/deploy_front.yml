@@ -32,6 +32,15 @@ jobs:
           key: ${{ secrets.EC2_KEY_FRONT }}
           script: |
             cd ~/numero_tma/numero_front
+            if ! swapon --show | grep -q '/swapfile'; then
+              echo "Creating swap file..."
+              sudo fallocate -l 2G /swapfile
+              sudo chmod 600 /swapfile
+              sudo mkswap /swapfile
+              sudo swapon /swapfile
+            else
+              echo "Swap file already exists."
+            fi
             git pull origin main
             npm ci
             NODE_OPTIONS="--max-old-space-size=4096" npm run build
