@@ -1,0 +1,16 @@
+@keyframes bell-wiggle-once {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(-12deg); }
+  55%  { transform: rotate(8deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.bell-icon {
+  display: block;
+  will-change: transform;
+  transition: transform 0.2s ease;
+
+  .group:hover & {
+    animation: bell-wiggle-once 450ms ease-in-out 1;
+  }
+}

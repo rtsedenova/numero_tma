@@ -12,7 +12,7 @@ import { DestinyResult } from "@/components/DestinyResult/DestinyResult";
 import { type DestinyNumberData, type DestinyNumberResponse } from "@/types/destiny";
 import DatePicker from "react-datepicker";
 
-export const DestinyNumberPage: FC = () => {
+export const NumerologyPage: FC = () => {
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [result, setResult] = useState<DestinyNumberData | null>(null);
   const [calculationSteps, setCalculationSteps] = useState<string[]>([]);
@@ -74,7 +74,7 @@ export const DestinyNumberPage: FC = () => {
 
   return (
     <Page>
-      <div className="destiny-number-page">
+      <div className="numerology-page">
         <div className="date-picker-container">
           <label htmlFor="birthdate">Дата рождения</label>
           <DatePicker

@@ -6,7 +6,8 @@ import { LaunchParamsPage } from '@/pages/LaunchParamsPage.tsx';
 import { ThemeParamsPage } from '@/pages/ThemeParamsPage.tsx';
 import { TONConnectPage } from '@/pages/TONConnectPage/TONConnectPage';
 import { ProfilePage } from '@/pages/ProfilePage/ProfilePage';
-import { DestinyNumberPage } from '@/pages/DestinyNumberPage/DestinyNumberPage';
+import { NumerologyPage } from '@/pages/NumerologyPage/NumerologyPage';
+import { TarotPage } from '@/pages/TarotPage';
 
 interface Route {
   path: string;
@@ -44,5 +45,6 @@ export const routes: Route[] = [
     ),
   },
   { path: '/profile', Component: ProfilePage, title: 'Profile Page' },
-  { path: '/destiny-number', Component: DestinyNumberPage, title: 'Destiny Number Page' },
+  { path: '/numerology', Component: NumerologyPage, title: 'Numerology Page' },
+  { path: '/tarot', Component: TarotPage, title: 'Tarot Page' },
 ];
