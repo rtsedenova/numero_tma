@@ -1,6 +1,8 @@
 @import "base/variables";
 @import "base/globals"; 
 @import "base/fonts"; 
+@import "layout/page";
+
 @import "base/datepicker"; 
 
 @import "components/bottom-navbar";
@@ -10,9 +12,11 @@
 @import "components/destiny-result";
 @import "components/account-header";
 @import "components/notification";
+@import "components/numerology/date-picker";
 
 @import "pages/index-page"; 
 @import "pages/profile-page"; 
 @import "pages/destiny-number-page";
+@import "pages/numerology-page";
 
 

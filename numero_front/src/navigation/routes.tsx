@@ -1,13 +1,14 @@
 import type { ComponentType, JSX } from 'react';
 
-import { IndexPage } from '@/pages/IndexPage/IndexPage';
+import { IndexPage } from '@/pages/index.page';
 import { InitDataPage } from '@/pages/InitDataPage.tsx';
 import { LaunchParamsPage } from '@/pages/LaunchParamsPage.tsx';
 import { ThemeParamsPage } from '@/pages/ThemeParamsPage.tsx';
 import { TONConnectPage } from '@/pages/TONConnectPage/TONConnectPage';
-import { ProfilePage } from '@/pages/ProfilePage/ProfilePage';
+import { ProfilePage } from '@/pages/profile.page';
 import { NumerologyPage } from '@/pages/NumerologyPage/NumerologyPage';
-import { TarotPage } from '@/pages/TarotPage';
+import { NewNumerologyPage } from '@/pages/new-numerology.page';
+import { TarotPage } from '@/pages/tarot.page';
 
 interface Route {
   path: string;
@@ -46,5 +47,6 @@ export const routes: Route[] = [
   },
   { path: '/profile', Component: ProfilePage, title: 'Profile Page' },
   { path: '/numerology', Component: NumerologyPage, title: 'Numerology Page' },
+  { path: '/numerology-new', Component: NewNumerologyPage, title: 'New Numerology Page' },
   { path: '/tarot', Component: TarotPage, title: 'Tarot Page' },
 ];

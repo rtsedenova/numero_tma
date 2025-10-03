@@ -10,17 +10,17 @@ export const IndexPage: FC = () => {
 
   return (
     <Page back={false}>
-      <div className="index-page">
+      <div className="page index-page">
         <div className="mb-8">
           <AccountHeader user={user} />
         </div>
 
-        <section className="index-page__cards grid gap-4 grid-cols-2">
+        <section className="index-page__cards grid gap-4 grid-cols-1 md:grid-cols-2">
           <NavCard
             title="Нумерология"
             subtitle="Число укажет ваш путь"
             description="Рассчитайте ключевое число и получите краткое толкование по датe."
-            link="/numerology"
+            link="/numerology-new"
             icon={<Infinity weight="regular"/>}
             palette={{
               accent: "#AD67DF", 
