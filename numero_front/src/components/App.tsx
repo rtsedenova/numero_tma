@@ -8,7 +8,6 @@ import { useSendInitData } from '@/hooks/useSendInitData';
 import { useInitializePredictions } from '@/hooks/useInitializePredictions';
 
 import { routes } from '@/navigation/routes.tsx';
-import { BottomNavbar } from './Navbar/Navbar';
 import { useTheme } from '@/hooks/useTheme';
 
 export function App() {
@@ -31,7 +30,6 @@ export function App() {
       platform={['macos', 'ios'].includes(lp.platform) ? 'ios' : 'base'}
     >
       <HashRouter>
-        <BottomNavbar/>
         <Routes>
           {routes.map((route) => <Route key={route.path} {...route} />)}
           <Route path="*" element={<Navigate to="/"/>}/>

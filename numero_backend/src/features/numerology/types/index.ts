@@ -1,24 +1,22 @@
-export interface NumerologyResult {
-  date: string; // ISO date string (YYYY-MM-DD)
+export interface NumerologyResultData {
   number: number;
-  isMasterNumber: boolean;
-  formula: string;
   steps: number[];
+  formula: string;
+  isMasterNumber: boolean;
 }
 
 export interface NumerologyRequest {
   telegramId: string;
-  numerologyResult: NumerologyResult;
+  numerologyResult: {
+    date: string;
+    number: number;
+    isMasterNumber: boolean;
+    steps: number[];
+    formula: string;
+  };
 }
 
 export interface NumerologyResponse {
   success: boolean;
   message: string;
-  predictionsLeft?: number;
-}
-
-export interface NumerologyError {
-  code: string;
-  message: string;
-  details?: unknown;
 }

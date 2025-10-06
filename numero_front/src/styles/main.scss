@@ -1,9 +1,9 @@
-@import "base/variables";
-@import "base/globals"; 
-@import "base/fonts"; 
-@import "layout/page";
+@import "base/_variables";
+@import "base/_globals"; 
+@import "base/_fonts"; 
+@import "layout/_page";
 
-@import "base/datepicker"; 
+@import "base/_datepicker"; 
 
 @import "components/bottom-navbar";
 @import "components/calculation-steps";

@@ -55,7 +55,7 @@ export default function NavCard({
   };
 
   const Container = link ? Link : "div";
-  const containerProps: { to?: string } = link ? { to: link } : {};  
+  const containerProps: any = link ? { to: link } : {};  
 
   const IconNode: React.ReactElement<IconProps> | null = icon
   ? React.cloneElement<IconProps>(icon, {

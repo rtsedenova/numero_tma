@@ -1,4 +1,4 @@
-import type { NumerologyResult } from '../types';
+import { NumerologyResultData } from './types';
 
 export interface NumerologyServiceResult {
   predictionsLeft: number;
@@ -17,7 +17,7 @@ export interface NumerologyHistoryItem {
 export class NumerologyService {
   async saveNumerologyResult(
     telegramId: string, 
-    numerologyResult: NumerologyResult
+    numerologyResult: NumerologyResultData
   ): Promise<NumerologyServiceResult> {
     // TODO: Implement actual numerology result processing
     // This could include:
