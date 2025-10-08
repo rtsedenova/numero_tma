@@ -1,0 +1,69 @@
+.tarot-card {
+  perspective: 1000px;
+  cursor: pointer;
+  
+  &__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    
+    &--flipped {
+      transform: rotateY(180deg);
+    }
+  }
+  
+  &__face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &--front {
+      background: linear-gradient(135deg, #ff6ec4 0%, #ff9a9e 100%);
+      // Pink gradient
+    }
+    
+    &--back {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      // Blue/purple gradient
+      transform: rotateY(180deg);
+    }
+  }
+  
+  &__content {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    
+    &--front {
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    &--back {
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+  }
+  
+  // Hover effect
+  &:hover &__inner {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
