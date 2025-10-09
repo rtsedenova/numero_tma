@@ -29,8 +29,8 @@ export const TarotWheel: FC<TarotWheelProps> = ({
   const [showFullCard, setShowFullCard] = useState(false);
   const wheelRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
-  const startAngle = useRef(0);
-  const currentRotation = useRef(0);
+  const accRotationDeg = useRef(0);
+  const prevAngleRad = useRef(0);
 
   // Calculate which card is at the center (top)
   const getCenteredCardIndex = () => {
@@ -65,6 +65,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     setShowFullCard(false);
     setIsFlipping(false);
     setRotation(0);
+    accRotationDeg.current = 0;
   };
 
   // Pointer drag to spin
@@ -78,8 +79,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
 
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-    startAngle.current = angle - (currentRotation.current * Math.PI / 180);
+    prevAngleRad.current = Math.atan2(e.clientY - centerY, e.clientX - centerX);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -90,11 +90,17 @@ export const TarotWheel: FC<TarotWheelProps> = ({
 
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-    const rotation = ((angle - startAngle.current) * 180 / Math.PI);
+    const angleNow = Math.atan2(e.clientY - centerY, e.clientX - centerX);
     
-    currentRotation.current = rotation;
-    setRotation(rotation);
+    let delta = angleNow - prevAngleRad.current;
+    
+    // Normalize delta to (-π, π]
+    while (delta > Math.PI) delta -= 2 * Math.PI;
+    while (delta <= -Math.PI) delta += 2 * Math.PI;
+    
+    accRotationDeg.current += delta * 180 / Math.PI;
+    prevAngleRad.current = angleNow;
+    setRotation(accRotationDeg.current);
   };
 
   const handlePointerUp = () => {
