@@ -67,10 +67,11 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     setRotation(0);
   };
 
-  // Mouse/Touch drag to spin
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Pointer drag to spin
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (selectedCard) return;
     
+    e.currentTarget.setPointerCapture(e.pointerId);
     isDragging.current = true;
     const rect = wheelRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -81,7 +82,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     startAngle.current = angle - (currentRotation.current * Math.PI / 180);
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging.current || selectedCard) return;
 
     const rect = wheelRef.current?.getBoundingClientRect();
@@ -96,7 +97,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     setRotation(rotation);
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     isDragging.current = false;
   };
 
@@ -126,10 +127,10 @@ export const TarotWheel: FC<TarotWheelProps> = ({
       <div 
         ref={wheelRef}
         className={`spinning-wheel__container ${selectedCard ? 'spinning-wheel__container--disabled' : ''}`}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
       >
         {/* Wheel with cards */}
         <div 
