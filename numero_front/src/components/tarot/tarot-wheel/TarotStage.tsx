@@ -1,18 +1,19 @@
-import { FC, ReactNode } from "react";
-import "./TarotStage.scss";
+import { FC, PropsWithChildren } from 'react';
+import './TarotStage.scss';
 
-export interface TarotStageProps {
-  children?: ReactNode;
+interface TarotStageProps extends PropsWithChildren {
   className?: string;
 }
 
-export const TarotStage: FC<TarotStageProps> = ({ children, className = "" }) => {
+/**
+ * TarotStage - Scene container that centers and organizes tarot card components
+ * This component provides a centered stage for displaying tarot elements
+ */
+export const TarotStage: FC<TarotStageProps> = ({ children, className = '' }) => {
   return (
     <div className={`tarot-stage ${className}`}>
-      <div className="tarot-stage__scene">
-        <div className="tarot-stage__arc-container">
-          {children}
-        </div>
+      <div className="tarot-stage__content">
+        {children}
       </div>
     </div>
   );

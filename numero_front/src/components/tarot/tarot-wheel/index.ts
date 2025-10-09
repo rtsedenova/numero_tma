@@ -1,6 +1,5 @@
-export { Card } from "./Card";
-export type { CardProps } from "./Card";
-export { Arc } from "./Arc";
-export type { ArcProps } from "./Arc";
-export { TarotStage } from "./TarotStage";
-export type { TarotStageProps } from "./TarotStage";
+export { TarotStage } from './TarotStage';
+export { TarotCard } from './TarotCard';
+export { TarotWheel } from './TarotWheel';
+export type { TarotCardProps } from './TarotCard';
+export type { TarotWheelCard } from './TarotWheel';
