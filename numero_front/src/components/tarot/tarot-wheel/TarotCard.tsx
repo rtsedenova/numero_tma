@@ -11,10 +11,6 @@ export interface TarotCardProps {
   onClick: () => void;
 }
 
-/**
- * TarotCard - Individual card in the spinning wheel
- * Renders a card with proper positioning and flip animation
- */
 export const TarotCard: FC<TarotCardProps> = ({
   card,
   angle,

@@ -14,10 +14,6 @@ interface TarotWheelProps {
   wheelRadius?: number;
 }
 
-/**
- * SpinningWheel - Interactive circular tarot wheel that spins and allows card selection
- * Based on: https://github.com/Ravirajkatkar/Tarot-Card-Wheel
- */
 export const TarotWheel: FC<TarotWheelProps> = ({
   cards,
   onCardSelect,
@@ -29,14 +25,18 @@ export const TarotWheel: FC<TarotWheelProps> = ({
   const [showFullCard, setShowFullCard] = useState(false);
   const wheelRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const hasMoved = useRef(false);
   const accRotationDeg = useRef(0);
   const prevAngleRad = useRef(0);
   const wheelCenter = useRef({ x: 0, y: 0 });
   const targetRotationDegRef = useRef(0);
   const displayRotationDegRef = useRef(0);
   const animationFrameId = useRef<number | null>(null);
+  const velocitySamples = useRef<Array<{ time: number; rotation: number }>>([]);
+  const velocity = useRef(0);
+  const lastInertiaTime = useRef(0);
+  const isInertia = useRef(false);
 
-  // Animation loop for smooth rotation
   const animate = () => {
     const alpha = 0.25;
     const diff = targetRotationDegRef.current - displayRotationDegRef.current;
@@ -45,22 +45,54 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     animationFrameId.current = requestAnimationFrame(animate);
   };
 
-  // Start animation loop
+  const animateInertia = (currentTime: number) => {
+    const dt = (currentTime - lastInertiaTime.current) / 1000; 
+    lastInertiaTime.current = currentTime;
+
+    const friction = 0.95;
+    const threshold = 5; 
+
+    targetRotationDegRef.current += velocity.current * dt;
+    velocity.current *= friction;
+
+    const alpha = 0.25;
+    const diff = targetRotationDegRef.current - displayRotationDegRef.current;
+    displayRotationDegRef.current += diff * alpha;
+    setRotation(displayRotationDegRef.current);
+
+    if (Math.abs(velocity.current) < threshold) {
+      isInertia.current = false;
+      velocity.current = 0;
+      return;
+    }
+
+    animationFrameId.current = requestAnimationFrame(animateInertia);
+  };
+
   const startAnimation = () => {
     if (animationFrameId.current === null) {
+      isInertia.current = false;
       animationFrameId.current = requestAnimationFrame(animate);
     }
   };
 
-  // Stop animation loop
+  const startInertia = (initialVelocity: number) => {
+    stopAnimation();
+    velocity.current = initialVelocity;
+    isInertia.current = true;
+    lastInertiaTime.current = performance.now();
+    animationFrameId.current = requestAnimationFrame(animateInertia);
+  };
+
   const stopAnimation = () => {
     if (animationFrameId.current !== null) {
       cancelAnimationFrame(animationFrameId.current);
       animationFrameId.current = null;
     }
+    isInertia.current = false;
+    velocity.current = 0;
   };
 
-  // Calculate which card is at the center (top)
   const getCenteredCardIndex = () => {
     const normalizedRotation = ((rotation % 360) + 360) % 360;
     const anglePerCard = 360 / cards.length;
@@ -68,24 +100,23 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     return (cards.length - index) % cards.length;
   };
 
-  // Cleanup animation frame on unmount
   useEffect(() => {
     return () => {
       stopAnimation();
     };
   }, []);
 
-  // Handle card click
   const handleCardClick = (card: TarotWheelCard, index: number) => {
     if (selectedCard) return;
     
     const centeredIndex = getCenteredCardIndex();
-    if (index !== centeredIndex) return; // Only allow clicking centered card
+    if (index !== centeredIndex) return;
+    
+    stopAnimation();
     
     setSelectedCard(card);
     setIsFlipping(true);
 
-    // After flip animation, show full card
     setTimeout(() => {
       setIsFlipping(false);
       setShowFullCard(true);
@@ -93,7 +124,6 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     }, 1500);
   };
 
-  // Reset the wheel
   const resetWheel = () => {
     setSelectedCard(null);
     setShowFullCard(false);
@@ -104,12 +134,21 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     displayRotationDegRef.current = 0;
   };
 
-  // Pointer drag to spin
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (selectedCard) return;
+    if (selectedCard || isFlipping) return;
+    
+    // Don't capture if clicking on a card element
+    const target = e.target as HTMLElement;
+    if (target.closest('.spinning-wheel__card')) {
+      return; // Let the card handle the click
+    }
     
     e.currentTarget.setPointerCapture(e.pointerId);
+    
+    stopAnimation();
+    
     isDragging.current = true;
+    hasMoved.current = false;
     const rect = wheelRef.current?.getBoundingClientRect();
     if (!rect) return;
 
@@ -120,11 +159,15 @@ export const TarotWheel: FC<TarotWheelProps> = ({
       e.clientX - wheelCenter.current.x
     );
     
+    velocitySamples.current = [];
+    
     startAnimation();
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging.current || selectedCard) return;
+    if (!isDragging.current || selectedCard || isFlipping) return;
+
+    hasMoved.current = true;
 
     const angleNow = Math.atan2(
       e.clientY - wheelCenter.current.y,
@@ -133,24 +176,46 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     
     let delta = angleNow - prevAngleRad.current;
     
-    // Normalize delta to (-π, π]
     while (delta > Math.PI) delta -= 2 * Math.PI;
     while (delta <= -Math.PI) delta += 2 * Math.PI;
     
     accRotationDeg.current += delta * 180 / Math.PI;
     prevAngleRad.current = angleNow;
     targetRotationDegRef.current = accRotationDeg.current;
+    
+    const now = performance.now();
+    velocitySamples.current.push({ time: now, rotation: accRotationDeg.current });
+    if (velocitySamples.current.length > 6) {
+      velocitySamples.current.shift();
+    }
   };
 
   const handlePointerUp = () => {
     isDragging.current = false;
+    
+    // Only apply inertia if user actually dragged
+    if (hasMoved.current && velocitySamples.current.length >= 2) {
+      const samples = velocitySamples.current;
+      const first = samples[0];
+      const last = samples[samples.length - 1];
+      
+      const timeDiff = (last.time - first.time) / 1000;
+      const rotationDiff = last.rotation - first.rotation;
+      
+      if (timeDiff > 0) {
+        const calculatedVelocity = rotationDiff / timeDiff;
+        startInertia(calculatedVelocity);
+      }
+    }
+    
+    velocitySamples.current = [];
+    hasMoved.current = false;
   };
 
   const centeredCardIndex = getCenteredCardIndex();
 
   return (
     <div className="spinning-wheel">    
-      {/* Full Card Display */}
       {showFullCard && selectedCard && (
         <div className="spinning-wheel__full-card">
           <div className="spinning-wheel__full-card-content">
@@ -163,12 +228,10 @@ export const TarotWheel: FC<TarotWheelProps> = ({
         </div>
       )}
 
-      {/* Bottom indicator pointing up to centered card */}
       <div className="spinning-wheel__indicator">
         <div className="spinning-wheel__indicator-arrow"></div>
       </div>
 
-      {/* Wheel Container */}
       <div 
         ref={wheelRef}
         className={`spinning-wheel__container ${selectedCard ? 'spinning-wheel__container--disabled' : ''}`}
@@ -176,8 +239,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-      >
-        {/* Wheel with cards */}
+      >   
         <div 
           className="spinning-wheel__wheel"
           style={{

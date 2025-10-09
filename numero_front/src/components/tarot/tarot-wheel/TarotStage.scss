@@ -14,7 +14,6 @@
   position: relative;
   overflow: hidden;
 
-  // Ambient glow effect
   &::before {
     content: '';
     position: absolute;
@@ -51,7 +50,6 @@
   }
 }
 
-// Responsive adjustments
 @media (max-width: 768px) {
   .tarot-stage {
     height: 400px;
