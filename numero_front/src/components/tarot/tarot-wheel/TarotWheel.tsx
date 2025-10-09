@@ -1,4 +1,4 @@
-import { FC, useState, useRef } from 'react';
+import { FC, useState, useRef, useEffect } from 'react';
 import { TarotCard } from './TarotCard';
 import './TarotWheel.scss';
 
@@ -31,6 +31,34 @@ export const TarotWheel: FC<TarotWheelProps> = ({
   const isDragging = useRef(false);
   const accRotationDeg = useRef(0);
   const prevAngleRad = useRef(0);
+  const wheelCenter = useRef({ x: 0, y: 0 });
+  const targetRotationDegRef = useRef(0);
+  const displayRotationDegRef = useRef(0);
+  const animationFrameId = useRef<number | null>(null);
+
+  // Animation loop for smooth rotation
+  const animate = () => {
+    const alpha = 0.25;
+    const diff = targetRotationDegRef.current - displayRotationDegRef.current;
+    displayRotationDegRef.current += diff * alpha;
+    setRotation(displayRotationDegRef.current);
+    animationFrameId.current = requestAnimationFrame(animate);
+  };
+
+  // Start animation loop
+  const startAnimation = () => {
+    if (animationFrameId.current === null) {
+      animationFrameId.current = requestAnimationFrame(animate);
+    }
+  };
+
+  // Stop animation loop
+  const stopAnimation = () => {
+    if (animationFrameId.current !== null) {
+      cancelAnimationFrame(animationFrameId.current);
+      animationFrameId.current = null;
+    }
+  };
 
   // Calculate which card is at the center (top)
   const getCenteredCardIndex = () => {
@@ -40,6 +68,12 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     return (cards.length - index) % cards.length;
   };
 
+  // Cleanup animation frame on unmount
+  useEffect(() => {
+    return () => {
+      stopAnimation();
+    };
+  }, []);
 
   // Handle card click
   const handleCardClick = (card: TarotWheelCard, index: number) => {
@@ -66,6 +100,8 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     setIsFlipping(false);
     setRotation(0);
     accRotationDeg.current = 0;
+    targetRotationDegRef.current = 0;
+    displayRotationDegRef.current = 0;
   };
 
   // Pointer drag to spin
@@ -77,20 +113,23 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     const rect = wheelRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    prevAngleRad.current = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    wheelCenter.current.x = rect.left + rect.width / 2;
+    wheelCenter.current.y = rect.top + rect.height / 2;
+    prevAngleRad.current = Math.atan2(
+      e.clientY - wheelCenter.current.y,
+      e.clientX - wheelCenter.current.x
+    );
+    
+    startAnimation();
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging.current || selectedCard) return;
 
-    const rect = wheelRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const angleNow = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    const angleNow = Math.atan2(
+      e.clientY - wheelCenter.current.y,
+      e.clientX - wheelCenter.current.x
+    );
     
     let delta = angleNow - prevAngleRad.current;
     
@@ -100,7 +139,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     
     accRotationDeg.current += delta * 180 / Math.PI;
     prevAngleRad.current = angleNow;
-    setRotation(accRotationDeg.current);
+    targetRotationDegRef.current = accRotationDeg.current;
   };
 
   const handlePointerUp = () => {
