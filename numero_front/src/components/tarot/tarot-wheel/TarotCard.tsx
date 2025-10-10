@@ -34,7 +34,7 @@ export const TarotCard: FC<TarotCardProps> = ({
   isFlipping,
   hasSelectedCard,
   onClick,
-  arcRadius,
+  arcRadius = 300,
   className,
 }) => {
   // ── Вычисление геометрии ────────────────────────────────────────────────
@@ -42,15 +42,15 @@ export const TarotCard: FC<TarotCardProps> = ({
     const absOffset = Math.abs(offsetFromCenter);
     const side = offsetFromCenter < 0 ? -1 : 1;
 
-    const { x, y, rotationDeg } = arrangeByAngleContour(absOffset, {
+    const result = arrangeByAngleContour(absOffset, {
       R: arcRadius,
       rayAngleDeg: rayAngle,
     });
 
     return {
-      translateX: side * x,
-      translateY: y,
-      rotationDeg: side * rotationDeg,
+      translateX: side * result.x,
+      translateY: result.y,
+      rotationDeg: side * result.rotationDeg,
     };
   }, [offsetFromCenter, rayAngle, arcRadius]);
 
@@ -70,12 +70,11 @@ export const TarotCard: FC<TarotCardProps> = ({
         "spinning-wheel__card",
         isCentered ? "spinning-wheel__card--centered" : "",
         isFlipping && isCentered ? "spinning-wheel__card--flipping" : "",
+        interactive ? "spinning-wheel__card--interactive" : "",
         className ?? "",
       ].join(" ").trim()}
       style={{
         transform: `translate(${translateX}px, ${translateY}px) rotate(${finalRotation}deg)`,
-        cursor: interactive ? "pointer" : "default",
-        willChange: "transform",
       }}
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : -1}

@@ -183,17 +183,36 @@ export const TarotWheel: FC<TarotWheelProps> = ({
 
   // ── Обработчики: Tap/Click ──────────────────────────────────────────────────────
   const handleCardClick = (card: TarotWheelCard, index: number) => {
-    if (selectedCard) return;
-    if (index !== getCenteredCardIndex()) return;
+    console.log('Card clicked:', card.alt, 'index:', index, 'centered:', getCenteredCardIndex());
+    console.log('Current state - selectedCard:', selectedCard, 'isFlipping:', isFlipping);
+    
+    if (selectedCard) {
+      console.log('Already have selected card, ignoring click');
+      return;
+    }
+    
+    if (isFlipping) {
+      console.log('Already flipping, ignoring click');
+      return;
+    }
+    
+    // Если карта не в центре, игнорируем клик
+    const currentCentered = getCenteredCardIndex();
+    if (index !== currentCentered) {
+      console.log('Card not centered, ignoring click. Expected:', currentCentered, 'Got:', index);
+      return;
+    }
 
+    console.log('✅ Showing full card with flip animation for:', card.alt);
     stopAnimation();
 
     setSelectedCard(card);
-    setIsFlipping(true);
+    setShowFullCard(true);  // Показать полную карту
+    setIsFlipping(true);    // Начать анимацию переворота на полной карте
 
     window.setTimeout(() => {
+      console.log('Flip animation complete');
       setIsFlipping(false);
-      setShowFullCard(true);
       onCardSelect?.(card);
     }, flipDurationMs);
   };
@@ -256,11 +275,11 @@ export const TarotWheel: FC<TarotWheelProps> = ({
       if (dt > 0 && Math.abs(ds / dt) > inertiaStopV * 2) {
         startInertia(ds / dt);
       } else {
-        // No significant velocity, snap immediately
+        // Нет значительной скорости, притянуть к центру
         snapToCenter();
       }
     } else if (hasMoved.current) {
-      // Moved but no velocity samples, snap to center
+      // Двинулись, но нет образцов скорости, притянуть к центру
       snapToCenter();
     }
 
@@ -276,8 +295,13 @@ export const TarotWheel: FC<TarotWheelProps> = ({
       {/* ── Overlay выбранной карты ─────────────────────────────────────────── */}
       {showFullCard && selectedCard && (
         <div className="spinning-wheel__full-card" role="dialog" aria-modal="true">
-          <div className="spinning-wheel__full-card-content">
-            <img src={selectedCard.image} alt={selectedCard.alt} />
+          <div className={`spinning-wheel__full-card-content ${isFlipping ? 'spinning-wheel__full-card-content--flipping' : ''}`}>
+            <div className="spinning-wheel__full-card-inner">
+              <div className="spinning-wheel__full-card-back" />
+              <div className="spinning-wheel__full-card-front">
+                <img src={selectedCard.image} alt={selectedCard.alt} />
+              </div>
+            </div>
             <h3>{selectedCard.alt}</h3>
             <button onClick={resetWheel} className="spinning-wheel__reset-btn">
               Вытянуть другую карту

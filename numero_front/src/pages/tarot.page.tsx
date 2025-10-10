@@ -12,12 +12,12 @@ export const TarotPage: FC = () => {
   return (
     <Page>
       <TarotStage className="tarot-page__stage">
-        <header style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <h1 style={{ color: "#fff", marginBottom: "0.5rem", fontSize: "2rem", lineHeight: 1.2 }}>
+        <header className="text-center mb-8">
+          <h1 className="text-white mb-2 text-[2rem] leading-tight">
             Таро
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.75)", margin: 0 }}>
-          Крутите колесо и вытяните карту
+          <p className="text-white/75 m-0">
+            Крутите колесо и вытяните карту
           </p>
         </header>
 

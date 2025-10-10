@@ -76,6 +76,12 @@
     perspective: 1000px;
     transition: filter 0.3s ease, transform 0.3s ease;
     transform-origin: center center;
+    cursor: default;
+    will-change: transform;
+
+    &--interactive {
+      cursor: pointer;
+    }
 
     &--centered {
       z-index: 10;
@@ -89,7 +95,8 @@
 
     &--flipping {
       .spinning-wheel__card-inner {
-        animation: flipCard 1.5s ease-in-out both;
+        animation: flipCard 1.5s ease-in-out both !important;
+        transition: none !important;
       }
     }
   }
@@ -98,7 +105,6 @@
     position: relative;
     width: 100%;
     height: 100%;
-    transition: transform 0.6s;
     transform-style: preserve-3d;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -156,7 +162,7 @@
   }
 
   &__btn {
-    padding: var(--spacing-md) var(--spacing-xl);
+    padding: 4px 20px;
     border: 2px solid #8a2be2;
     border-radius: 50px;
     background: linear-gradient(135deg, #2d1b4e 0%, #4a2c6f 100%);
@@ -200,17 +206,13 @@
   &__full-card-content {
     display: grid;
     justify-items: center;
-    gap: var(--spacing-xl);
-    animation: scaleIn 0.5s ease;
+    gap: 0.8rem;
+    animation: fadeIn 0.6s ease;
 
-    img {
-      /* Размер картинки: 603×1064 = 1.765:1 */
-      width: clamp(160px, 28vw, 200px);
-      height: calc(clamp(160px, 28vw, 200px) * 1.765);
-      border-radius: var(--twl-radius);
-      border: 2px solid #892be27f;
-      box-shadow: var(--twl-shadow);
-      object-fit: cover;
+    &--flipping {
+      .spinning-wheel__full-card-inner {
+        animation: flipCard 1.5s ease-in-out both !important;
+      }
     }
 
     h3 {
@@ -221,8 +223,47 @@
     }
   }
 
+  &__full-card-inner {
+    /* Размер картинки: 603×1064 = 1.765:1 */
+    position: relative;
+    width: clamp(160px, 28vw, 200px);
+    height: calc(clamp(160px, 28vw, 200px) * 1.765);
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    transform: rotateY(180deg); /* Карточка после флипа не поворачивается обратно */
+    border-radius: var(--twl-radius);
+    box-shadow: var(--twl-shadow);
+  }
+
+  &__full-card-back,
+  &__full-card-front {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--twl-radius);
+    overflow: hidden;
+  }
+
+  &__full-card-back {
+    background: linear-gradient(135deg, var(--twl-bg1) 0%, var(--twl-bg2) 100%);
+    border: 2px solid #8a2be2;
+  }
+
+  &__full-card-front {
+    transform: rotateY(180deg);
+    background: var(--twl-front-bg);
+    border: 2px solid #892be27f;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
   &__reset-btn {
-    padding: var(--spacing-md) var(--spacing-xl);
+    padding: 4px 20px;
     border: 2px solid #8a2be2;
     border-radius: 50px;
     background: linear-gradient(135deg, #8a2be2 0%, #6a1bb2 100%);
