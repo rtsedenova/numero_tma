@@ -1,18 +1,25 @@
-@import "../../../styles/base/variables";
-
-/**
- * - минимальная «магия» размеров: используем relative + clamp;
- * - адаптив: без фиксированных px на контейнер, применён aspect-ratio;
- * - доступность: курсоры/фокусы; уважение prefers-reduced-motion;
- * - анимации и тени — через переменные, чтобы централизованно настраивать.
- */
-
 :root {
+  /* ── Геометрия колеса ─────────────────────────────────────────────────────── */
+  --twl-arc-radius: 400px;
+  --twl-pointer-height: 30px;    
+  --twl-bottom-space: 0.5rem;      
+  
+  /* ── Позиция указателя (при переходе от дуги к лучу) ─────────────────────── */
+  --twl-pointer-top: calc(var(--twl-arc-radius) - 1.5rem);
+  
+  /* ── Необходимая высота сцены (автоматически рассчитывается) ─────────────────────────── */
+  --twl-required-stage-height: calc(
+    var(--twl-arc-radius) + 
+    var(--twl-pointer-height) + 
+    var(--twl-bottom-space) +
+    8rem
+  );
+  
+  /* ── Размеры карты ───────────────────────────────────────────────────── */
   --twl-card-w: 110px;
-  --twl-card-h: 165px;
-  --twl-pad-top: 5rem;
-  --twl-indicator-bottom: 100px;
+  --twl-card-h: 194px;
 
+  /* ── Цвета & Визуальные эффекты ───────────────────────────────────────────── */
   --twl-glow: rgba(138, 43, 226, 0.9);
   --twl-glow-strong: rgba(138, 43, 226, 1);
   --twl-bg1: #2d1b4e;
@@ -73,7 +80,7 @@
     &--centered {
       z-index: 10;
       filter: brightness(1.3) drop-shadow(0 0 30px var(--twl-glow));
-      will-change: filter;
+      will-change: filter, transform;
 
       &:hover {
         filter: brightness(1.4) drop-shadow(0 0 40px var(--twl-glow-strong));
@@ -108,18 +115,7 @@
 
   &__card-back {
     background: linear-gradient(135deg, var(--twl-bg1) 0%, var(--twl-bg2) 100%);
-    display: grid;
-    place-items: center;
     border: 2px solid #8a2be2;
-
-    .card-pattern {
-      width: 80%;
-      height: 80%;
-      background:
-        radial-gradient(circle at 30% 30%, transparent 20%, rgba(138, 43, 226, 0.3) 20%, rgba(138, 43, 226, 0.3) 25%, transparent 25%),
-        radial-gradient(circle at 70% 70%, transparent 20%, rgba(138, 43, 226, 0.3) 20%, rgba(138, 43, 226, 0.3) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 40%, rgba(138, 43, 226, 0.2) 40%, rgba(138, 43, 226, 0.2) 60%, transparent 60%);
-    }
   }
 
   &__card-front {
@@ -137,10 +133,9 @@
 
   &__indicator {
     position: absolute;
-    bottom: var(--twl-indicator-bottom);
+    top: var(--twl-pointer-top);
     left: 50%;
     transform: translateX(-50%);
-    z-index: 20;
     pointer-events: none;
   }
 
@@ -209,9 +204,11 @@
     animation: scaleIn 0.5s ease;
 
     img {
-      width: clamp(220px, 28vw, 300px);
-      height: calc(clamp(220px, 28vw, 300px) * 1.5);
+      /* Размер картинки: 603×1064 = 1.765:1 */
+      width: clamp(160px, 28vw, 200px);
+      height: calc(clamp(160px, 28vw, 200px) * 1.765);
       border-radius: var(--twl-radius);
+      border: 2px solid #892be27f;
       box-shadow: var(--twl-shadow);
       object-fit: cover;
     }
@@ -242,7 +239,7 @@
   }
 }
 
-/* ── Motion preferences ─────────────────────────────────────────────────────── */
+/* ── Настройки анимации ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .spinning-wheel * {
     animation: none !important;
@@ -250,7 +247,7 @@
   }
 }
 
-/* ── Keyframes ─────────────────────────────────────────────────────────────── */
+/* ── Ключевые кадры ─────────────────────────────────────────────────────────────── */
 @keyframes flipCard {
   0% { transform: rotateY(0deg); }
   50% { transform: rotateY(180deg); }
@@ -271,17 +268,19 @@
   to   { transform: scale(1);   opacity: 1; }
 }
 
-/* ── Responsive tweaks ─────────────────────────────────────────────────────── */
+/* ── Настройки адаптации ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   :root {
+    --twl-arc-radius: 350px;  
     --twl-card-w: 90px;
-    --twl-card-h: 135px;
+    --twl-card-h: 158px;
   }
 }
 
 @media (max-width: 480px) {
   :root {
+    --twl-arc-radius: 300px;  
     --twl-card-w: 70px;
-    --twl-card-h: 105px;
+    --twl-card-h: 123px;
   }
 }

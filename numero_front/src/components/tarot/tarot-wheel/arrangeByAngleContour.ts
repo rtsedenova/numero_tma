@@ -1,13 +1,13 @@
 /**
- * Calculates position and rotation for items arranged along an angle contour.
- * The contour consists of a rounded arc at the top that transitions to straight rays.
+ * Рассчитывает позицию и вращение для элементов, расположенных вдоль контура дуги.
+ * Контур состоит из закругленной дуги вверху, которая переходит в параллельные вертикальные лучи.  
  * 
- * @param s - Distance traveled along the contour (0 = apex)
- * @param options - Configuration options
- * @param options.R - Radius of the arc
- * @param options.rayAngleDeg - Maximum angle of the rays in degrees
- * @param options.rayLength - Length of the straight ray section (optional, for validation)
- * @returns Position (x, y) and rotation in degrees
+ * @param s - Расстояние пройденное по контуру (0 = apex)
+ * @param options - Конфигурация опций
+ * @param options.R - Радиус дуги
+ * @param options.rayAngleDeg - Максимальный угол дуги в градусах (лучи продолжаются вертикально от конца дуги)
+ * @param options.rayLength - Длина вертикального луча (опционально, для валидации)
+ * @returns Позиция (x, y) и вращение в градусах
  */
 export interface AngleContourOptions {
   R: number;
@@ -25,14 +25,14 @@ export function arrangeByAngleContour(
   s: number,
   { R, rayAngleDeg }: AngleContourOptions
 ): AngleContourResult {
-  // Convert max angle to radians
+  // Конвертируем максимальный угол в радианы
   const thetaMaxRad = (rayAngleDeg * Math.PI) / 180;
   
-  // Arc length: L_arc = R * thetaMax
+  // Длина дуги: L_arc = R * thetaMax
   const L_arc = R * thetaMaxRad;
   
   if (s <= L_arc) {
-    // On the arc
+    // На дуге
     const theta = s / R;
     
     return {
@@ -41,17 +41,17 @@ export function arrangeByAngleContour(
       rotationDeg: (theta * 180) / Math.PI
     };
   } else {
-    // On the ray (beyond the arc)
+    // На луче (за пределами дуги) - параллельные вертикальные лучи
     const sRay = s - L_arc;
     
-    // End position of the arc
+    // Конечная позиция дуги
     const arcEndX = R * Math.sin(thetaMaxRad);
     const arcEndY = R - R * Math.cos(thetaMaxRad);
     
     return {
-      x: arcEndX + Math.sin(thetaMaxRad) * sRay,
-      y: arcEndY + Math.cos(thetaMaxRad) * sRay,
-      rotationDeg: rayAngleDeg
+      x: arcEndX,              // Сохраняем X постоянным (параллельные лучи)
+      y: arcEndY + sRay,       // Двигаемся прямо вниз
+      rotationDeg: 90          // Вертикальная ориентация
     };
   }
 }

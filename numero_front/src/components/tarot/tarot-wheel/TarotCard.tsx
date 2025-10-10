@@ -34,10 +34,10 @@ export const TarotCard: FC<TarotCardProps> = ({
   isFlipping,
   hasSelectedCard,
   onClick,
-  arcRadius = 300,
+  arcRadius,
   className,
 }) => {
-  // ── Geometry calc (memoized) ────────────────────────────────────────────────
+  // ── Вычисление геометрии ────────────────────────────────────────────────
   const { translateX, translateY, rotationDeg } = useMemo(() => {
     const absOffset = Math.abs(offsetFromCenter);
     const side = offsetFromCenter < 0 ? -1 : 1;
@@ -54,13 +54,16 @@ export const TarotCard: FC<TarotCardProps> = ({
     };
   }, [offsetFromCenter, rayAngle, arcRadius]);
 
-  // ── Interactions & a11y ─────────────────────────────────────────────────────
+  // ── Взаимодействие и доступность ─────────────────────────────────────────────────────
   const interactive = isCentered && !hasSelectedCard;
   const handleClick = () => {
     if (interactive) onClick();
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // ── Рендер ──────────────────────────────────────────────────────────────────
+  // Принудительное вертикальное вращение для центральной карты (rotation = 0°)
+  const finalRotation = isCentered ? 0 : rotationDeg;
+
   return (
     <div
       className={[
@@ -70,7 +73,7 @@ export const TarotCard: FC<TarotCardProps> = ({
         className ?? "",
       ].join(" ").trim()}
       style={{
-        transform: `translate(${translateX}px, ${translateY}px) rotate(${rotationDeg}deg)`,
+        transform: `translate(${translateX}px, ${translateY}px) rotate(${finalRotation}deg)`,
         cursor: interactive ? "pointer" : "default",
         willChange: "transform",
       }}
@@ -88,9 +91,7 @@ export const TarotCard: FC<TarotCardProps> = ({
       }}
     >
       <div className="spinning-wheel__card-inner">
-        <div className="spinning-wheel__card-back">
-          <div className="card-pattern" />
-        </div>
+        <div className="spinning-wheel__card-back" />
         <div className="spinning-wheel__card-front">
           <img src={card.image} alt={card.alt} />
         </div>

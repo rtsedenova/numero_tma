@@ -40,13 +40,32 @@ export const TarotWheel: FC<TarotWheelProps> = ({
   inertiaFriction = 0.95,
   inertiaStopV = 5,
 }) => {
-  // ── UI/Animation state ────────────────────────────────────────────────────────
+  // ── Анимация ────────────────────────────────────────────────────────
   const [scrollOffset, setScrollOffset] = useState(0);
   const [selectedCard, setSelectedCard] = useState<TarotWheelCard | null>(null);
   const [isFlipping, setIsFlipping] = useState(false);
   const [showFullCard, setShowFullCard] = useState(false);
 
-  // ── Drag / Inertia runtime refs (не вызывают ререндер) ───────────────────────
+  // ── Radius дуги (синхронизирован с CSS переменной) ─────────────────────────────────────
+  const [arcRadius, setArcRadius] = useState(300);
+
+  useEffect(() => {
+    const updateArcRadius = () => {
+      const value = getComputedStyle(document.documentElement)
+        .getPropertyValue('--twl-arc-radius')
+        .trim();
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue)) {
+        setArcRadius(numValue);
+      }
+    };
+
+    updateArcRadius();
+    window.addEventListener('resize', updateArcRadius);
+    return () => window.removeEventListener('resize', updateArcRadius);
+  }, []);
+
+  // Дранг и инерция
   const isDragging = useRef(false);
   const hasMoved = useRef(false);
   const accScrollOffset = useRef(0);
@@ -61,7 +80,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
   const lastInertiaTime = useRef(0);
   const isInertia = useRef(false);
 
-  // ── Helpers ──────────────────────────────────────────────────────────────────
+  // ── Хэлперы ──────────────────────────────────────────────────────────────────
   const maxScroll = Math.max(0, (cards.length - 1) * spacing);
 
   const clampScroll = (v: number) => Math.max(0, Math.min(maxScroll, v));
@@ -72,14 +91,27 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     return Math.max(0, Math.min(cards.length - 1, index));
   };
 
-  // ── Lifecycles ───────────────────────────────────────────────────────────────
+  // ── Жизненный цикл ───────────────────────────────────────────────────────────────
   useEffect(() => {
     return () => stopAnimation();
   }, []);
 
-  // ── Core animation loops ─────────────────────────────────────────────────────
+  // ── Основные циклы анимации ─────────────────────────────────────────────────────
   const animate = () => {
     const alpha = 0.25; // сглаживание движения к целевому скроллу
+    
+    // Магнитное притяжение к центру (spring-back effect)
+    const nearestCardIndex = Math.round(targetScrollRef.current / spacing);
+    const nearestCardScroll = nearestCardIndex * spacing;
+    const distanceFromCenter = Math.abs(targetScrollRef.current - nearestCardScroll);
+    
+    // Если карта близко к центру (в пределах 30px), притянуть её
+    const snapThreshold = 30;
+    if (distanceFromCenter < snapThreshold && !isDragging.current) {
+      const snapForce = 0.15;
+      targetScrollRef.current += (nearestCardScroll - targetScrollRef.current) * snapForce;
+    }
+    
     const diff = targetScrollRef.current - displayScrollRef.current;
     displayScrollRef.current += diff * alpha;
     setScrollOffset(displayScrollRef.current);
@@ -93,6 +125,19 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     targetScrollRef.current = clampScroll(targetScrollRef.current + velocity.current * dt);
     velocity.current *= inertiaFriction;
 
+    // Магнитное притяжение к центру (spring-back effect)
+    const nearestCardIndex = Math.round(targetScrollRef.current / spacing);
+    const nearestCardScroll = nearestCardIndex * spacing;
+    const distanceFromCenter = Math.abs(targetScrollRef.current - nearestCardScroll);
+    
+    // Увеличиваем силу притяжения когда скорость падает
+    const snapThreshold = 40;
+    const velocityFactor = Math.max(0.1, Math.min(1, Math.abs(velocity.current) / 50));
+    if (distanceFromCenter < snapThreshold) {
+      const snapForce = 0.2 * (1 - velocityFactor); // Сильнее при низкой скорости
+      targetScrollRef.current += (nearestCardScroll - targetScrollRef.current) * snapForce;
+    }
+
     const alpha = 0.25;
     const diff = targetScrollRef.current - displayScrollRef.current;
     displayScrollRef.current += diff * alpha;
@@ -101,9 +146,17 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     if (Math.abs(velocity.current) < inertiaStopV) {
       isInertia.current = false;
       velocity.current = 0;
+      snapToCenter();
       return;
     }
     animationFrameId.current = requestAnimationFrame(animateInertia);
+  };
+
+  const snapToCenter = () => {
+    const centeredIndex = getCenteredCardIndex(targetScrollRef.current);
+    const targetScroll = centeredIndex * spacing;
+    targetScrollRef.current = targetScroll;
+    startAnimation();
   };
 
   const startAnimation = () => {
@@ -128,7 +181,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     velocity.current = 0;
   };
 
-  // ── Handlers: Tap/Click ──────────────────────────────────────────────────────
+  // ── Обработчики: Tap/Click ──────────────────────────────────────────────────────
   const handleCardClick = (card: TarotWheelCard, index: number) => {
     if (selectedCard) return;
     if (index !== getCenteredCardIndex()) return;
@@ -158,7 +211,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
     stopAnimation();
   };
 
-  // ── Handlers: Pointer/Drag ───────────────────────────────────────────────────
+  // ── Обработчики: Pointer/Drag ───────────────────────────────────────────────────
   const handlePointerDown = (e: React.PointerEvent) => {
     if (selectedCard || isFlipping) return;
 
@@ -200,14 +253,22 @@ export const TarotWheel: FC<TarotWheelProps> = ({
       const last = samples[samples.length - 1];
       const dt = (last.time - first.time) / 1000;
       const ds = last.scroll - first.scroll;
-      if (dt > 0) startInertia(ds / dt);
+      if (dt > 0 && Math.abs(ds / dt) > inertiaStopV * 2) {
+        startInertia(ds / dt);
+      } else {
+        // No significant velocity, snap immediately
+        snapToCenter();
+      }
+    } else if (hasMoved.current) {
+      // Moved but no velocity samples, snap to center
+      snapToCenter();
     }
 
     velocitySamples.current = [];
     hasMoved.current = false;
   };
 
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // ── Рендер ───────────────────────────────────────────────────────────────────
   const centeredCardIndex = getCenteredCardIndex();
 
   return (
@@ -219,7 +280,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
             <img src={selectedCard.image} alt={selectedCard.alt} />
             <h3>{selectedCard.alt}</h3>
             <button onClick={resetWheel} className="spinning-wheel__reset-btn">
-              Draw Another Card
+              Вытянуть другую карту
             </button>
           </div>
         </div>
@@ -249,6 +310,7 @@ export const TarotWheel: FC<TarotWheelProps> = ({
                 card={card}
                 offsetFromCenter={offsetFromCenter} // смещение относительно центра (управляет позицией)
                 rayAngle={rayAngle}                 // угол луча (геометрия раскладки)
+                arcRadius={arcRadius}               // радиус дуги (синхронизирован с CSS)
                 isCentered={isCentered}             // подсветка/приоритет
                 isFlipping={isFlipping}             // состояние flip анимации
                 hasSelectedCard={!!selectedCard}    // дизейбл взаимодействий

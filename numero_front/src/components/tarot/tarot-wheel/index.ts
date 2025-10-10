@@ -5,3 +5,16 @@ export { arrangeByAngleContour } from './arrangeByAngleContour';
 export type { TarotCardProps } from './TarotCard';
 export type { TarotWheelCard } from './TarotWheel';
 export type { AngleContourOptions, AngleContourResult } from './arrangeByAngleContour';
+
+export {
+  allTarotCards,
+  majorArcana,
+  coinsArcana,
+  cupsArcana,
+  swordsArcana,
+  wandsArcana,
+  getMajorArcana,
+  getMinorArcana,
+  getArcanaBysuit,
+  shuffleCards,
+} from './tarotCards.data';
