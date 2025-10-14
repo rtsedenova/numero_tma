@@ -1,687 +1,823 @@
-# Tarot Wheel Component System
+# TarotWheel Component - Technical Documentation
 
-A sophisticated, interactive tarot card wheel component with physics-based scrolling, inertia, and 3D flip animations. The system arranges cards along an arc contour and provides a smooth, engaging user experience for card selection.
+## 📋 Overview
 
-## 📋 Table of Contents
+The `TarotWheel` component is an interactive tarot card selector that displays cards along a curved arc path. Users can scroll/drag through cards with physics-based inertia, and select the centered card with a flip animation.
 
-- [Overview](#overview)
-- [Component Architecture](#component-architecture)
-- [Components](#components)
-  - [TarotStage](#tarotstage)
-  - [TarotWheel](#tarotwheel)
-  - [TarotCard](#tarotcard)
-- [Geometry System](#geometry-system)
-- [Configuration Guide](#configuration-guide)
-- [Usage Examples](#usage-examples)
-- [Styling](#styling)
-- [Accessibility](#accessibility)
-
----
-
-## Overview
-
-The Tarot Wheel system consists of three main components working together:
-
-1. **TarotStage** - Provides a styled container/stage with gradient background and pulsing effects
-2. **TarotWheel** - Core component handling scrolling, inertia, card selection, and interaction logic
-3. **TarotCard** - Individual card component with 3D positioning and flip animations
-
-The cards are arranged along a geometric arc contour, creating a visually appealing wheel effect. Users can:
-
-- Drag/scroll through cards with smooth physics-based inertia
-- Tap the centered card to select it
-- View the selected card in a full-screen overlay
-- Reset and choose another card
-
----
-
-## Component Architecture
+## 🏗️ Architecture
 
 ```
-TarotStage (container/visual wrapper)
-  └── TarotWheel (main logic & state)
-        ├── Indicator (center arrow)
-        ├── Container (drag/scroll area)
-        │     └── Wheel
-        │           └── TarotCard[] (positioned cards)
-        └── Full Card Overlay (selected card view)
+TarotWheel (Container)
+├── Full Card Overlay (when selected)
+├── Center Indicator (Arrow)
+└── Scrollable Container
+    └── Wheel
+        └── TarotCard[] (positioned along arc)
 ```
 
-### Data Flow
+### Component Files
 
-1. **TarotWheel** manages:
-
-   - Scroll offset (position in the wheel)
-   - Selected card state
-   - Flipping animation state
-   - Drag and inertia physics
-
-2. **TarotCard** receives:
-
-   - Position offset from center
-   - Centered state (is this card under the indicator?)
-   - Flip animation state
-   - Interaction callbacks
-
-3. **arrangeByAngleContour** utility:
-   - Calculates (x, y, rotation) for each card based on offset
-   - Creates the arc contour geometry
+| File                       | Purpose                                                       |
+| -------------------------- | ------------------------------------------------------------- |
+| `TarotWheel.tsx`           | Main container, manages scroll state, inertia, card selection |
+| `TarotCard.tsx`            | Individual card component, handles positioning and rotation   |
+| `arrangeByAngleContour.ts` | Calculates position and rotation along arc path               |
+| `TarotWheel.scss`          | Styling and animations                                        |
+| `tarotCards.data.ts`       | Card data (78 tarot cards)                                    |
 
 ---
 
-## Components
+## 🔄 1. Scrolling System
 
-### TarotStage
+### Scroll State Management
 
-The outer container component that provides visual styling and background effects.
+The component uses **three scroll values** working together:
 
-#### Props
-
-| Prop           | Type        | Default     | Description                                    |
-| -------------- | ----------- | ----------- | ---------------------------------------------- |
-| `className`    | `string`    | `""`        | Additional CSS classes                         |
-| `maxWidth`     | `string`    | `undefined` | Maximum width (CSS size, e.g., "1000px")       |
-| `height`       | `string`    | `undefined` | Stage height (CSS size, e.g., "400px")         |
-| `padding`      | `string`    | `undefined` | Inner padding (CSS size, e.g., "24px")         |
-| `radius`       | `string`    | `undefined` | Border radius (CSS size, e.g., "20px")         |
-| `bgStart`      | `string`    | `undefined` | Gradient start color (e.g., "#141527")         |
-| `bgEnd`        | `string`    | `undefined` | Gradient end color (e.g., "#101320")           |
-| `pulseEnabled` | `boolean`   | `true`      | Enable/disable pulsing background highlight    |
-| `pulseSize`    | `string`    | `undefined` | Size of pulse effect (CSS size, e.g., "640px") |
-| `children`     | `ReactNode` | -           | Content to render inside the stage             |
-
-#### CSS Variables
-
-The component uses CSS custom properties for theming:
-
-- `--stage-max-w`: Maximum width
-- `--stage-h`: Height
-- `--stage-pad`: Padding
-- `--stage-radius`: Border radius
-- `--stage-bg-start`: Gradient start color
-- `--stage-bg-end`: Gradient end color
-- `--stage-pulse-size`: Pulse effect size
-- `--stage-pulse-enabled`: Pulse enabled (1 or 0)
-
-#### Example
-
-```tsx
-<TarotStage
-  maxWidth="1000px"
-  height="400px"
-  padding="24px"
-  radius="20px"
-  bgStart="#141527"
-  bgEnd="#101320"
-  pulseEnabled={true}
-  pulseSize="640px"
->
-  {/* TarotWheel goes here */}
-</TarotStage>
+```
+User Drag → targetScrollRef → displayScrollRef → scrollOffset (state)
+                  ↓                    ↓               ↓
+              (instant)          (smoothed)      (rendered)
 ```
 
----
-
-### TarotWheel
-
-The main component that handles all wheel logic, scrolling, physics, and card selection.
-
-#### Props
-
-| Prop              | Type                             | Default      | Description                                                               |
-| ----------------- | -------------------------------- | ------------ | ------------------------------------------------------------------------- |
-| `cards`           | `TarotWheelCard[]`               | **required** | Array of card objects to display                                          |
-| `onCardSelect`    | `(card: TarotWheelCard) => void` | `undefined`  | Callback fired after card flip animation completes                        |
-| `spacing`         | `number`                         | `100`        | Distance between adjacent cards in pixels (controls scroll speed/density) |
-| `rayAngle`        | `number`                         | `90`         | Maximum angle of the arc rays in degrees (affects contour shape)          |
-| `flipDurationMs`  | `number`                         | `1500`       | Duration of card flip animation in milliseconds                           |
-| `inertiaFriction` | `number`                         | `0.95`       | Friction coefficient for inertia (0-1, higher = longer spinning)          |
-| `inertiaStopV`    | `number`                         | `5`          | Velocity threshold below which inertia stops                              |
-
-#### TarotWheelCard Interface
+**Key Variables:**
 
 ```typescript
-interface TarotWheelCard {
-  id: string | number; // Unique identifier
-  image: string; // Image URL/path
-  alt: string; // Alt text for accessibility
-}
+const [scrollOffset, setScrollOffset] = useState(0); // Rendered scroll position
+const targetScrollRef = useRef(0); // Target scroll (instant updates)
+const displayScrollRef = useRef(0); // Display scroll (smoothed)
+const accScrollOffset = useRef(0); // Accumulated scroll during drag
 ```
 
-#### State Management
+### Drag Handling Flow
 
-The component manages several internal states:
-
-1. **Scroll State**:
-
-   - `scrollOffset`: Current scroll position
-   - `accScrollOffset`: Accumulated scroll (during drag)
-   - `targetScrollRef`: Target scroll position
-   - `displayScrollRef`: Smoothed display scroll
-
-2. **Selection State**:
-
-   - `selectedCard`: Currently selected card (null if none)
-   - `isFlipping`: Whether flip animation is active
-   - `showFullCard`: Whether to show full card overlay
-
-3. **Interaction State**:
-   - `isDragging`: Is user currently dragging?
-   - `hasMoved`: Has drag moved (prevents accidental clicks)
-   - `velocity`: Current scroll velocity
-   - `isInertia`: Is inertia animation active?
-
-#### Physics System
-
-**Drag & Scroll**:
-
-- Users drag vertically to scroll through cards
-- Movement is captured via Pointer Events API
-- Scroll position is clamped to valid range (0 to maxScroll)
-
-**Inertia**:
-
-- Velocity is calculated from last 6 movement samples
-- After drag release, inertia animation takes over
-- Friction is applied each frame: `velocity *= inertiaFriction`
-- Stops when velocity drops below `inertiaStopV`
-
-**Smoothing**:
-
-- Display scroll smoothly interpolates toward target scroll
-- Uses alpha blending: `display += (target - display) * 0.25`
-- Provides smooth visual movement even during rapid changes
-
-#### Card Selection Flow
-
-1. User taps the **centered card** (card under the indicator)
-2. Wheel stops scrolling/inertia
-3. `selectedCard` and `isFlipping` states are set
-4. Flip animation plays for `flipDurationMs`
-5. After flip completes:
-   - `isFlipping` → false
-   - `showFullCard` → true
-   - `onCardSelect` callback is fired
-6. User can click "Draw Another Card" to reset
-
-#### Example
-
-```tsx
-<TarotWheel
-  cards={wheelCards}
-  onCardSelect={(card) => console.log("Selected:", card)}
-  spacing={100}
-  rayAngle={90}
-  flipDurationMs={1500}
-  inertiaFriction={0.95}
-  inertiaStopV={5}
-/>
+```
+┌─────────────────┐
+│ PointerDown     │ → Stop animations, capture pointer
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│ PointerMove     │ → Calculate deltaY, update targetScrollRef
+│                 │ → Collect velocity samples
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│ PointerUp       │ → Calculate velocity from samples
+│                 │ → Start inertia OR snap to center
+└─────────────────┘
 ```
 
----
-
-### TarotCard
-
-Individual card component with 3D positioning, rotation, and flip animations.
-
-#### Props
-
-| Prop               | Type             | Default      | Description                                          |
-| ------------------ | ---------------- | ------------ | ---------------------------------------------------- |
-| `card`             | `TarotWheelCard` | **required** | Card data (id, image, alt)                           |
-| `offsetFromCenter` | `number`         | **required** | Distance from center position in pixels              |
-| `rayAngle`         | `number`         | **required** | Arc ray angle in degrees (for geometry)              |
-| `isCentered`       | `boolean`        | **required** | Is this card under the center indicator?             |
-| `isFlipping`       | `boolean`        | **required** | Is flip animation active?                            |
-| `hasSelectedCard`  | `boolean`        | **required** | Is any card selected? (disables interaction)         |
-| `onClick`          | `() => void`     | **required** | Click handler (only fires if centered & interactive) |
-| `arcRadius`        | `number`         | `300`        | Radius of the arc contour                            |
-| `className`        | `string`         | `undefined`  | Additional CSS classes                               |
-
-#### Geometry Calculation
-
-The card position is calculated using the `arrangeByAngleContour` function:
-
-1. Takes `offsetFromCenter` (distance along contour)
-2. Returns `{ x, y, rotationDeg }`
-3. Applied as CSS transform: `translate(x, y) rotate(rotation)`
-
-**Memoization**: Position is memoized to prevent unnecessary recalculations during scroll.
-
-#### Card Structure
-
-```html
-<div class="spinning-wheel__card">
-  <div class="spinning-wheel__card-inner">
-    <div class="spinning-wheel__card-back">
-      <!-- Card back with pattern -->
-    </div>
-    <div class="spinning-wheel__card-front">
-      <!-- Card front with image -->
-    </div>
-  </div>
-</div>
-```
-
-#### States & Classes
-
-- `.spinning-wheel__card--centered`: Applied when card is under indicator (adds glow effect)
-- `.spinning-wheel__card--flipping`: Applied during flip animation
-- Transform applied via inline styles for performance
-
-#### Accessibility
-
-- Centered cards have `role="button"` and `tabIndex={0}`
-- Keyboard support: Enter and Space keys trigger selection
-- `aria-label` provides context: "Select card [name]"
-- Non-centered cards are not keyboard focusable (`tabIndex={-1}`)
-
----
-
-## Geometry System
-
-The `arrangeByAngleContour` function creates the arc contour shape.
-
-### How It Works
-
-The contour consists of two parts:
-
-1. **Arc Section** (when `s <= L_arc`):
-
-   - Cards follow a circular arc
-   - Arc length: `L_arc = R × θ_max`
-   - Position: `x = R sin(θ)`, `y = R(1 - cos(θ))`
-   - Rotation: `θ` (tangent to arc)
-
-2. **Ray Section** (when `s > L_arc`):
-   - Cards continue in straight lines
-   - Position extends from arc endpoint
-   - Rotation fixed at `rayAngle`
-
-### Parameters
+**Code Flow:**
 
 ```typescript
-interface AngleContourOptions {
-  R: number; // Arc radius (default: 300)
-  rayAngleDeg: number; // Max angle in degrees (default: 90)
+handlePointerMove() {
+  const deltaY = prevY.current - e.clientY;
+
+  // Update scroll position
+  accScrollOffset.current = clampScroll(accScrollOffset.current + deltaY);
+  targetScrollRef.current = accScrollOffset.current;
+
+  // Track velocity samples (last 6 points)
+  velocitySamples.current.push({
+    time: performance.now(),
+    scroll: accScrollOffset.current
+  });
 }
 ```
 
-### Result
+### Inertia Physics
+
+When user releases drag with velocity, inertia takes over:
 
 ```typescript
-interface AngleContourResult {
-  x: number; // Horizontal position
-  y: number; // Vertical position
-  rotationDeg: number; // Rotation in degrees
+animateInertia(t: number) {
+  const dt = (t - lastInertiaTime.current) / 1000;
+
+  // Apply velocity with friction
+  targetScrollRef.current += velocity.current * dt;
+  velocity.current *= inertiaFriction;  // Default: 0.95
+
+  // Magnetic snap to nearest card
+  const nearestCardScroll = Math.round(targetScrollRef.current / spacing) * spacing;
+  const snapForce = 0.2 * (1 - velocityFactor);
+  targetScrollRef.current += (nearestCardScroll - targetScrollRef.current) * snapForce;
+
+  // Stop when velocity drops below threshold
+  if (Math.abs(velocity.current) < inertiaStopV) {
+    snapToCenter();
+  }
 }
 ```
 
-### Visualization
+### Smooth Animation
 
-```
-        ╭──────╮  (apex, s=0)
-       ╱        ╲
-      │          │  ← Arc (curved)
-     │            │
-    │              │
-   ╱                ╲  ← Transition point (s = L_arc)
-  ╱                  ╲
- ╱                    ╲ ← Rays (straight)
-```
+Display scroll smoothly follows target scroll:
 
-### Adjusting the Shape
-
-- **Increase `R`**: Wider, more gradual curve
-- **Decrease `R`**: Tighter, sharper curve
-- **Increase `rayAngle`**: Cards spread more to the sides
-- **Decrease `rayAngle`**: Cards stay more vertical
-
----
-
-## Configuration Guide
-
-### Basic Setup
-
-```tsx
-import {
-  TarotStage,
-  TarotWheel,
-  TarotWheelCard,
-} from "@/components/tarot/tarot-wheel";
-
-const cards: TarotWheelCard[] = [
-  { id: 1, image: "/path/to/card1.jpg", alt: "The Fool" },
-  { id: 2, image: "/path/to/card2.jpg", alt: "The Magician" },
-  // ... more cards
-];
-
-function MyTarotPage() {
-  return (
-    <TarotStage>
-      <TarotWheel cards={cards} onCardSelect={(card) => console.log(card)} />
-    </TarotStage>
-  );
+```typescript
+animate() {
+  const alpha = 0.25;  // Smoothing factor
+  const diff = targetScrollRef.current - displayScrollRef.current;
+  displayScrollRef.current += diff * alpha;
+  setScrollOffset(displayScrollRef.current);
 }
 ```
 
-### Customizing Visual Style
+**Visual representation:**
 
-```tsx
-<TarotStage
-  maxWidth="1200px" // Wider stage
-  height="500px" // Taller stage
-  padding="32px" // More padding
-  radius="24px" // Larger border radius
-  bgStart="#0f0e17" // Dark gradient start
-  bgEnd="#1a1a2e" // Dark gradient end
-  pulseEnabled={true} // Keep pulse
-  pulseSize="800px" // Larger pulse
->
-  <TarotWheel cards={cards} />
-</TarotStage>
 ```
-
-### Adjusting Wheel Physics
-
-```tsx
-<TarotWheel
-  cards={cards}
-  spacing={120} // More space = slower scroll, less dense
-  rayAngle={75} // Less spread
-  flipDurationMs={2000} // Slower flip
-  inertiaFriction={0.97} // Longer inertia
-  inertiaStopV={3} // More gradual stop
-/>
+Target Scroll: ━━━━━━━━━━━●  (instant jump)
+Display Scroll: ～～～～～～～●  (smooth curve)
 ```
-
-### Tuning Parameters
-
-#### `spacing` (Scroll Speed & Density)
-
-- **Lower (50-80)**: Cards close together, fast scrolling
-- **Medium (80-120)**: Balanced spacing
-- **Higher (120-200)**: Cards far apart, slow scrolling
-
-#### `rayAngle` (Arc Shape)
-
-- **45°**: Very tight, vertical spread
-- **90°**: Balanced arc (default)
-- **120°**: Wide, horizontal spread
-
-#### `inertiaFriction` (Spin Duration)
-
-- **0.90**: Quick stop
-- **0.95**: Medium (default)
-- **0.98**: Long, smooth spin
-
-#### `inertiaStopV` (Stop Threshold)
-
-- **2-3**: Very gradual stop
-- **5**: Balanced (default)
-- **8-10**: Abrupt stop
 
 ---
 
-## Usage Examples
+## 📐 2. Arc Path Geometry
 
-### Full Example
+### The Arc Contour
 
-```tsx
-import { FC, useCallback } from "react";
-import {
-  TarotStage,
-  TarotWheel,
-  TarotWheelCard,
-} from "@/components/tarot/tarot-wheel";
+Cards follow a **circular arc** that transitions into **parallel vertical rays**:
 
-const wheelCards: TarotWheelCard[] = [
-  { id: 0, image: "/assets/major_arcana/the_fool.jpg", alt: "The Fool" },
-  {
-    id: 1,
-    image: "/assets/major_arcana/the_magician.jpg",
-    alt: "The Magician",
-  },
-  // ... 76 more cards
-];
+```
+        Center (0°)
+            ↓
+        ╭───●───╮
+       ╱    │    ╲
+      │     │     │
+     ╱      │      ╲
+    │    ARC (0° → rayAngle)    │
+    │       │       │
+    ║       │       ║  ← Vertical rays
+    ║       │       ║    (parallel lines)
+```
 
-export const TarotPage: FC = () => {
-  const handleCardSelect = useCallback((card: TarotWheelCard) => {
-    console.log("Selected card:", card);
-    // Send to analytics, save to state, etc.
-  }, []);
+### Mathematical Model
 
-  return (
-    <Page>
-      <TarotStage
-        maxWidth="1000px"
-        height="400px"
-        padding="24px"
-        radius="20px"
-        bgStart="#141527"
-        bgEnd="#101320"
-        pulseEnabled={true}
-        pulseSize="640px"
-      >
-        <header style={{ textAlign: "center" }}>
-          <h1>Tarot Reading</h1>
-          <p>Spin the wheel and select your destiny card</p>
-        </header>
+The `arrangeByAngleContour` function calculates position based on distance traveled along the contour:
 
-        <TarotWheel
-          cards={wheelCards}
-          onCardSelect={handleCardSelect}
-          spacing={100}
-          rayAngle={90}
-          flipDurationMs={1500}
-          inertiaFriction={0.95}
-          inertiaStopV={5}
-        />
-      </TarotStage>
-    </Page>
-  );
+```typescript
+function arrangeByAngleContour(s: number, { R, rayAngleDeg }) {
+  const thetaMaxRad = (rayAngleDeg * Math.PI) / 180;
+  const L_arc = R * thetaMaxRad; // Arc length
+
+  if (s <= L_arc) {
+    // ON THE ARC: Use polar coordinates
+    const theta = s / R;
+    return {
+      x: R * Math.sin(theta),
+      y: R - R * Math.cos(theta),
+      rotationDeg: (theta * 180) / Math.PI,
+    };
+  } else {
+    // ON THE RAY: Vertical continuation
+    const sRay = s - L_arc;
+    const arcEndX = R * Math.sin(thetaMaxRad);
+    const arcEndY = R - R * Math.cos(thetaMaxRad);
+
+    return {
+      x: arcEndX, // X constant (parallel)
+      y: arcEndY + sRay, // Y increases linearly
+      rotationDeg: 90, // Fixed vertical rotation
+    };
+  }
+}
+```
+
+### Coordinate System
+
+```
+       Origin (0, 0)
+           ↓
+     ━━━━━━●━━━━━━
+           │
+        R  │  (Arc radius)
+           │
+     ╭─────●─────╮  ← Start of arc (y = R - R·cos(0) = 0)
+    ╱      ↓      ╲
+   │   Card at θ   │
+
+   Position: (R·sin(θ), R - R·cos(θ))
+   Rotation: θ (degrees)
+```
+
+### Card Positioning Example
+
+Given:
+
+- `spacing = 100` (distance between cards)
+- `rayAngle = 90°`
+- `arcRadius = 300px`
+
+```
+Card Index 0: offset = 0     → (0, 0)     rotation = 0°
+Card Index 1: offset = 100   → (52, 8)    rotation = 19°
+Card Index 2: offset = 200   → (95, 30)   rotation = 38°
+...
+Card Index 5: offset = 500   → (0, 500)   rotation = 90° (on ray)
+```
+
+---
+
+## 🎯 3. Card Tilt Angle
+
+### Rotation Logic
+
+Each card's rotation follows the **tangent** of the arc at its position:
+
+```
+          ↑ 0° (vertical)
+          │
+          │
+      ╭───┼───╮
+     ╱    │    ╲
+    │  ╱  │  ╲  │
+   ╱ ╱    │    ╲ ╲
+  │ │     │     │ │
+ 45°│     0°    │ -45°
+    │           │
+```
+
+**In `TarotCard.tsx`:**
+
+```typescript
+const { translateX, translateY, rotationDeg } = useMemo(() => {
+  const absOffset = Math.abs(offsetFromCenter);
+  const side = offsetFromCenter < 0 ? -1 : 1; // Left or right
+
+  const result = arrangeByAngleContour(absOffset, {
+    R: arcRadius,
+    rayAngleDeg: rayAngle,
+  });
+
+  return {
+    translateX: side * result.x, // Mirror for left side
+    translateY: result.y,
+    rotationDeg: side * result.rotationDeg, // Mirror rotation
+  };
+}, [offsetFromCenter, rayAngle, arcRadius]);
+
+// Force centered card to be vertical (0°)
+const finalRotation = isCentered ? 0 : rotationDeg;
+```
+
+### Rotation Override for Centered Card
+
+```
+Left Cards         Center           Right Cards
+  ╱                 │                 ╲
+ ╱     rotation     │    rotation      ╲
+│      = -45°       │    = 0° ★         │
+╲                   │                   ╱
+ ╲                  │                  ╱
+  rotation = -90°   │      rotation = 45°
+```
+
+The **centered card** always gets `rotation = 0°` regardless of its calculated angle, making it perfectly vertical and ready for selection.
+
+---
+
+## 🎯 4. Active Card Calculation
+
+### Center Detection
+
+The active (centered) card is determined by scroll position:
+
+```typescript
+const getCenteredCardIndex = (value = scrollOffset) => {
+  const clamped = clampScroll(value);
+  const index = Math.round(clamped / spacing);
+  return Math.max(0, Math.min(cards.length - 1, index));
 };
 ```
 
-### Custom Card Renderer
+**Visual Example:**
 
-If you need custom card rendering, you can create a wrapper:
+```
+spacing = 100px
 
-```tsx
-const CustomTarotCard = (props: TarotCardProps) => {
-  return (
-    <TarotCard
-      {...props}
-      arcRadius={400} // Custom arc radius
-      className="my-custom-card"
-    />
-  );
-};
+Scroll:    0     100    200    300    400
+           │      │      │      │      │
+Cards:     0      1      2      3      4
+           ●──────●──────●──────●──────●
 
-// Use in TarotWheel by forking the component
+scrollOffset = 150  →  150 / 100 = 1.5  →  round(1.5) = 2  →  Card #2
+scrollOffset = 99   →  99 / 100 = 0.99  →  round(0.99) = 1  →  Card #1
+```
+
+### Magnetic Snapping
+
+Cards "snap" to center when close:
+
+```typescript
+// In animation loop
+const nearestCardIndex = Math.round(targetScrollRef.current / spacing);
+const nearestCardScroll = nearestCardIndex * spacing;
+const distanceFromCenter = Math.abs(
+  targetScrollRef.current - nearestCardScroll
+);
+
+const snapThreshold = 30; // px
+if (distanceFromCenter < snapThreshold && !isDragging.current) {
+  const snapForce = 0.15;
+  targetScrollRef.current +=
+    (nearestCardScroll - targetScrollRef.current) * snapForce;
+}
+```
+
+**Snap Behavior:**
+
+```
+        Target Range (±30px)
+      ┌─────────────────────┐
+      │         ↓           │
+─────────────●─────────────────────
+    Card 1   Center   Card 2
+
+If within range → Magnetic pull to center
+If outside → Free scrolling
 ```
 
 ---
 
-## Styling
+## 🃏 5. Card Selection & Flip Animation
 
-### SCSS Architecture
+### Selection Flow
 
-The component uses SCSS with CSS custom properties for theming:
+```
+┌──────────────────────┐
+│ User clicks card     │
+└──────────┬───────────┘
+           │
+     ┌─────▼─────┐
+     │ Is it     │ NO → Ignore click
+     │ centered? │
+     └─────┬─────┘
+          YES
+           │
+     ┌─────▼──────────────┐
+     │ Show full card     │
+     │ Start flip anim    │
+     └─────┬──────────────┘
+           │
+     ┌─────▼──────────────┐
+     │ After 1.5s         │
+     │ Call onCardSelect  │
+     └────────────────────┘
+```
 
-**TarotWheel.scss**:
+**Code:**
 
-- Card dimensions (`--twl-card-w`, `--twl-card-h`)
-- Colors (`--twl-glow`, `--twl-bg1`, `--twl-bg2`)
-- Layout (`--twl-pad-top`, `--twl-indicator-bottom`)
-- Responsive breakpoints (768px, 480px)
+```typescript
+const handleCardClick = (card: TarotWheelCard, index: number) => {
+  // Guard conditions
+  if (selectedCard || isFlipping) return;
+  if (index !== getCenteredCardIndex()) return; // Only centered card
 
-**TarotStage.scss**:
+  stopAnimation();
 
-- Stage dimensions (`--stage-max-w`, `--stage-h`)
-- Background colors (`--stage-bg-start`, `--stage-bg-end`)
-- Pulse effect (`--stage-pulse-size`, `--stage-pulse-enabled`)
+  // Show full card overlay with flip
+  setSelectedCard(card);
+  setShowFullCard(true);
+  setIsFlipping(true);
 
-### Customizing Colors
+  // Complete selection after animation
+  setTimeout(() => {
+    setIsFlipping(false);
+    onCardSelect?.(card);
+  }, flipDurationMs);
+};
+```
 
-Override CSS variables in your app:
+### Flip Animation
+
+The flip uses CSS 3D transforms:
+
+```scss
+@keyframes flipCard {
+  0% {
+    transform: rotateY(0deg);
+  } // Back visible
+  50% {
+    transform: rotateY(180deg);
+  } // Midway
+  100% {
+    transform: rotateY(180deg);
+  } // Front visible
+}
+```
+
+**Card Structure (3D Flip):**
+
+```
+.spinning-wheel__card-inner
+  transform-style: preserve-3d
+  ├── .spinning-wheel__card-back
+  │     backface-visibility: hidden
+  │     (Visible at 0°)
+  └── .spinning-wheel__card-front
+        transform: rotateY(180deg)
+        backface-visibility: hidden
+        (Visible at 180°)
+```
+
+**Visual:**
+
+```
+     Front (0°)          Mid (90°)         Back (180°)
+    ┌─────────┐         ┌─┐               ┌─────────┐
+    │ Back    │         │ │               │  Front  │
+    │ Side    │   →     │ │         →     │  Image  │
+    │ Pattern │         │ │               │         │
+    └─────────┘         └─┘               └─────────┘
+```
+
+---
+
+## 🎨 6. CSS Variables & Responsive Design
+
+### Key CSS Variables
 
 ```scss
 :root {
-  // Wheel colors
-  --twl-glow: rgba(255, 100, 50, 0.9); // Orange glow
-  --twl-glow-strong: rgba(255, 100, 50, 1);
-  --twl-bg1: #3d2b1f; // Brown background
-  --twl-bg2: #6f4e37;
+  --twl-arc-radius: 400px; // Arc radius (synced with JS)
+  --twl-pointer-top: calc(var(--twl-arc-radius) - 1.5rem);
 
-  // Stage colors
-  --stage-bg-start: #1a0e0a;
-  --stage-bg-end: #2d1810;
+  --twl-card-w: 110px; // Card dimensions
+  --twl-card-h: 194px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --twl-arc-radius: 350px;
+    --twl-card-w: 90px;
+    --twl-card-h: 158px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --twl-arc-radius: 300px;
+    --twl-card-w: 70px;
+    --twl-card-h: 123px;
+  }
 }
 ```
 
-### Responsive Design
+### Arc Radius Synchronization
 
-The component automatically adjusts card sizes at breakpoints:
+The arc radius must be synchronized between CSS and JS:
 
-- **Desktop (>768px)**: 110×165px cards
-- **Tablet (≤768px)**: 90×135px cards
-- **Mobile (≤480px)**: 70×105px cards
+```typescript
+useEffect(() => {
+  const updateArcRadius = () => {
+    const value = getComputedStyle(document.documentElement)
+      .getPropertyValue("--twl-arc-radius")
+      .trim();
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      setArcRadius(numValue);
+    }
+  };
 
-### Accessibility Features
-
-- **Reduced Motion**: Respects `prefers-reduced-motion` media query
-- **Keyboard Navigation**: Centered cards are keyboard accessible
-- **Screen Readers**: Proper ARIA labels and roles
-- **Focus Management**: Clear focus states for interactive elements
+  updateArcRadius();
+  window.addEventListener("resize", updateArcRadius);
+  return () => window.removeEventListener("resize", updateArcRadius);
+}, []);
+```
 
 ---
 
-## Accessibility
+## 🔧 7. Configuration Props
 
-### Keyboard Support
+### TarotWheel Props
 
-- **Tab**: Navigate to centered card (when available)
-- **Enter/Space**: Select the centered card
-- **Drag/Scroll**: Works with mouse, touch, and pointer devices
+| Prop              | Type               | Default  | Description                                         |
+| ----------------- | ------------------ | -------- | --------------------------------------------------- |
+| `cards`           | `TarotWheelCard[]` | Required | Array of cards to display                           |
+| `onCardSelect`    | `(card) => void`   | Optional | Callback when card is selected                      |
+| `spacing`         | `number`           | `100`    | Distance between cards (px) - controls scroll speed |
+| `rayAngle`        | `number`           | `90`     | Maximum arc angle (degrees) before vertical rays    |
+| `flipDurationMs`  | `number`           | `1500`   | Flip animation duration (ms)                        |
+| `inertiaFriction` | `number`           | `0.95`   | Friction coefficient (0-1), higher = longer spin    |
+| `inertiaStopV`    | `number`           | `5`      | Velocity threshold for stopping (px/s)              |
 
-### ARIA Attributes
+### Usage Example
 
-- `role="button"`: Applied to centered, interactive cards
-- `aria-label`: Descriptive label for each card
-- `aria-pressed`: False for unselected interactive cards
-- `aria-live="polite"`: Wheel announces changes to screen readers
-- `aria-modal="true"`: Full card overlay is modal dialog
+```tsx
+<TarotWheel
+  cards={allTarotCards}
+  onCardSelect={handleCardSelect}
+  spacing={100} // Tight spacing = slower scroll
+  rayAngle={90} // 90° arc before vertical rays
+  flipDurationMs={1500} // 1.5s flip animation
+  inertiaFriction={0.95} // Smooth deceleration
+  inertiaStopV={5} // Stop at 5px/s
+/>
+```
 
-### Screen Reader Support
+---
 
-- Cards announce their name when focused
-- Selection is announced via `aria-live` region
-- Modal overlay traps focus appropriately
+## 🌊 8. Animation States & Lifecycle
 
-### Motion Preferences
+### State Machine
+
+```
+┌─────────────┐
+│   Idle      │ ←──────────────┐
+└─────┬───────┘                │
+      │ User drags             │
+      ▼                        │
+┌─────────────┐                │
+│  Dragging   │                │
+└─────┬───────┘                │
+      │ Release                │
+      ▼                        │
+┌─────────────┐                │
+│   Inertia   │ ───────────────┤
+└─────┬───────┘  Velocity < 5  │
+      │                        │
+      ▼                        │
+┌─────────────┐                │
+│  Snapping   │ ────────────────┘
+└─────────────┘
+```
+
+### Animation Flags
+
+```typescript
+const isDragging = useRef(false);        // User is dragging
+const isInertia = useRef(false);         // Inertia animation active
+const [isFlipping, setIsFlipping] = ...  // Card flip animation
+const [selectedCard, setSelectedCard] = ...  // Card selected
+```
+
+### Animation Cleanup
+
+```typescript
+useEffect(() => {
+  return () => stopAnimation(); // Cleanup on unmount
+}, []);
+
+const stopAnimation = () => {
+  if (animationFrameId.current != null) {
+    cancelAnimationFrame(animationFrameId.current);
+  }
+  animationFrameId.current = null;
+  isInertia.current = false;
+  velocity.current = 0;
+};
+```
+
+---
+
+## 📊 9. Performance Optimizations
+
+### 1. **Transform-based Positioning**
+
+Cards use CSS transforms (GPU-accelerated):
+
+```typescript
+style={{
+  transform: `translate(${translateX}px, ${translateY}px) rotate(${finalRotation}deg)`
+}}
+```
+
+### 2. **useMemo for Geometry Calculations**
+
+```typescript
+const { translateX, translateY, rotationDeg } = useMemo(() => {
+  // Heavy calculations only when offsetFromCenter changes
+  return arrangeByAngleContour(...);
+}, [offsetFromCenter, rayAngle, arcRadius]);
+```
+
+### 3. **requestAnimationFrame**
+
+Smooth 60fps animations:
+
+```typescript
+animationFrameId.current = requestAnimationFrame(animate);
+```
+
+### 4. **Velocity Sampling**
+
+Tracks last 6 samples to calculate accurate velocity:
+
+```typescript
+velocitySamples.current.push({ time: now, scroll: accScrollOffset.current });
+if (velocitySamples.current.length > 6) velocitySamples.current.shift();
+```
+
+### 5. **will-change CSS Hints**
 
 ```scss
-@media (prefers-reduced-motion: reduce) {
-  .spinning-wheel *,
-  .tarot-stage * {
-    animation: none !important;
-    transition: none !important;
+.spinning-wheel__card {
+  will-change: transform;
+
+  &--centered {
+    will-change: filter, transform;
   }
 }
 ```
 
 ---
 
-## Technical Notes
+## 🎭 10. Visual Effects
 
-### Performance Optimizations
+### Centered Card Highlight
 
-1. **Memoization**: Card geometry is memoized via `useMemo`
-2. **requestAnimationFrame**: Smooth 60fps animations
-3. **CSS transforms**: Hardware-accelerated positioning
-4. **will-change**: Hints browser about transform changes
-5. **Pointer Events**: Modern, efficient event handling
+```scss
+.spinning-wheel__card--centered {
+  z-index: 10;
+  filter: brightness(1.3) drop-shadow(0 0 30px var(--twl-glow));
 
-### Browser Compatibility
-
-- Modern browsers (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
-- Requires CSS custom properties support
-- Uses Pointer Events API (polyfill for older browsers if needed)
-- 3D transforms (`perspective`, `preserve-3d`, `backface-visibility`)
-
-### Known Limitations
-
-- Maximum ~100 cards recommended for performance
-- Touch/pointer events only (no mouse wheel scroll)
-- Requires JavaScript enabled
-
----
-
-## Troubleshooting
-
-### Cards not appearing?
-
-- Ensure `cards` array is populated with valid `TarotWheelCard` objects
-- Check that image paths are correct
-- Verify parent container has sufficient height
-
-### Scrolling feels jerky?
-
-- Adjust `inertiaFriction` (try 0.93-0.97)
-- Reduce `spacing` for smoother small movements
-- Check for other animations/JS running on page
-
-### Cards positioned incorrectly?
-
-- Verify `rayAngle` is reasonable (30-120°)
-- Check `arcRadius` in TarotCard (try 250-400)
-- Ensure parent has `overflow: visible` if needed
-
-### Flip animation issues?
-
-- Check `flipDurationMs` (try 1000-2000ms)
-- Ensure CSS for `.spinning-wheel__card--flipping` is loaded
-- Verify browser supports 3D transforms
-
----
-
-## API Reference Summary
-
-### Exported Components
-
-```typescript
-export { TarotStage } from "./TarotStage";
-export { TarotCard } from "./TarotCard";
-export { TarotWheel } from "./TarotWheel";
-export { arrangeByAngleContour } from "./arrangeByAngleContour";
+  &:hover {
+    filter: brightness(1.4) drop-shadow(0 0 40px var(--twl-glow-strong));
+  }
+}
 ```
 
-### Exported Types
+### Indicator Arrow
 
-```typescript
-export type { TarotCardProps } from "./TarotCard";
-export type { TarotWheelCard } from "./TarotWheel";
-export type {
-  AngleContourOptions,
-  AngleContourResult,
-} from "./arrangeByAngleContour";
+```scss
+.spinning-wheel__indicator-arrow {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 30px solid #8a2be2;
+  filter: drop-shadow(0 0 10px rgba(138, 43, 226, 0.8));
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
 ```
 
 ---
 
-## Contributing
+## 🐛 11. Edge Cases & Guards
 
-When modifying the tarot wheel system:
+### 1. **Boundary Clamping**
 
-1. **Test responsiveness** at 480px, 768px, 1024px, and 1920px
-2. **Check accessibility** with keyboard and screen readers
-3. **Verify motion preferences** (`prefers-reduced-motion`)
-4. **Test with different card counts** (10, 50, 78, 100 cards)
-5. **Update this README** if changing props or behavior
+```typescript
+const clampScroll = (v: number) => Math.max(0, Math.min(maxScroll, v));
+const maxScroll = Math.max(0, (cards.length - 1) * spacing);
+```
+
+### 2. **Click Prevention During Animation**
+
+```typescript
+if (selectedCard || isFlipping) return; // Ignore clicks
+if (index !== getCenteredCardIndex()) return; // Only centered card
+```
+
+### 3. **Pointer Capture**
+
+```typescript
+e.currentTarget.setPointerCapture(e.pointerId); // Track pointer even outside element
+```
+
+### 4. **Card Click vs Container Drag**
+
+```typescript
+if ((e.target as HTMLElement).closest(".spinning-wheel__card")) return;
+// Don't start drag if clicking directly on card
+```
 
 ---
 
-## License
+## 📈 12. Data Flow Diagram
 
-Part of the Numero TMA project.
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        TarotWheel                           │
+│                                                             │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐ │
+│  │ User Input   │───→│ Scroll State │───→│   Render     │ │
+│  └──────────────┘    └──────────────┘    └──────────────┘ │
+│         │                    │                    │         │
+│    Drag/Inertia         scrollOffset         For each card │
+│                              │                    │         │
+│                    ┌─────────▼─────────┐         │         │
+│                    │ getCenteredCard() │         │         │
+│                    └───────────────────┘         │         │
+│                                                   │         │
+│  ┌────────────────────────────────────────────────▼──────┐ │
+│  │                    TarotCard                          │ │
+│  │                                                        │ │
+│  │  offsetFromCenter ───→ arrangeByAngleContour()       │ │
+│  │                              │                        │ │
+│  │                              ▼                        │ │
+│  │                     { x, y, rotation }                │ │
+│  │                              │                        │ │
+│  │                              ▼                        │ │
+│  │              transform: translate() rotate()          │ │
+│  └────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 13. Quick Reference
+
+### Key Formulas
+
+| Concept            | Formula                                           |
+| ------------------ | ------------------------------------------------- |
+| **Arc Length**     | `L = R × θ` (where θ in radians)                  |
+| **Arc Position**   | `x = R × sin(θ)`, `y = R - R × cos(θ)`            |
+| **Centered Index** | `round(scrollOffset / spacing)`                   |
+| **Velocity**       | `Δscroll / Δtime` from last 6 samples             |
+| **Inertia Update** | `scroll += velocity × dt`, `velocity *= friction` |
+| **Smooth Follow**  | `display += (target - display) × 0.25`            |
+
+### State Variables Quick Lookup
+
+```typescript
+// Scroll positions
+scrollOffset; // React state (triggers render)
+targetScrollRef; // Instant target position
+displayScrollRef; // Smoothed display position
+accScrollOffset; // Accumulated during drag
+
+// Animation control
+isDragging; // Pointer is down and moving
+isInertia; // Inertia animation running
+velocity; // Current velocity (px/s)
+velocitySamples; // Last 6 position samples
+
+// Card state
+selectedCard; // Currently selected card
+isFlipping; // Flip animation active
+showFullCard; // Full card overlay visible
+```
+
+---
+
+## 🎯 14. Troubleshooting
+
+### Cards not aligning properly
+
+- Check `--twl-arc-radius` CSS variable matches JS `arcRadius`
+- Verify `spacing` prop matches intended card density
+
+### Jerky scrolling
+
+- Increase `inertiaFriction` (e.g., 0.98 instead of 0.95)
+- Adjust `alpha` smoothing factor in `animate()`
+
+### Cards won't snap to center
+
+- Check `snapThreshold` (default 30px)
+- Verify `spacing` is reasonable (50-150px recommended)
+
+### Selection not working
+
+- Ensure card is centered (`index === getCenteredCardIndex()`)
+- Check `selectedCard` and `isFlipping` states aren't blocking
+
+---
+
+## 📝 15. Future Enhancements
+
+### Potential Improvements
+
+1. **Touch gesture improvements**
+
+   - Multi-finger gestures
+   - Momentum-based flick
+
+2. **Accessibility**
+
+   - Keyboard navigation (arrow keys)
+   - Screen reader announcements
+
+3. **Visual effects**
+
+   - Particle effects on selection
+   - Card reveal animations
+
+4. **Performance**
+   - Virtual scrolling for large card sets
+   - Card pooling/recycling
+
+---
+
+## 📚 Related Files
+
+- `TarotStage.tsx` - Container wrapper component
+- `tarot.page.tsx` - Page implementation example
+- `TarotWheel.scss` - Full styling and animations
+- `tarotCards.data.ts` - 78 tarot cards data
+
+---
+
+**Last Updated:** October 2025  
+**Component Version:** 1.0  
+**Author:** numero_tma team
