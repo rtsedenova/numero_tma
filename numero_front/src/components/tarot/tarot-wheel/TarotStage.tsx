@@ -1,44 +1,20 @@
-import { FC, PropsWithChildren } from "react";
-import "./TarotStage.scss";
+import React from 'react';
 
-/**
- * TarotStage — контейнер для Tarot компонентов
- */
-interface TarotStageProps extends PropsWithChildren {
-  className?: string; // дополнительные CSS классы
-  height?: string; // высота стейджа (CSS size)
-  padding?: string; // внутренние отступы (CSS size)
-  radius?: string; // скругление (CSS size)
-  bgStart?: string; // начальный цвет градиента
-  bgEnd?: string; // конечный цвет градиента
+interface TarotStageProps {
+  children: React.ReactNode;
 }
 
-export const TarotStage: FC<TarotStageProps> = ({
-  children,
-  className = "",
-  height,
-  padding,
-  radius,
-  bgStart,
-  bgEnd,
-}) => {
-  const style: React.CSSProperties = {
-    ...(height && { ["--stage-h" as any]: height }),
-    ...(padding && { ["--stage-pad" as any]: padding }),
-    ...(radius && { ["--stage-radius" as any]: radius }),
-    ...(bgStart && { ["--stage-bg-start" as any]: bgStart }),
-    ...(bgEnd && { ["--stage-bg-end" as any]: bgEnd }),
-  };
-
+export const TarotStage: React.FC<TarotStageProps> = ({ children }) => {
   return (
-    <section
-      className={`tarot-stage ${className}`.trim()}
-      style={style}
-      role="group"
-      aria-label="Tarot stage"
+    <div
+      className="fixed inset-0 overflow-hidden bg-gradient-to-b from-indigo-900 to-purple-900
+                flex items-end justify-center"
+      style={{
+        overscrollBehavior: 'none',   
+        touchAction: 'none',          
+      }}
     >
-      {/* ── Контент ─────────────────────────────────────────────────────────── */}
-      <div className="tarot-stage__content">{children}</div>
-    </section>
+      {children}
+    </div>
   );
 };

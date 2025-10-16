@@ -1,100 +1,19 @@
-import { FC, useMemo } from "react";
-import { TarotWheelCard } from "./TarotWheel";
-import { arrangeByAngleContour } from "./arrangeByAngleContour";
+import React from 'react';
 
-/**
- * Props:
- * - card              — данные карточки (id, image, alt)
- * - offsetFromCenter  — смещение от центра в условных px (управляет позицией по дуге)
- * - rayAngle          — угол луча, вдоль которого строится дуга (в градусах)
- * - isCentered        — находится ли карта под индикатором (в центре)
- * - isFlipping        — активна ли анимация переворота
- * - hasSelectedCard   — выключает взаимодействия, если уже выбрана карта
- * - onClick           — клик по карте (используется только для центральной)
- * - arcRadius         — радиус дуги, по которой раскладываются карты
- * - className         — доп. классы для обёртки карты
- */
-export interface TarotCardProps {
-  card: TarotWheelCard;
-  offsetFromCenter: number;
-  rayAngle: number;
-  isCentered: boolean;
-  isFlipping: boolean;
-  hasSelectedCard: boolean;
-  onClick: () => void;
-  arcRadius?: number;
-  className?: string;
+interface TarotCardProps {
+  index: number;
 }
 
-export const TarotCard: FC<TarotCardProps> = ({
-  card,
-  offsetFromCenter,
-  rayAngle,
-  isCentered,
-  isFlipping,
-  hasSelectedCard,
-  onClick,
-  arcRadius = 300,
-  className,
-}) => {
-  // ── Вычисление геометрии ────────────────────────────────────────────────
-  const { translateX, translateY, rotationDeg } = useMemo(() => {
-    const absOffset = Math.abs(offsetFromCenter);
-    const side = offsetFromCenter < 0 ? -1 : 1;
-
-    const result = arrangeByAngleContour(absOffset, {
-      R: arcRadius,
-      rayAngleDeg: rayAngle,
-    });
-
-    return {
-      translateX: side * result.x,
-      translateY: result.y,
-      rotationDeg: side * result.rotationDeg,
-    };
-  }, [offsetFromCenter, rayAngle, arcRadius]);
-
-  // ── Взаимодействие и доступность ─────────────────────────────────────────────────────
-  const interactive = isCentered && !hasSelectedCard;
-  const handleClick = () => {
-    if (interactive) onClick();
-  };
-
-  // ── Рендер ──────────────────────────────────────────────────────────────────
-  // Принудительное вертикальное вращение для центральной карты (rotation = 0°)
-  const finalRotation = isCentered ? 0 : rotationDeg;
-
+export const TarotCard: React.FC<TarotCardProps> = () => {
   return (
-    <div
-      className={[
-        "spinning-wheel__card",
-        isCentered ? "spinning-wheel__card--centered" : "",
-        isFlipping && isCentered ? "spinning-wheel__card--flipping" : "",
-        interactive ? "spinning-wheel__card--interactive" : "",
-        className ?? "",
-      ].join(" ").trim()}
-      style={{
-        transform: `translate(${translateX}px, ${translateY}px) rotate(${finalRotation}deg)`,
-      }}
-      role={interactive ? "button" : undefined}
-      tabIndex={interactive ? 0 : -1}
-      aria-pressed={interactive ? false : undefined}
-      aria-label={interactive ? `Select card ${card.alt}` : undefined}
-      onClick={handleClick}
-      onKeyDown={(e) => {
-        if (!interactive) return;
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
+    <div 
+      className="bg-gradient-to-br from-purple-100 to-purple-200 border-2 border-purple-400 rounded-lg shadow-lg flex items-center justify-center"
+      style={{ 
+        width: '80px',
+        height: '141.2px',
+        aspectRatio: '1 / 1.765'
       }}
     >
-      <div className="spinning-wheel__card-inner">
-        <div className="spinning-wheel__card-back" />
-        <div className="spinning-wheel__card-front">
-          <img src={card.image} alt={card.alt} />
-        </div>
-      </div>
     </div>
   );
 };
