@@ -8,6 +8,7 @@ import { TONConnectPage } from '@/pages/TONConnectPage/TONConnectPage';
 import { ProfilePage } from '@/pages/profile.page';
 import { NewNumerologyPage } from '@/pages/new-numerology.page';
 import { TarotPage } from '@/pages/tarot.page';
+import { TarotResultPage } from '@/pages/tarot-result.page';
 
 interface Route {
   path: string;
@@ -47,4 +48,5 @@ export const routes: Route[] = [
   { path: '/profile', Component: ProfilePage, title: 'Profile Page' },
   { path: '/numerology-new', Component: NewNumerologyPage, title: 'New Numerology Page' },
   { path: '/tarot', Component: TarotPage, title: 'Tarot Page' },
+  { path: '/tarot-result', Component: TarotResultPage, title: 'Tarot Result Page' },
 ];

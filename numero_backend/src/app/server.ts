@@ -6,6 +6,7 @@ import userRoutes from '../routes/users.routes';
 import predictionRoutes from '../routes/predictions.routes';
 import paymentRoutes from '../routes/payment.routes';
 import { createNumerologyRoutes } from '../features/numerology';
+import tarotRoutes from '../features/tarot/tarot.routes';
 
 export function buildApp() {
   const app = express();
@@ -35,7 +36,7 @@ export function buildApp() {
   app.use('/api/db/predictions', predictionRoutes);
   app.use('/api/payment', paymentRoutes);
   app.use('/api/numerology', createNumerologyRoutes());
-
+  app.use('/api/tarot', tarotRoutes);
   app.use(errorHandler);
 
   return app;

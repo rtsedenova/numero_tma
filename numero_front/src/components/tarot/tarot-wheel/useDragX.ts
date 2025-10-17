@@ -4,19 +4,26 @@
     onStart?: () => void;
     onDelta: (dx: number) => void;
     onEnd?: (totalDx: number, velocityX: number) => void;
+    onClick?: (e: React.PointerEvent<HTMLDivElement>) => void;
     lockY?: boolean; 
   };
 
-  export function useDragX({ onStart, onDelta, onEnd, lockY = true }: DragXOpts) {
+  export function useDragX({ onStart, onDelta, onEnd, onClick, lockY = true }: DragXOpts) {
     const dragging = React.useRef(false);
     const lastX = React.useRef(0);
     const total = React.useRef(0);
+    const startX = React.useRef(0);
+    const startY = React.useRef(0);
+    const startTime = React.useRef(0);
 
     const trail = React.useRef<Array<{ t: number; x: number }>>([]);
 
     const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
       dragging.current = true;
       lastX.current = e.clientX;
+      startX.current = e.clientX;
+      startY.current = e.clientY;
+      startTime.current = performance.now();
       total.current = 0;
       trail.current = [{ t: performance.now(), x: e.clientX }];
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -36,7 +43,7 @@
       onDelta(dx);
     };
 
-    const finish = () => {
+    const finish = (e?: React.PointerEvent<HTMLDivElement>) => {
       if (!dragging.current) return;
       dragging.current = false;
 
@@ -48,14 +55,29 @@
         const dt = (b.t - a.t) / 1000; 
         if (dt > 0) velocityX = (b.x - a.x) / dt; 
       }
+
+      // Check if this was a click (minimal movement and quick)
+      if (e && onClick) {
+        const dx = Math.abs(e.clientX - startX.current);
+        const dy = Math.abs(e.clientY - startY.current);
+        const dt = performance.now() - startTime.current;
+        const CLICK_THRESHOLD = 5; // pixels
+        const TIME_THRESHOLD = 300; // ms
+        
+        if (dx < CLICK_THRESHOLD && dy < CLICK_THRESHOLD && dt < TIME_THRESHOLD) {
+          onClick(e);
+          return; // Don't call onEnd for clicks
+        }
+      }
+
       onEnd?.(total.current, velocityX);
     };
 
     return {
       onPointerDown,
       onPointerMove,
-      onPointerUp: finish,
-      onPointerCancel: finish,
+      onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => finish(e),
+      onPointerCancel: () => finish(),
       style: { touchAction: lockY ? 'none' as const : 'pan-y' as const, cursor: 'grab' as const },
     };
   }

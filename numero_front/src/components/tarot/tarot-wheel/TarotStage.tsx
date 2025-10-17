@@ -7,7 +7,7 @@ interface TarotStageProps {
 export const TarotStage: React.FC<TarotStageProps> = ({ children }) => {
   return (
     <div
-      className="fixed inset-0 overflow-hidden bg-gradient-to-b from-indigo-900 to-purple-900
+      className="fixed inset-0 overflow-hidden bg-[#301d42]
                 flex items-end justify-center"
       style={{
         overscrollBehavior: 'none',   
