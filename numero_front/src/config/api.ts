@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://r0kjwa-5-77-206-202.ru.tuna.am';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://86dc57f15029.ngrok-free.app';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 30000;
 
 export const API_ENDPOINTS = {
   s3: {
-    numData: '/api/s3/file/num_data.json'
+    numData: '/api/s3/file/num_data.json',
+    tarotData: '/api/s3/file/tarot_cards.json'
   },
   db: {
     users: {
@@ -18,6 +19,9 @@ export const API_ENDPOINTS = {
   },
   payment: {
     createInvoice: '/api/payment/create-invoice'
+  },
+  tarot: {
+    draw: '/api/tarot/draw', 
   }
 } as const;
 

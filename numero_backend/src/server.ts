@@ -1,42 +1,22 @@
-import express from 'express';
-import cors from 'cors';
+import { buildApp } from './app/server';
 import fs from 'fs';
 import https from 'https';
 import http from 'http';
 import dotenv from 'dotenv';
-import { errorHandler } from './middlewares/errorHandler';
-import s3Routes from './routes/s3.routes';
-import userRoutes from './routes/users.routes';
-import predictionRoutes from './routes/predictions.routes';
-import paymentRoutes from './routes/payment.routes';
 import { TelegramStarsService } from './services/payment/payByStars.service';
 
 dotenv.config();
 
-const app = express();
+const app = buildApp();
 const isProduction = process.env.NODE_ENV === 'production';
 const HTTPS_PORT = 443;
 const HTTP_PORT = 3000;
 
-app.use(cors({ origin: '*' }));
-app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.send(`Server is working on ${isProduction ? 'HTTPS (prod)' : 'HTTP (dev)'}!`);
-});
-
-app.use('/api/s3', s3Routes);
-app.use('/api/db/users', userRoutes);
-app.use('/api/db/predictions', predictionRoutes);
-app.use('/api/payment', paymentRoutes);
-
-app.use(errorHandler);
-
 TelegramStarsService.attachHandlers();
 TelegramStarsService.getBotInstance().launch().then(() => {
-  console.log("✅ Telegram bot запущен и слушает события!");
+  console.log("Telegram bot запущен и слушает события!");
 }).catch((err) => {
-  console.error("❌ Ошибка запуска Telegram бота:", err);
+  console.error("Ошибка запуска Telegram бота:", err);
 });
 
 if (isProduction) {

@@ -1,12 +1,14 @@
 import type { ComponentType, JSX } from 'react';
 
-import { IndexPage } from '@/pages/IndexPage/IndexPage';
+import { IndexPage } from '@/pages/index.page';
 import { InitDataPage } from '@/pages/InitDataPage.tsx';
 import { LaunchParamsPage } from '@/pages/LaunchParamsPage.tsx';
 import { ThemeParamsPage } from '@/pages/ThemeParamsPage.tsx';
 import { TONConnectPage } from '@/pages/TONConnectPage/TONConnectPage';
-import { ProfilePage } from '@/pages/ProfilePage/ProfilePage';
-import { DestinyNumberPage } from '@/pages/DestinyNumberPage/DestinyNumberPage';
+import { ProfilePage } from '@/pages/profile.page';
+import { NewNumerologyPage } from '@/pages/new-numerology.page';
+import { TarotPage } from '@/pages/tarot.page';
+import { TarotResultPage } from '@/pages/tarot-result.page';
 
 interface Route {
   path: string;
@@ -44,5 +46,7 @@ export const routes: Route[] = [
     ),
   },
   { path: '/profile', Component: ProfilePage, title: 'Profile Page' },
-  { path: '/destiny-number', Component: DestinyNumberPage, title: 'Destiny Number Page' },
+  { path: '/numerology-new', Component: NewNumerologyPage, title: 'New Numerology Page' },
+  { path: '/tarot', Component: TarotPage, title: 'Tarot Page' },
+  { path: '/tarot-result', Component: TarotResultPage, title: 'Tarot Result Page' },
 ];

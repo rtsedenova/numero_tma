@@ -3,7 +3,7 @@ import { House, Eye, User } from 'phosphor-react';
 
 const navItems = [
   { to: '/', icon: <House size={28} />, label: 'Home' },
-  { to: '/destiny-number', icon: <Eye size={28} />, label: 'Destiny' },
+  { to: '/numerology', icon: <Eye size={28} />, label: 'Destiny' },
   { to: '/profile', icon: <User size={28} />, label: 'Profile' },
 ];
 
