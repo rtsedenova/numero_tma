@@ -1,58 +1,95 @@
-// tarot.controller.ts
-import type { RequestHandler } from "express";
-import { getAllCards, getCardById, drawRandomCard, loadTarotData } from "./tarot.service";
+import type { RequestHandler } from 'express';
+import { getAllCards, getCardById, drawRandomCard, loadTarotData } from './tarot.service';
+
+/** Допустимые категории запроса */
+const ALLOWED_CATEGORIES = ['love', 'finance', 'health', 'future', 'yesno'] as const;
+type AllowedCategory = (typeof ALLOWED_CATEGORIES)[number];
+
+// -- Утилита: безопасный разбор опций вытягивания карты
+function parseDrawBody(body: any): {
+  reversalsEnabled?: boolean;
+  reversalChance?: number;
+  category?: AllowedCategory;
+} {
+  if (!body || typeof body !== 'object') return {};
+
+  const out: {
+    reversalsEnabled?: boolean;
+    reversalChance?: number;
+    category?: AllowedCategory;
+  } = {};
+
+  if (typeof body.reversalsEnabled === 'boolean') out.reversalsEnabled = body.reversalsEnabled;
+
+  if (body.reversalChance !== undefined) {
+    const n = Number(body.reversalChance);
+    if (!Number.isNaN(n) && n >= 0 && n <= 1) out.reversalChance = n;
+  }
+
+  if (typeof body.category === 'string') {
+    const cat = body.category.trim().toLowerCase();
+    if (ALLOWED_CATEGORIES.includes(cat as AllowedCategory)) {
+      out.category = cat as AllowedCategory;
+    }
+  }
+
+  return out;
+}
 
 export const TarotController = {
+  // Список всех карт
   list: (async (_req, res) => {
-    const cards = await getAllCards();
-    res.json({ ok: true, count: cards.length, cards });
-  }) as RequestHandler,
-
-  getById: (async (req, res) => {
-    const id = String(req.params.id);
-    const card = await getCardById(id);
-    if (!card) return res.status(404).json({ ok: false, error: "Card not found" });
-    res.json({ ok: true, card });
-  }) as RequestHandler,
-
-  draw: (async (req, res) => {
-    console.log('[tarot.controller] ==========================================');
-    console.log('[tarot.controller] Draw request received');
-    console.log('[tarot.controller] Body:', JSON.stringify(req.body, null, 2));
-    
     try {
-      const { reversalsEnabled, reversalChance, category } = req.body || {};
-      
-      console.log('[tarot.controller] Extracted category:', category, 'Type:', typeof category);
-      
-      const result = await drawRandomCard({ 
-        reversalsEnabled, 
-        reversalChance, 
-        category: category as "love" | "finance" | "health" | "future" | "yesno" | undefined
-      });
-      
-      console.log('[tarot.controller] Draw result:', JSON.stringify({
-        cardId: result.card.id,
-        cardName: result.card.name,
-        orientation: result.orientation,
-        hasGeneral: !!result.text.general,
-        hasByCategory: !!result.text.by_category,
-        byCategoryText: result.text.by_category
-      }, null, 2));
-      console.log('[tarot.controller] ==========================================');
-      
+      const cards = await getAllCards();
+      res.json({ ok: true, count: cards.length, cards });
+    } catch (e) {
+      console.error('[tarot.ctrl] list error');
+      res.status(500).json({ ok: false, error: 'Failed to load cards' });
+    }
+  }) as RequestHandler,
+
+  // Получение карты по id
+  getById: (async (req, res) => {
+    try {
+      const id = String(req.params.id || '');
+      if (!id) return res.status(400).json({ ok: false, error: 'Missing id' });
+
+      const card = await getCardById(id);
+      if (!card) return res.status(404).json({ ok: false, error: 'Card not found' });
+
+      res.json({ ok: true, card });
+    } catch (e) {
+      console.error('[tarot.ctrl] getById error');
+      res.status(500).json({ ok: false, error: 'Failed to get card' });
+    }
+  }) as RequestHandler,
+
+  // Вытягивание случайной карты
+  draw: (async (req, res) => {
+    const opts = parseDrawBody(req.body);
+    console.log('[tarot.ctrl] draw', opts);
+
+    try {
+      const result = await drawRandomCard(opts);
       res.json({ ok: true, result });
-    } catch (error) {
-      console.error('[tarot.controller] Draw error:', error);
-      res.status(500).json({ 
-        ok: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+    } catch (e) {
+      console.error('[tarot.ctrl] draw error');
+      res.status(500).json({
+        ok: false,
+        error: 'Draw failed',
       });
     }
   }) as RequestHandler,
 
+  // Принудительное обновление кэша
   refreshCache: (async (_req, res) => {
-    await loadTarotData(true);
-    res.json({ ok: true, refreshed: true });
+    try {
+      await loadTarotData(true);
+      console.log('[tarot.ctrl] cache refresh');
+      res.json({ ok: true, refreshed: true });
+    } catch (e) {
+      console.error('[tarot.ctrl] refresh error');
+      res.status(500).json({ ok: false, error: 'Cache refresh failed' });
+    }
   }) as RequestHandler,
 };

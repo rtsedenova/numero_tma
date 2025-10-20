@@ -56,7 +56,6 @@
         if (dt > 0) velocityX = (b.x - a.x) / dt; 
       }
 
-      // Check if this was a click (minimal movement and quick)
       if (e && onClick) {
         const dx = Math.abs(e.clientX - startX.current);
         const dy = Math.abs(e.clientY - startY.current);
@@ -66,7 +65,7 @@
         
         if (dx < CLICK_THRESHOLD && dy < CLICK_THRESHOLD && dt < TIME_THRESHOLD) {
           onClick(e);
-          return; // Don't call onEnd for clicks
+          return; 
         }
       }
 

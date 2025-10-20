@@ -1,13 +1,14 @@
-// src/pages/tarot.page.tsx
 import React, { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { TarotStage } from "@/components/tarot/tarot-wheel/TarotStage";
-import { TarotWheel, WheelConfig } from "@/components/tarot/tarot-wheel/TarotWheel";
+import { TarotWheel } from "@/components/tarot/tarot-wheel/TarotWheel";
 import TarotCategorySelect from "@/components/tarot/TarotCategorySelect";
 import { TarotCardFlipOverlay } from "@/components/tarot/TarotCardFlipOverlay";
+import { SelectedCard } from "@/components/tarot/SelectedCard";
+import { SwipeIndicators } from "@/components/tarot/SwipeIndicators";
 
-import type { TarotDrawResponse, TarotCategory } from "@/config/api";
+import type { TarotDrawResponse, TarotCategory, WheelConfig } from "@/types/tarot";
 
 export const TarotPage: FC = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export const TarotPage: FC = () => {
   const [result, setResult] = React.useState<TarotDrawResponse["result"] | null>(null);
   const [showOverlay, setShowOverlay] = React.useState(false);
   const [showCategoryWarning, setShowCategoryWarning] = React.useState(false);
+  const [selectedCardIndex, setSelectedCardIndex] = React.useState<number | null>(null);
 
   const handleDrawComplete = (resp: TarotDrawResponse) => {
     console.log('[tarot.page] handleDrawComplete called with:', resp);
@@ -57,13 +59,26 @@ export const TarotPage: FC = () => {
           )}
         </div>
 
+        {/* Отображение выбранной карты */}
+        <div className="absolute top-38 left-1/2 -translate-x-1/2 z-[9998]">
+          <SelectedCard
+            selectedIndex={selectedCardIndex}
+            totalCards={wheelConfig.cardCount}
+          />
+        </div>
+
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[-1]">
+          <SwipeIndicators />
+        </div>
+
         {/* Колесо */}
-        <div className="absolute -bottom-40 left-1/2 -translate-x-1/2 z-0">
+        <div className="absolute -bottom-46 left-1/2 -translate-x-1/2 z-0">
           <TarotWheel
             config={wheelConfig}
             category={category}
             onDrawComplete={handleDrawComplete}
             onNoCategorySelected={() => setShowCategoryWarning(true)}
+            onSelectedCardChange={setSelectedCardIndex}
           />
         </div>
       </TarotStage>

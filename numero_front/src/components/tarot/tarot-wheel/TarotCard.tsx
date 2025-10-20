@@ -6,8 +6,8 @@ export interface TarotCardProps {
   className?: string;
   withSigil?: boolean;
   showCorners?: boolean;
-  onClick?: () => void;            // << добавили
-  disabled?: boolean;              // << добавили (когда идёт запрос)
+  onClick?: () => void;          
+  disabled?: boolean;      
 }
 
 export const TarotCard: React.FC<TarotCardProps> = ({

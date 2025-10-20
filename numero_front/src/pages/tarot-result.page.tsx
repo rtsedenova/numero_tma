@@ -1,20 +1,19 @@
-// src/pages/tarot-result.page.tsx
 import { FC, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Page } from "@/components/Page";
-import { imageUrl, TarotDrawResponse } from "@/config/api";
+import type { TarotDrawResponse, TarotCategory } from "@/types/tarot";
 
 export const TarotResultPage: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [result, setResult] = useState<TarotDrawResponse["result"] | null>(null);
-  const [category, setCategory] = useState<string | null>(null);
+  const [category, setCategory] = useState<TarotCategory | null>(null);
 
   useEffect(() => {
     // Получаем результат из state роутера
     const state = location.state as { 
       result?: TarotDrawResponse["result"];
-      category?: string | null;
+      category?: TarotCategory | null;
     } | null;
     if (state?.result) {
       setResult(state.result);
@@ -35,13 +34,12 @@ export const TarotResultPage: FC = () => {
     );
   }
 
-  const imgSrc = imageUrl(result.card.image_key || result.card.image);
+  const imgSrc = result.card.image_key || result.card.image;
 
   return (
     <Page>
       <div className="page tarot-result-page fixed inset-0 bg-gradient-to-b from-[#301d42] via-[#2a1838] to-[#1f0f2e] text-white overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-8 pb-20">
-          {/* Кнопка "Назад" */}
+        <div className="max-w-3xl mx-auto pb-20">
           <button
             onClick={() => navigate("/tarot")}
             className="mb-6 flex items-center gap-2 text-white/70 hover:text-white transition-colors"
@@ -62,10 +60,8 @@ export const TarotResultPage: FC = () => {
             Вернуться к колесу
           </button>
 
-          {/* Карта и основная информация */}
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 mb-6">
             <div className="flex flex-col md:flex-row gap-6">
-              {/* Изображение карты */}
               {imgSrc && (
                 <div className="flex-shrink-0">
                   <div
@@ -83,7 +79,6 @@ export const TarotResultPage: FC = () => {
                 </div>
               )}
 
-              {/* Информация о карте */}
               <div className="flex-1">
                 <div className="text-sm uppercase tracking-wider text-purple-300 mb-2">
                   Ваша карта
@@ -104,7 +99,6 @@ export const TarotResultPage: FC = () => {
                   </div>
                 )}
 
-                {/* Yes/No Score */}
                 <div className="flex items-center gap-3 mt-4">
                   <div className="text-sm text-white/60">Да/Нет:</div>
                   <div className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold ${
@@ -122,7 +116,6 @@ export const TarotResultPage: FC = () => {
             </div>
           </div>
 
-          {/* Общее значение */}
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 mb-6">
             <h2 className="text-xl font-semibold mb-3 text-purple-300">
               Общее значение
@@ -132,7 +125,6 @@ export const TarotResultPage: FC = () => {
             </p>
           </div>
 
-          {/* Значение по категории */}
           {result.text.by_category && category && (
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 mb-6">
               <h2 className="text-xl font-semibold mb-3 text-purple-300">
@@ -148,11 +140,22 @@ export const TarotResultPage: FC = () => {
             </div>
           )}
 
-          {/* Кнопка "Вытянуть ещё карту" */}
           <div className="flex justify-center mt-8">
             <button
               onClick={() => navigate("/tarot")}
-              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold text-lg rounded-xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+              className={`
+                inline-flex px-8 py-1.5 items-center gap-1 rounded-full
+                border border-violet-300/80
+                shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]
+                bg-gradient-to-r from-fuchsia-400/15 via-violet-400/15 to-indigo-400/15
+                text-violet-100 font-semibold whitespace-nowrap
+                transition-colors
+                hover:from-fuchsia-400/30 hover:via-violet-400/25 hover:to-indigo-400/25
+                hover:border-violet-200/90
+              `}
+              style={{
+                transitionDuration: '220ms',
+              }}
             >
               Вытянуть ещё карту
             </button>

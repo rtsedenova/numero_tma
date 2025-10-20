@@ -1,8 +1,8 @@
-// numero_backend/src/features/tarot/tarot.service.ts
 import { getFileFromS3 } from '../../services/s3/s3Service';
 
-type YesNoCategory = "love" | "finance" | "health" | "future";
-type Suit = "wands" | "cups" | "swords" | "pentacles" | "major";
+/** Категории для yes/no интерпретаций */
+type YesNoCategory = 'love' | 'finance' | 'health' | 'future';
+type Suit = 'wands' | 'cups' | 'swords' | 'pentacles' | 'major';
 
 export interface TarotSideMeaning {
   general: string;
@@ -11,12 +11,11 @@ export interface TarotSideMeaning {
 }
 
 export interface TarotCard {
-  id: string;                    // major-00-fool | minor-wands-01-ace ...
-  arcana: "major" | "minor";
+  id: string;            
+  arcana: 'major' | 'minor';
   number: number;
   name: string;
-  image?: string;                // если абсолютный URL
-  image_key?: string;            // если ключ в public/CDN
+  image?: string;         
   meanings: {
     upright: TarotSideMeaning;
     reversed: TarotSideMeaning;
@@ -33,49 +32,58 @@ export interface TarotDataJson {
   cards: TarotCard[];
 }
 
-const DEFAULT_REVERSAL_CHANCE = 0.5;
+// Вероятность реверса по умолчанию
+const DEFAULT_REVERSAL_CHANCE = 0.1;
+// Имя JSON в S3
 const TAROT_FILE_NAME = 'tarot_cards.json';
+// TTL кэша (по умолчанию 5 минут)
+const CACHE_TTL_MS = Number(process.env.TAROT_CACHE_TTL_MS || 5 * 60 * 1000);
 
-// ---- Простой in-memory кэш ----
+// Время и математика
+const now = () => Date.now();
+const isFresh = (ts: number) => now() - ts < CACHE_TTL_MS;
+const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+
+/* -------------------- In-memory кэш -------------------- */
 let cache: { data: TarotDataJson | null; at: number } = { data: null, at: 0 };
-const CACHE_TTL_MS = Number(process.env.TAROT_CACHE_TTL_MS || 5 * 60 * 1000); // 5 минут
 
-function now() { return Date.now(); }
-function isFresh(ts: number) { return now() - ts < CACHE_TTL_MS; }
-
+  //  Читает JSON из S3, валидирует и кэширует.
 export async function loadTarotData(force = false): Promise<TarotDataJson> {
   if (!force && cache.data && isFresh(cache.at)) {
-    console.log('[tarot.service] Using cached data');
+    console.log('[tarot] cache hit');
     return cache.data;
   }
-  
-  console.log('[tarot.service] Loading tarot data from S3:', TAROT_FILE_NAME);
-  
-  try {
-    // Получаем файл из S3 используя существующий сервис
-    const fileData = await getFileFromS3(TAROT_FILE_NAME);
-    
-    if (!fileData || !fileData.Body) {
-      throw new Error('Tarot file not found in S3');
-    }
-    
-    // Преобразуем Buffer в строку и парсим JSON
-    const jsonString = fileData.Body.toString('utf-8');
-    const data = JSON.parse(jsonString) as TarotDataJson;
-    
-    if (!data || !Array.isArray(data.cards)) {
-      throw new Error("Tarot JSON: invalid structure (no cards)");
-    }
-    
-    console.log('[tarot.service] Successfully loaded', data.cards.length, 'cards');
-    cache = { data, at: now() };
-    return data;
-  } catch (error) {
-    console.error('[tarot.service] Error loading tarot data:', error);
-    throw error;
+
+  console.log('[tarot] fetching from S3');
+  const fileData = await getFileFromS3(TAROT_FILE_NAME).catch((e) => {
+    console.error('[tarot] s3 error');
+    throw e;
+  });
+
+  if (!fileData?.Body) {
+    console.error('[tarot] file missing');
+    throw new Error('Tarot file not found in S3');
   }
+
+  let data: TarotDataJson;
+  try {
+    data = JSON.parse(fileData.Body.toString('utf-8')) as TarotDataJson;
+  } catch {
+    console.error('[tarot] json parse error');
+    throw new Error('Tarot JSON parse error');
+  }
+
+  if (!Array.isArray(data.cards)) {
+    console.error('[tarot] invalid structure');
+    throw new Error('Tarot JSON: invalid structure (no cards)');
+  }
+
+  console.log('[tarot] loaded cards=', data.cards.length);
+  cache = { data, at: now() };
+  return data;
 }
 
+/* -------------------- Доступ к карточкам -------------------- */
 export async function getAllCards(): Promise<TarotCard[]> {
   const data = await loadTarotData(false);
   return data.cards;
@@ -86,82 +94,71 @@ export async function getCardById(id: string): Promise<TarotCard | undefined> {
   return cards.find((c) => c.id === id);
 }
 
+/* -------------------- API вытягивания карты --------------------
+   Рандомный выбор, ориентация, тексты по категории.
+---------------------------------------------------------------- */
 export interface DrawOptions {
   reversalsEnabled?: boolean;
   reversalChance?: number; // 0..1
-  category?: YesNoCategory | "yesno";
+  category?: YesNoCategory | 'yesno';
 }
 
 export interface DrawResult {
   card: TarotCard;
-  orientation: "upright" | "reversed";
+  orientation: 'upright' | 'reversed';
   text: { general: string; by_category?: string };
   yesno_score: number;
 }
 
+// Эффективные настройки реверса (meta + options)
+function getReversalSettings(
+  data: TarotDataJson,
+  opts: DrawOptions
+): { enabled: boolean; chance: number } {
+  const metaChance = data.meta?.reversals?.chance_default ?? DEFAULT_REVERSAL_CHANCE;
+  const metaEnabled = data.meta?.reversals?.enabled_default ?? true;
+  const enabled = opts.reversalsEnabled ?? metaEnabled;
+  const chance = clamp01(
+    isNaN(Number(opts.reversalChance)) ? metaChance : Number(opts.reversalChance)
+  );
+  return { enabled, chance };
+}
+
+// Генерация ориентации карты
 function pickReversed(enabled: boolean, chance: number) {
-  if (!enabled) return false;
-  const p = Math.max(0, Math.min(1, isNaN(chance) ? DEFAULT_REVERSAL_CHANCE : chance));
-  return Math.random() < p;
+  return enabled ? Math.random() < clamp01(chance) : false;
+}
+
+// Случайный индекс [0, max)
+function randIndex(max: number) {
+  return Math.floor(Math.random() * max);
 }
 
 export async function drawRandomCard(opts: DrawOptions = {}): Promise<DrawResult> {
   const data = await loadTarotData(false);
-  const cards = data.cards;
-  if (!cards.length) throw new Error("Tarot: empty deck");
+  const { cards } = data;
+  if (!cards.length) throw new Error('Tarot: empty deck');
 
-  const i = Math.floor(Math.random() * cards.length);
-  const card = cards[i];
+  const card = cards[randIndex(cards.length)];
+  const { enabled, chance } = getReversalSettings(data, opts);
+  const reversed = pickReversed(enabled, chance);
+  const orientation: 'upright' | 'reversed' = reversed ? 'reversed' : 'upright';
 
-  console.log('[tarot.service] Selected card:', {
-    id: card.id,
-    name: card.name,
-    arcana: card.arcana
-  });
-
-  const metaChance = data.meta?.reversals?.chance_default ?? DEFAULT_REVERSAL_CHANCE;
-  const reversalsDefault = data.meta?.reversals?.enabled_default ?? true;
-
-  const reversed = pickReversed(
-    opts.reversalsEnabled ?? reversalsDefault,
-    opts.reversalChance ?? metaChance
-  );
-
-  console.log('[tarot.service] Orientation:', reversed ? 'reversed' : 'upright');
-  console.log('[tarot.service] Requested category:', opts.category || 'none');
+  // Короткий лог для трассировки
+  console.log('[tarot] draw', { id: card.id, orient: orientation, category: opts.category ?? 'none' });
 
   const side = reversed ? card.meanings.reversed : card.meanings.upright;
-  
-  console.log('[tarot.service] Card side meanings structure:', {
-    hasGeneral: !!side.general,
-    hasByCategory: !!side.by_category,
-    byCategoryKeys: side.by_category ? Object.keys(side.by_category) : [],
-  });
-  
-  // Извлекаем текст для выбранной категории
-  let cat: string | undefined = undefined;
-  
-  if (opts.category && opts.category !== "yesno" && side.by_category) {
-    cat = side.by_category[opts.category];
-    console.log('[tarot.service] Extracting category text for:', opts.category);
-    console.log('[tarot.service] Found text:', cat);
-  } else {
-    console.log('[tarot.service] No category text extraction because:');
-    console.log('  - category:', opts.category);
-    console.log('  - is yesno:', opts.category === "yesno");
-    console.log('  - has by_category object:', !!side.by_category);
-  }
 
-  console.log('[tarot.service] Final extracted text:', {
-    general: side.general.substring(0, 50) + '...',
-    by_category: cat ? cat.substring(0, 50) + '...' : 'NONE',
-    yesno_score: side.yesno_score
-  });
+  // Текст по категории (игнорируем "yesno")
+  const byCategory =
+    opts.category && opts.category !== 'yesno' && side.by_category
+      ? side.by_category[opts.category as YesNoCategory]
+      : undefined;
 
   return {
     card,
-    orientation: reversed ? "reversed" : "upright",
-    text: { general: side.general, by_category: cat },
+    orientation,
+    text: { general: side.general, by_category: byCategory },
     yesno_score: side.yesno_score,
   };
 }

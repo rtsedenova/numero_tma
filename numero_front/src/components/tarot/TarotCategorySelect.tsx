@@ -1,25 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
+import type { TarotCategoryId, TarotCategoryInfo } from "@/types/tarot";
 
-// ──────────────────────────────────────────────────────────────────────────────
-// TarotCategorySelect — компактный кликабельный дропдаун-селект категорий Таро
-// Tech: React + TypeScript + TailwindCSS
-// Особенности:
-//  - Мягкая, дружелюбная палитра (slate/indigo), меньше «чёрного».
-//  - Раскрытие по клику, закрытие по клику вне и по Esc.
-//  - Высокий z-index, чтобы перекрывать колесо/сцену.
-//  - В кнопке — эмоджи + заголовок. Подзаголовок в кнопке убран.
-// ──────────────────────────────────────────────────────────────────────────────
-
-export type TarotCategoryId = "love" | "finance" | "health" | "future" | "yesno";
-
-export interface TarotCategory {
-  id: TarotCategoryId;
-  title: string;
-  subtitle?: string;
-  emoji: string;
-}
-
-export const TAROT_CATEGORIES: TarotCategory[] = [
+export const TAROT_CATEGORIES: TarotCategoryInfo[] = [
   { id: "love",    title: "Любовь",   subtitle: "чувства, отношения", emoji: "❤️" },
   { id: "finance", title: "Финансы",  subtitle: "деньги, работа",     emoji: "💰" },
   { id: "health",  title: "Здоровье", subtitle: "баланс, энергия",    emoji: "🌿" },
@@ -70,14 +52,12 @@ const TarotCategorySelect: React.FC<TarotCategorySelectProps> = ({ className, ca
   const [selected, setSelected] = useState<TarotCategoryId | null>(category || null);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  // Sync internal state with external prop
   React.useEffect(() => {
     if (category !== undefined) {
       setSelected(category);
     }
   }, [category]);
 
-  // Закрытие по клику вне
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
       if (!rootRef.current) return;
@@ -100,7 +80,7 @@ const TarotCategorySelect: React.FC<TarotCategorySelectProps> = ({ className, ca
     <div
       ref={rootRef}
       className={["w-full max-w-sm", className].filter(Boolean).join(" ")}
-      style={{ zIndex: 9999 }} // перекрывает сцену/колесо
+      style={{ zIndex: 9999 }} 
     >
       <div className="relative group z-[9999]">
 
@@ -121,7 +101,6 @@ const TarotCategorySelect: React.FC<TarotCategorySelectProps> = ({ className, ca
               <div className="text-slate-100 text-sm font-medium">
                 {selectedMeta?.title ?? "Выбери категорию"}
               </div>
-              {/* подзаголовок в кнопке убран по твоему желанию */}
             </div>
           </div>
           <ChevronIcon open={open} />
