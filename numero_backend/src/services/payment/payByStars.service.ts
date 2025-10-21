@@ -1,13 +1,4 @@
-import { Telegraf, Context } from "telegraf";
-import { Update } from "telegraf/typings/core/types/typegram";
-
-const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN as string;
-
-if (!TELEGRAM_BOT_TOKEN) {
-  throw new Error("TELEGRAM_TOKEN is not defined");
-}
-
-const bot = new Telegraf<Context<Update>>(TELEGRAM_BOT_TOKEN);
+import { bot } from "../../config/telegramConfig";
 
 export class TelegramStarsService {
   private static paidUsers: Map<number, string> = new Map();
