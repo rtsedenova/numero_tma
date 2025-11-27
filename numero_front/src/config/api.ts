@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://86dc57f15029.ngrok-free.app';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || '/api';
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 30000;
 
 export const API_ENDPOINTS = {
@@ -22,6 +23,9 @@ export const API_ENDPOINTS = {
   },
   tarot: {
     draw: '/api/tarot/draw', 
+  },
+  numerology: {
+    calculate: '/api/numerology/calculate'
   }
 } as const;
 

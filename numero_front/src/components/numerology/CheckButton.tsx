@@ -1,6 +1,5 @@
-import React from "react";
+import type { ReactNode } from "react";
 import { useDateStore } from "../../storage/dateStore";
-
 import { WarningCircle } from "phosphor-react";
 
 export interface CheckButtonProps {
@@ -11,11 +10,11 @@ onClick?: () => void;
 onDateCheck?: (selectedDate: string | null) => void;
 className?: string;
 showValidationError?: boolean;
-leftIcon?: React.ReactNode;
-rightIcon?: React.ReactNode;
+leftIcon?: ReactNode;
+rightIcon?: ReactNode;
 }
 
-export const CheckButton: React.FC<CheckButtonProps> = ({
+export const CheckButton = ({
 label = "Проверить",
 loading = false,
 disabled = false,
@@ -25,7 +24,7 @@ className = "",
 showValidationError = false,
 leftIcon,
 rightIcon,
-}) => {
+}: CheckButtonProps) => {
 const { selectedDate, hasCompleteDate } = useDateStore();
 const isDisabled = disabled || loading;
 const hasValidDate = hasCompleteDate();
@@ -79,7 +78,7 @@ return (
 
     {showError && (
         <p className="text-red-400 text-sm text-center flex justify-center items-center gap-1">
-        <WarningCircle size={16}/> Пожалуйста, заполните все поля.
+        <WarningCircle size={16} /> Пожалуйста, заполните все поля.
         </p>
     )}
     </div>

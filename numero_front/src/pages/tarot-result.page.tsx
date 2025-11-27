@@ -10,7 +10,6 @@ export const TarotResultPage: FC = () => {
   const [category, setCategory] = useState<TarotCategory | null>(null);
 
   useEffect(() => {
-    // Получаем результат из state роутера
     const state = location.state as { 
       result?: TarotDrawResponse["result"];
       category?: TarotCategory | null;
@@ -19,7 +18,6 @@ export const TarotResultPage: FC = () => {
       setResult(state.result);
       setCategory(state.category || null);
     } else {
-      // Если нет результата, редиректим обратно
       navigate("/tarot", { replace: true });
     }
   }, [location, navigate]);

@@ -1,14 +1,9 @@
 import { Router } from 'express';
-import { NumerologyControllerImpl } from './numerology.controller';
+import { calculate } from './numerology.controller';
 
-export function createNumerologyRoutes(): Router {
-  const router = Router();
-  const numerologyController = new NumerologyControllerImpl();
+const router = Router();
 
-  // Process numerology calculation result
-  router.post('/calculate', (req, res, next) => 
-    numerologyController.saveNumerologyResult(req, res, next)
-  );
+router.post('/calculate', calculate);
 
-  return router;
-}
+export default router;
+

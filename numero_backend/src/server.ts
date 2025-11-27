@@ -1,36 +1,13 @@
 import http from 'http';
 import dotenv from 'dotenv';
-import { buildApp } from './app/server';
-import { TelegramStarsService } from './services/payment/payByStars.service';
-import type { Request, Response, NextFunction } from 'express';
+import { createServer } from './app/server';
+import { TelegramStarsService } from './features/payment';
 
 dotenv.config();
 
 const mask = (s?: string) => (s ? `${s.slice(0, 8)}…${s.slice(-4)}` : 'undefined');
 
-const app = buildApp();
-
-const corsForTMA = (req: Request, res: Response, next: NextFunction): void => {
-  const origin = req.headers.origin ?? '';
-  const allowed = /^(https:\/\/(numero-tma\.com|www\.numero-tma\.com|web\.telegram\.org|t\.me))$/i.test(origin);
-  if (allowed) res.setHeader('Access-Control-Allow-Origin', origin);
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Headers', 'Authorization,Content-Type,Accept,Origin,X-Requested-With');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(204); 
-    return;              
-  }
-  next();
-};
-
-app.use(corsForTMA);
-
-app.get('/api/health', (_req, res) => {
-  console.log('HEALTH', new Date().toISOString());
-  res.json({ ok: true, t: Date.now() });
-});
+const app = createServer();
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const PORT = Number(process.env.PORT ?? 3000);

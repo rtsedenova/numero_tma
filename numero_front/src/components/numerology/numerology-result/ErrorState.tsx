@@ -1,10 +1,8 @@
-import React from "react";
-
 export interface ErrorStateProps {
   error: string;
 }
 
-export const ErrorState: React.FC<ErrorStateProps> = ({ error }) => {
+export const ErrorState = ({ error }: ErrorStateProps) => {
   return (
     <div className="mt-6 p-4 rounded-lg border border-red-400/20 bg-red-500/5">
       <div className="flex items-center gap-3">

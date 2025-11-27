@@ -5,6 +5,7 @@ import { InitDataPage } from '@/pages/InitDataPage.tsx';
 import { LaunchParamsPage } from '@/pages/LaunchParamsPage.tsx';
 import { ThemeParamsPage } from '@/pages/ThemeParamsPage.tsx';
 import { TONConnectPage } from '@/pages/TONConnectPage/TONConnectPage';
+import { PaymentPage } from '@/pages/payment.page';
 import { ProfilePage } from '@/pages/profile.page';
 import { NewNumerologyPage } from '@/pages/new-numerology.page';
 import { TarotPage } from '@/pages/tarot.page';
@@ -46,6 +47,7 @@ export const routes: Route[] = [
     ),
   },
   { path: '/profile', Component: ProfilePage, title: 'Profile Page' },
+  { path: '/payment', Component: PaymentPage, title: 'Payment Page' },
   { path: '/numerology-new', Component: NewNumerologyPage, title: 'New Numerology Page' },
   { path: '/tarot', Component: TarotPage, title: 'Tarot Page' },
   { path: '/tarot-result', Component: TarotResultPage, title: 'Tarot Result Page' },

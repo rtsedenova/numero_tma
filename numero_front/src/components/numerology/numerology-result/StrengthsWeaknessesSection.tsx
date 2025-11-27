@@ -1,4 +1,3 @@
-import React from "react";
 import { InfoCard } from "./InfoCard";
 
 export interface StrengthsWeaknessesSectionProps {
@@ -7,11 +6,11 @@ export interface StrengthsWeaknessesSectionProps {
   className?: string;
 }
 
-export const StrengthsWeaknessesSection: React.FC<StrengthsWeaknessesSectionProps> = ({ 
-  strengths, 
-  weaknesses, 
-  className = "" 
-}) => {
+export const StrengthsWeaknessesSection = ({
+  strengths,
+  weaknesses,
+  className = "",
+}: StrengthsWeaknessesSectionProps) => {
   return (
     <div className={`grid md:grid-cols-2 gap-6 ${className}`}>
       <InfoCard

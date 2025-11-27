@@ -1,10 +1,8 @@
-import React from "react";
-
 export interface DateDisplayProps {
   date: string;
 }
 
-export const DateDisplay: React.FC<DateDisplayProps> = ({ date }) => {
+export const DateDisplay = ({ date }: DateDisplayProps) => {
   return (
     <div>
       <h3 className="text-violet-200 font-semibold mb-3">Выбранная дата:</h3>

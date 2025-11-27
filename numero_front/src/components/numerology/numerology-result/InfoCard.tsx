@@ -1,9 +1,7 @@
-import React from "react";
-
 export interface InfoCardProps {
   title: string;
   items: string[];
-  variant: 'strength' | 'weakness' | 'recommendation';
+  variant: "strength" | "weakness" | "recommendation";
   className?: string;
 }
 
@@ -13,31 +11,35 @@ const variantStyles = {
     title: "text-emerald-200",
     dot: "text-emerald-500",
     icon: "bg-gradient-to-r from-emerald-400 to-green-400",
-    shadow: "shadow-emerald-500/20"
+    shadow: "shadow-emerald-500/20",
   },
   weakness: {
     container: "bg-gradient-to-br from-amber-500/15 to-orange-500/10",
-    title: "text-amber-200", 
+    title: "text-amber-200",
     dot: "text-amber-500",
     icon: "bg-gradient-to-r from-amber-400 to-orange-400",
-    shadow: "shadow-amber-500/20"
+    shadow: "shadow-amber-500/20",
   },
   recommendation: {
     container: "bg-gradient-to-br from-blue-500/15 to-indigo-500/10",
     title: "text-blue-200",
-    dot: "text-blue-500", 
+    dot: "text-blue-500",
     icon: "bg-gradient-to-r from-blue-400 to-indigo-400",
-    shadow: "shadow-blue-500/20"
-  }
+    shadow: "shadow-blue-500/20",
+  },
 };
 
-export const InfoCard: React.FC<InfoCardProps> = ({ 
-  title, 
-  items, 
-  variant, 
-  className = "" 
-}) => {
+export const InfoCard = ({
+  title,
+  items,
+  variant,
+  className = "",
+}: InfoCardProps) => {
   const styles = variantStyles[variant];
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return null;
+  }
 
   return (
     <div className={`p-5 rounded-2xl ${styles.container} ${className}`}>
@@ -45,10 +47,12 @@ export const InfoCard: React.FC<InfoCardProps> = ({
         {title}
       </h6>
       <ul className="space-y-3">
-        {items.map((item: string, index: number) => (
+        {items.map((item, index) => (
           <li key={index} className="flex items-start gap-3 group">
             <span className={`${styles.dot} text-xl leading-none`}>•</span>
-            <span className="text-violet-100 text-sm leading-relaxed font-medium">{item}</span>
+            <span className="text-violet-100 text-sm leading-relaxed font-medium">
+              {item}
+            </span>
           </li>
         ))}
       </ul>
