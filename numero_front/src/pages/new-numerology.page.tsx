@@ -1,62 +1,55 @@
-import { FC, useState, useEffect } from "react";
+import { useState } from "react";
 import { Page } from "@/components/Page";
 
 import { DatePicker } from "@/components/numerology/date-picker/DatePicker";
 import { CheckButton } from "@/components/numerology/CheckButton";
 import { NumerologyResult } from "@/components/numerology/numerology-result";
-import { calculateNumerologyNumber, type NumerologyResultData } from "@/helpers/calculateNumerologyNumber";
+import { calculateNumerologyNumber } from "@/helpers/calculateNumerologyNumber";
 import { useSendNumerologyResult } from "@/hooks/useSendNumerologyResult";
 
-export const NewNumerologyPage: FC = () => {
+export const NewNumerologyPage = () => {
   const [displayedDate, setDisplayedDate] = useState<string | null>(null);
-  const [numerologyResult, setNumerologyResult] = useState<NumerologyResultData | null>(null);
   const [showValidationError, setShowValidationError] = useState(false);
 
-  const { sendResult, isLoading: isSending, status: isSuccess } = useSendNumerologyResult();
-
-  useEffect(() => {
-    if (displayedDate && numerologyResult && !isSending && !isSuccess) {
-      console.log('Auto-sending numerology result to backend:', {
-        date: displayedDate,
-        result: numerologyResult
-      });
-      sendResult(displayedDate, numerologyResult);
-    }
-  }, [displayedDate, numerologyResult, sendResult, isSending, isSuccess]);
+  const { sendResult, isLoading: isSending, interpretation } = useSendNumerologyResult();
 
   const handleDateCheck = (date: string | null) => {
-    if (date) {
-      setDisplayedDate(date);
-      setShowValidationError(false);
-      const result = calculateNumerologyNumber(date);
-      setNumerologyResult(result);
-    } else {
+    if (!date) {
       setShowValidationError(true);
-      setNumerologyResult(null);
+      setDisplayedDate(null); // убираем дату, чтобы результат пропал
+      return;
     }
+
+    setShowValidationError(false);
+    setDisplayedDate(date);
+
+    const result = calculateNumerologyNumber(date);
+    sendResult(date, result);
   };
 
   return (
     <Page>
       <div className="page numerology-page">
         <div className="mb-4">
-          <DatePicker />  
+          <DatePicker />
         </div>
+
         <div className="flex justify-center mb-4">
-          <CheckButton 
+          <CheckButton
             onDateCheck={handleDateCheck}
             showValidationError={showValidationError}
             loading={isSending}
           />
         </div>
-        
-        {displayedDate && numerologyResult && (
-          <NumerologyResult 
+
+        {displayedDate && (
+          <NumerologyResult
             date={displayedDate}
-            result={numerologyResult}
+            result={calculateNumerologyNumber(displayedDate)}
+            interpretation={interpretation}
+            isLoadingInterpretation={isSending}
           />
         )}
-
       </div>
     </Page>
   );

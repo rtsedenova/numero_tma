@@ -1,14 +1,13 @@
-import express from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import { errorHandler } from '../middlewares/errorHandler';
-import s3Routes from '../routes/s3.routes';
-import userRoutes from '../routes/users.routes';
-import predictionRoutes from '../routes/predictions.routes';
-import paymentRoutes from '../routes/payment.routes';
-import { createNumerologyRoutes } from '../features/numerology';
+import { initPaymentModule } from '../features/payment';
 import tarotRoutes from '../features/tarot/tarot.routes';
+import { numerologyRoutes } from '../features/numerology';
+import { initUsersModule } from '../features/users';
+import { initS3Module } from '../features/s3';
 
-export function buildApp() {
+export function createServer() {
   const app = express();
 
   app.options('*', cors());
@@ -16,13 +15,30 @@ export function buildApp() {
   app.use(cors({ origin: '*' }));
   app.use(cors({
     origin: [
-      /^https:\/\/(\w+\.)?t\.me$/,           // Telegram WebView
-      /^https:\/\/web\.telegram\.org$/,      // web версия
+      /^https:\/\/(\w+\.)?t\.me$/,           
+      /^https:\/\/web\.telegram\.org$/,    
     ],
-    credentials: false, // true — только если есть куки (тогда ещё и SameSite=None; Secure)
+    credentials: false, 
     methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
     allowedHeaders: ['Content-Type','Authorization'],
   }));
+
+  const corsForTMA = (req: Request, res: Response, next: NextFunction): void => {
+    const origin = req.headers.origin ?? '';
+    const allowed = /^(https:\/\/(numero-tma\.com|www\.numero-tma\.com|web\.telegram\.org|t\.me))$/i.test(origin);
+    if (allowed) res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization,Content-Type,Accept,Origin,X-Requested-With');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(204); 
+      return;              
+    }
+    next();
+  };
+
+  app.use(corsForTMA);
   
   app.use(express.json());
 
@@ -31,12 +47,20 @@ export function buildApp() {
     res.send(`Server is working on ${isProduction ? 'HTTPS (prod)' : 'HTTP (dev)'}!`);
   });
 
-  app.use('/api/s3', s3Routes);
-  app.use('/api/db/users', userRoutes);
-  app.use('/api/db/predictions', predictionRoutes);
-  app.use('/api/payment', paymentRoutes);
-  app.use('/api/numerology', createNumerologyRoutes());
+  app.get('/api/health', (_req, res) => {
+    console.log('HEALTH', new Date().toISOString());
+    res.json({ ok: true, t: Date.now() });
+  });
+
+  // Feature routes
+  app.use('/api/numerology', numerologyRoutes);
   app.use('/api/tarot', tarotRoutes);
+  
+  // Initialize feature modules
+  initS3Module(app);
+  initUsersModule(app);
+  initPaymentModule(app);
+  
   app.use(errorHandler);
 
   return app;

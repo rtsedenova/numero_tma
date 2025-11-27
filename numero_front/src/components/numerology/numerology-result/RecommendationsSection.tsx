@@ -1,4 +1,3 @@
-import React from "react";
 import { InfoCard } from "./InfoCard";
 
 export interface RecommendationsSectionProps {
@@ -6,10 +5,10 @@ export interface RecommendationsSectionProps {
   className?: string;
 }
 
-export const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ 
-  recommendations, 
-  className = "" 
-}) => {
+export const RecommendationsSection = ({
+  recommendations,
+  className = "",
+}: RecommendationsSectionProps) => {
   if (!recommendations || recommendations.length === 0) {
     return null;
   }

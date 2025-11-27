@@ -8,7 +8,7 @@ jest.mock('../config/awsConfig', () => ({
 }));
 
 import AWS from 'aws-sdk';
-import { getFileFromS3 } from '../services/s3/getFile.service';
+import { getFileFromS3 } from '../features/s3/services/getFile.service';
 
 jest.mock('aws-sdk', () => {
   const getObjectMock = jest.fn().mockReturnValue({

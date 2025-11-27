@@ -1,4 +1,4 @@
-import { getFileFromS3 } from '../../services/s3/s3Service';
+import { getFileFromS3 } from '../s3/services/s3Service';
 
 /** Категории для yes/no интерпретаций */
 type YesNoCategory = 'love' | 'finance' | 'health' | 'future';

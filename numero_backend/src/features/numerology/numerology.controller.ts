@@ -1,57 +1,81 @@
-import { Request, Response, NextFunction } from 'express';
-import type { NumerologyRequest, NumerologyResponse } from './types';
+import { Request, Response } from 'express';
+import { getInterpretationForNumber } from './numerology.service';
 
-export interface NumerologyController {
-  saveNumerologyResult(req: Request, res: Response, next: NextFunction): Promise<void>;
+interface CalculateRequestBody {
+  telegramId: number;
+  numerologyResult: {
+    date: string;
+    number: number;
+    isMasterNumber: boolean;
+    formula: string;
+    steps: string[];
+  };
 }
 
-export class NumerologyControllerImpl implements NumerologyController {
-  async saveNumerologyResult(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const { telegramId, numerologyResult }: NumerologyRequest = req.body;
-      
-      console.log('Received numerology calculation request:', { 
-        telegramId, 
-        result: {
-          date: numerologyResult.date,
-          number: numerologyResult.number,
-          isMasterNumber: numerologyResult.isMasterNumber
-        }
+export async function calculate(req: Request, res: Response): Promise<void> {
+  try {
+    console.log('[Numerology] Calculate request received:', req.body);
+    
+    const { telegramId, numerologyResult } = req.body as CalculateRequestBody;
+
+    // Validate required fields
+    if (!telegramId || !numerologyResult) {
+      console.log('[Numerology] Validation failed: Missing telegramId or numerologyResult');
+      res.status(400).json({
+        success: false,
+        message: 'Missing required parameters: telegramId and numerologyResult are required',
       });
-
-      // Validate required fields
-      if (!telegramId || !numerologyResult) {
-        res.status(400).json({ 
-          success: false,
-          message: "Missing required fields: telegramId and numerologyResult" 
-        });
-        return;
-      }
-
-      // Validate numerology result structure
-      if (!numerologyResult.date || 
-          typeof numerologyResult.number !== 'number' || 
-          typeof numerologyResult.isMasterNumber !== 'boolean') {
-        res.status(400).json({ 
-          success: false,
-          message: "Invalid numerology result format" 
-        });
-        return;
-      }
-
-      // TODO: Process the numerology result
-      // For now, just return success
-      const response: NumerologyResponse = {
-        success: true,
-        message: "Numerology result processed successfully"
-      };
-
-      console.log('Numerology result processed successfully:', { telegramId });
-      res.status(200).json(response);
-
-    } catch (error) {
-      console.error('Error processing numerology result:', error);
-      next(error);
+      return;
     }
+
+    if (!numerologyResult.number || !numerologyResult.date) {
+      console.log('[Numerology] Validation failed: Missing number or date');
+      res.status(400).json({
+        success: false,
+        message: 'Missing required fields in numerologyResult: number and date are required',
+      });
+      return;
+    }
+
+    console.log('[Numerology] Fetching interpretation for number:', numerologyResult.number);
+
+    // Get interpretation from S3 data
+    const interpretation = await getInterpretationForNumber(
+      numerologyResult.number
+    );
+
+    console.log('[Numerology] Interpretation fetched:', interpretation);
+
+    if (!interpretation) {
+      console.log('[Numerology] No interpretation found');
+      res.status(404).json({
+        success: false,
+        message: `No interpretation found for number ${numerologyResult.number}`,
+      });
+      return;
+    }
+
+    // Return success response with interpretation
+    const response = {
+      success: true,
+      message: 'Numerology calculation completed successfully',
+      interpretation,
+      predictionsLeft: 2, // You can implement proper tracking later
+    };
+    
+    console.log('[Numerology] Sending response:', response);
+    res.json(response);
+  } catch (error: unknown) {
+    console.error('[Numerology] Error in calculate:', error);
+    
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : 'Internal server error';
+
+    res.status(500).json({
+      success: false,
+      message: errorMessage,
+    });
   }
 }
+

@@ -3,7 +3,7 @@ import { Page } from '@/components/Page';
 import { useSignal } from "@telegram-apps/sdk-react";
 import { initData } from "@telegram-apps/sdk-react";
 
-import { GearSix } from "phosphor-react"; // иконка настроек
+import { GearSix } from "phosphor-react"; 
 import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";
 
 export const ProfilePage: FC = () => {

@@ -1,12 +1,14 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { api, API_ENDPOINTS } from '@/config/api';
 import type { NumerologyResultData } from '@/helpers/calculateNumerologyNumber';
+import type { DestinyNumberData } from '@/types/destiny';
 import { useTelegramUser } from './useTelegramUser';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
 
 type SendNumerologyResultResponse = {
   success: boolean;
   message: string;
+  interpretation?: DestinyNumberData;
   predictionsLeft?: number;
 };
 
@@ -14,46 +16,53 @@ type Status = 'idle' | 'loading' | 'success' | 'error';
 
 export interface UseSendNumerologyResultReturn {
   status: Status;
-  isLoading: boolean;        
+  isLoading: boolean;
   error: string | null;
+  interpretation: DestinyNumberData | null;
   sendResult: (date: string, result: NumerologyResultData) => Promise<boolean>;
   reset: () => void;
 }
 
-
 function toErrorMessage(err: unknown): string {
-  const anyErr = err as { 
-    message?: string; 
-    response?: { 
-      data?: { message?: string } | string; 
-      status?: number 
-    } 
+  const anyErr = err as {
+    message?: string;
+    response?: {
+      data?: { message?: string } | string;
+      status?: number;
+    };
   };
+
   if (anyErr?.response?.data) {
     const data = anyErr.response.data;
     if (typeof data === 'string') return data;
-    if (typeof data?.message === 'string') return data.message;
+    if (typeof (data as { message?: string })?.message === 'string') {
+      return (data as { message?: string }).message as string;
+    }
   }
+
   return anyErr?.message || 'Failed to send numerology result to server';
 }
 
 export const useSendNumerologyResult = (): UseSendNumerologyResultReturn => {
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [interpretation, setInterpretation] = useState<DestinyNumberData | null>(null);
 
   const { user } = useTelegramUser();
   const { decrement } = usePredictionAttempts();
 
   const isLoading = status === 'loading';
+  const userId = user?.id;
 
   const reset = useCallback(() => {
     setStatus('idle');
     setError(null);
+    setInterpretation(null);
   }, []);
 
   const sendResult = useCallback(
     async (date: string, result: NumerologyResultData): Promise<boolean> => {
-      if (!user?.id) {
+      if (!userId) {
         setStatus('error');
         setError('User not authenticated');
         return false;
@@ -64,7 +73,7 @@ export const useSendNumerologyResult = (): UseSendNumerologyResultReturn => {
 
       try {
         const payload = {
-          telegramId: user.id,
+          telegramId: userId,
           numerologyResult: {
             date,
             number: result.number,
@@ -75,12 +84,13 @@ export const useSendNumerologyResult = (): UseSendNumerologyResultReturn => {
         };
 
         const { data } = await api.post<SendNumerologyResultResponse>(
-          API_ENDPOINTS.s3.numData,
+          API_ENDPOINTS.numerology.calculate,
           payload
         );
 
         if (data?.success) {
           setStatus('success');
+          setInterpretation(data.interpretation || null);
           decrement();
           return true;
         }
@@ -90,22 +100,21 @@ export const useSendNumerologyResult = (): UseSendNumerologyResultReturn => {
         setStatus('error');
         return false;
       } catch (err) {
+        console.error('[useSendNumerologyResult]', err);
         setError(toErrorMessage(err));
         setStatus('error');
         return false;
       }
     },
-    [user?.id, decrement]
+    [userId, decrement]
   );
 
-  return useMemo(
-    () => ({
-      status,
-      isLoading,
-      error,
-      sendResult,
-      reset,
-    }),
-    [status, isLoading, error, sendResult, reset]
-  );
+  return {
+    status,
+    isLoading,
+    error,
+    interpretation,
+    sendResult,
+    reset,
+  };
 };

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import crystallIcon from "../assets/crystall_currency.svg";
 
 export interface CurrencyChipProps {
@@ -10,7 +11,8 @@ export const CurrencyChip: React.FC<CurrencyChipProps> = ({
   value,
   className = "",
 }) => (
-  <div
+  <Link
+    to="/payment"
     className={`
       inline-flex items-center gap-1 px-3 py-0.5 rounded-full
       border border-violet-300/70
@@ -19,10 +21,12 @@ export const CurrencyChip: React.FC<CurrencyChipProps> = ({
       transition-colors
       hover:from-fuchsia-500/30 hover:via-violet-500/20 hover:to-indigo-500/20
       text-violet-200 font-semibold whitespace-nowrap
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-400
+      cursor-pointer
       ${className}
     `}
   >
     <img src={crystallIcon} alt="" className="w-4 h-4" />
     <span className="text-sm tabular-nums">{value}</span>
-  </div>
+  </Link>
 );
