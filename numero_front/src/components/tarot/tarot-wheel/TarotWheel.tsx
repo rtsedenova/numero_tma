@@ -1,9 +1,15 @@
 import React from 'react';
 import { TarotCard } from './TarotCard';
-import { clamp, springTo } from '@/helpers/tarotWheelHelpers';
 import { useDragX } from './useDragX';
+import { clamp, springTo } from '@/helpers/tarotWheelHelpers';
 import { tarotApi } from '@/api/tarot';
-import type { TarotCategory, TarotDrawResponse, WheelConfig } from '@/types/tarot';
+import { useTelegramUser } from '@/hooks/useTelegramUser';
+import { usePredictionAttempts } from '@/storage/predictionAttempts';
+import type {
+  TarotCategory,
+  TarotDrawResponse,
+  WheelConfig,
+} from '@/types/tarot';
 
 interface TarotWheelProps {
   config: WheelConfig;
@@ -13,15 +19,15 @@ interface TarotWheelProps {
   onSelectedCardChange?: (cardIndex: number) => void;
 }
 
-export const TarotWheel: React.FC<TarotWheelProps> = ({
+export function TarotWheel({
   config,
   category,
   onDrawComplete,
   onNoCategorySelected,
   onSelectedCardChange,
-}) => {
-  // --- Определяем мобильный режим один раз и при ресайзе
+}: TarotWheelProps) {
   const [isMobile, setIsMobile] = React.useState(false);
+
   React.useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
@@ -29,49 +35,35 @@ export const TarotWheel: React.FC<TarotWheelProps> = ({
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // --- Базовые параметры колоды/сцены
-  const n = Math.max(2, Math.floor(config.cardCount || 0)); // количество карт
-  const R = (isMobile ? config.radiusMobile : config.radiusDesktop) || 300; // радиус
-  const W = config.cardW ?? 80; // ширина
-  const H = config.cardH ?? 141.2; // высота
+  const n = Math.max(2, Math.floor(config.cardCount || 0));
+  const R = (isMobile ? config.radiusMobile : config.radiusDesktop) || 300;
+  const W = config.cardW ?? 80;
+  const H = config.cardH ?? 141.2;
 
-  // --- Геометрия дуги (в радианах): нижняя точка круга как центр (270°)
-  const arcRad  = ((config.arcAngle || 40) * Math.PI) / 180; // длина дуги в радианах
-  const centerA = (3 * Math.PI) / 2; // центральный угол, вокруг которого строится дуга
-  const startA  = centerA - arcRad / 2; // угол начала дуги (левый край)
-  const stepA   = arcRad / (n - 1); // угловой шаг между соседними картами
+  const arcRad = ((config.arcAngle || 40) * Math.PI) / 180;
+  const centerA = (3 * Math.PI) / 2;
+  const startA = centerA - arcRad / 2;
+  const stepA = arcRad / (n - 1);
 
-//       90° (π/2)
-//           ↑
-// 180° ←    •    → 0° (или 360°)
-//           ↓
-//       270° (3π/2)
-
-  // --- Якорные точки для каждой карты: предвычисляем позиции и поворот
-  //     + габариты всей сцены для контейнера
   const anchors = React.useMemo(() => {
-    const arr = Array.from({ length: n }, (_, k) => { // создаем массив из n элементов, по одной точке на карту, k — индекс карты
-      const a  = startA + stepA * k; // начинаем с startA и прибавляем k раз равный шаг stepA
-      // переводим угол a в координаты на окружности радиуса R
-      const cx = R + Math.cos(a) * R;
-      const cy = R + Math.sin(a) * R;
-      return { a, x: cx, y: cy, rot: (a * 180) / Math.PI - 90 };
+    const arr = Array.from({ length: n }, (_, index) => {
+      const angle = startA + stepA * index;
+      const x = R + Math.cos(angle) * R;
+      const y = R + Math.sin(angle) * R;
+      return { angle, x, y, rot: (angle * 180) / Math.PI - 90 };
     });
 
-    const minX = Math.min(...arr.map(p => p.x - W / 2));
-    const minY = Math.min(...arr.map(p => p.y - H / 2));
-    const maxX = Math.max(...arr.map(p => p.x + W / 2));
-    const maxY = Math.max(...arr.map(p => p.y + H / 2));
+    const minX = Math.min(...arr.map((p) => p.x - W / 2));
+    const minY = Math.min(...arr.map((p) => p.y - H / 2));
+    const maxX = Math.max(...arr.map((p) => p.x + W / 2));
+    const maxY = Math.max(...arr.map((p) => p.y + H / 2));
 
     return { arr, minX, minY, width: maxX - minX, height: maxY - minY };
   }, [R, W, H, n, startA, stepA]);
 
-  // --- Границы скролла в терминах "плавающего индекса" s
-  // (n - 1) / 2 → середина диапазона
-  const sMin = -(n - 1) / 2; // -((n - 1) / 2) → крайний левый угол
-  const sMax =  +(n - 1) / 2;
+  const sMin = -(n - 1) / 2;
+  const sMax = (n - 1) / 2;
 
-  // --- Состояние скролла (s) и вспомогательные флаги
   const [s, setS] = React.useState(0);
   const sRef = React.useRef(s);
   sRef.current = s;
@@ -79,10 +71,15 @@ export const TarotWheel: React.FC<TarotWheelProps> = ({
   const [dragging, setDragging] = React.useState(false);
   const stopSpringRef = React.useRef<null | (() => void)>(null);
 
-  // --- Флаг запроса на бэкенд (блокируем повторные клики)
   const [loading, setLoading] = React.useState(false);
 
-  // --- Клик по карте: проверка категории и запрос на бэк
+  const { user } = useTelegramUser();
+  const {
+    tarotFreePredictionsLeft,
+    credits,
+    isLoading: isPredictionsLoading,
+  } = usePredictionAttempts();
+
   const handleCardClick = async () => {
     if (loading) return;
 
@@ -91,21 +88,63 @@ export const TarotWheel: React.FC<TarotWheelProps> = ({
       return;
     }
 
+    const CREDITS_PER_PREDICTION = 100;
+
+    if (
+      isPredictionsLoading ||
+      tarotFreePredictionsLeft === null ||
+      credits === null
+    ) {
+      return;
+    }
+
+    if (tarotFreePredictionsLeft === 0) {
+      if (credits < CREDITS_PER_PREDICTION) {
+        alert(
+          'Бесплатные предсказания закончились. Вам нужно минимум 100 кредитов для получения предсказания. Пожалуйста, купите кредиты.',
+        );
+        return;
+      }
+    }
+
+    if (!user?.id) {
+      alert('Ошибка: не удалось определить Telegram ID');
+      return;
+    }
+
     try {
       setLoading(true);
-      const resp = await tarotApi.draw({ category });
+
+      const resp = await tarotApi.draw({
+        category,
+        telegramId: user.id,
+      });
 
       if (!resp || !resp.ok) {
+        if (resp?.code === 'NO_PREDICTIONS_LEFT') {
+          alert(
+            'У вас закончились предсказания. Пожалуйста, купите кредиты.',
+          );
+          return;
+        }
+
         alert('Ошибка: неверный ответ сервера');
         return;
       }
 
-      // Отдаем результат наверх (родитель откроет оверлей)
       onDrawComplete?.(resp);
-    } catch (e) {
-      console.error('[tarot] draw error', e);
-      if (e instanceof Error) {
-        alert(`Ошибка запроса: ${e.message}`);
+    } catch (error) {
+      console.error('[TarotWheel] draw error', { error });
+
+      if (error instanceof Error) {
+        const message = error.message.toLowerCase();
+        if (message.includes('no predictions') || message.includes('403')) {
+          alert(
+            'У вас закончились предсказания. Пожалуйста, купите кредиты.',
+          );
+        } else {
+          alert(`Ошибка запроса: ${error.message}`);
+        }
       } else {
         alert('Произошла неизвестная ошибка');
       }
@@ -114,100 +153,99 @@ export const TarotWheel: React.FC<TarotWheelProps> = ({
     }
   };
 
-  // --- Жест прокрутки по X, двигаем s во время драгга, потом пружина
   const bind = useDragX({
     onStart: () => {
       setDragging(true);
-      // Останавливаем текущую анимацию пружины, если была
       stopSpringRef.current?.();
       stopSpringRef.current = null;
     },
-    onDelta: (dx) => { // dx — насколько пикселей сдвинулись по оси X с начала жеста
-      // Перевод пикселей в "шаги по дуге": R*stepA ≈ ширина одного углового шага
-      const ds = dx / (R * stepA); // переводит пиксельный сдвиг жеста в «сколько карт» прокрутили
-      setS(prev => clamp(prev - ds, sMin, sMax));
+    onDelta: (dx) => {
+      const ds = dx / (R * stepA);
+      setS((prev) => clamp(prev - ds, sMin, sMax));
     },
     onEnd: (_totalDx, velocityX) => {
       setDragging(false);
 
-      // Перевод скорости пикселей/с в скорость "шагов/с"
-      const v_s  = (velocityX / 1000) / (R * stepA); // скорость скролла в “шагах карты” в секунду
+      const v = (velocityX / 1000) / (R * stepA);
       const half = (n - 1) / 2;
 
-      // Остановка на ближайшей к центру карте
-      let target = sRef.current + v_s * 0.25;
-      const nearestI = Math.round(target + half);
-      target = clamp(nearestI - half, sMin, sMax);
+      let target = sRef.current + v * 0.25;
+      const nearestIndex = Math.round(target + half);
+      target = clamp(nearestIndex - half, sMin, sMax);
 
-      // Плавное доведение пружиной
       stopSpringRef.current = springTo({
         from: sRef.current,
         to: target,
-        onUpdate: (x) => setS(x),
-        onFinish: () => { stopSpringRef.current = null; },
-        k: 680,   // жесткость
-        c: 30,    // демпфирование
+        onUpdate: (value) => setS(value),
+        onFinish: () => {
+          stopSpringRef.current = null;
+        },
+        k: 680,
+        c: 30,
       });
     },
     onClick: () => {
-      // Короткий клик (не драг): выбор карты
       handleCardClick();
     },
-    lockY: true, // игнор вертикальных движений
+    lockY: true,
   });
 
-  // --- Параметры визуальных эффектов "центральной" карты
   const ACTIVE_LIFT_DESKTOP = 34;
-  const ACTIVE_LIFT_MOBILE  = 28;
+  const ACTIVE_LIFT_MOBILE = 28;
   const ACTIVE_TILT_DESKTOP = -8;
-  const ACTIVE_TILT_MOBILE  = -5;
+  const ACTIVE_TILT_MOBILE = -5;
 
-  // --- Функция близости карты к "точному центру": 1 — в центре, 0 — далеко
-  const proximity = (i: number, centerExact: number) => {
-    const d = Math.abs(i - centerExact);
-    const t = 1 - Math.min(1, d / 0.6);
+  const proximity = (index: number, centerExact: number) => {
+    const distance = Math.abs(index - centerExact);
+    const t = 1 - Math.min(1, distance / 0.6);
     return t < 0 ? 0 : t;
   };
 
-  // --- Расчет текущих позиций/поворотов всех карт с учетом s и "подсветки"
   const cards = React.useMemo(() => {
-    const res: Array<{ i: number; x: number; y: number; rot: number; activeWeight: number }> = [];
-    const centerExact = s + (n - 1) / 2;
-    const liftPx  = isMobile ? ACTIVE_LIFT_MOBILE  : ACTIVE_LIFT_DESKTOP;
-    const tiltDeg = isMobile ? ACTIVE_TILT_MOBILE : ACTIVE_TILT_DESKTOP;
+    const items: Array<{
+      index: number;
+      x: number;
+      y: number;
+      rot: number;
+      activeWeight: number;
+    }> = [];
 
-    for (let i = 0; i < n; i++) {
-      // p — где сейчас находится карточка i относительно s (между якорями)
-      const p = i - s;
+    const centerExact = s + (n - 1) / 2;
+    const lift = isMobile ? ACTIVE_LIFT_MOBILE : ACTIVE_LIFT_DESKTOP;
+    const tilt = isMobile ? ACTIVE_TILT_MOBILE : ACTIVE_TILT_DESKTOP;
+
+    for (let index = 0; index < n; index += 1) {
+      const p = index - s;
       const k = Math.max(0, Math.min(n - 2, Math.floor(p)));
       const t = Math.max(0, Math.min(1, p - k));
 
-      // Линейная интерполяция между двумя соседними якорями на дуге
       const a = anchors.arr[k];
       const b = anchors.arr[k + 1];
-      const an = a && b ? null : anchors.arr[Math.max(0, Math.min(n - 1, i))];
+      const fallback =
+        a && b
+          ? null
+          : anchors.arr[Math.max(0, Math.min(n - 1, index))];
 
-      const baseX = a && b ? (a.x + (b.x - a.x) * t) : an!.x;
-      const baseY = a && b ? (a.y + (b.y - a.y) * t) : an!.y;
-      let   rot   = a && b ? (a.rot + (b.rot - a.rot) * t) : an!.rot;
+      const baseX = a && b ? a.x + (b.x - a.x) * t : fallback!.x;
+      const baseY = a && b ? a.y + (b.y - a.y) * t : fallback!.y;
+      let rot = a && b ? a.rot + (b.rot - a.rot) * t : fallback!.rot;
 
-      // Сдвигаем в локальные координаты контейнера
       const x = baseX - W / 2 - anchors.minX;
       let y = baseY - H / 2 - anchors.minY;
 
-      // Подсветка/поднятие/доп. наклон около центра
-      const act = proximity(i, centerExact);
-      if (act > 0) {
-        y   -= liftPx * act;
-        rot += tiltDeg * act;
+      const activeWeight = proximity(index, centerExact);
+
+      if (activeWeight > 0) {
+        y -= lift * activeWeight;
+        rot += tilt * activeWeight;
       }
 
-      res.push({ i, x, y, rot, activeWeight: act });
+      items.push({ index, x, y, rot, activeWeight });
     }
-    return res;
-  }, [n, s, anchors, W, H, isMobile]);
 
-  // --- Notify parent about selected card changes
+    return items;
+  }, [anchors, isMobile, n, s, W, H]);
+
   React.useEffect(() => {
     const centerExact = s + (n - 1) / 2;
     const selectedCardIndex = Math.round(centerExact);
@@ -215,11 +253,9 @@ export const TarotWheel: React.FC<TarotWheelProps> = ({
     onSelectedCardChange?.(clampedIndex);
   }, [s, n, onSelectedCardChange]);
 
-  // --- Доп. отступы: место для тени карт и зона для комфортного драга
   const shadowPadding = 60;
   const dragAreaExtension = 200;
 
-  // --- Рендер: один контейнер-обработчик жестов + абсолютные карточки
   return (
     <div
       {...bind}
@@ -236,26 +272,22 @@ export const TarotWheel: React.FC<TarotWheelProps> = ({
         userSelect: 'none',
       }}
     >
-      {cards.map(({ i, x, y, rot }) => (
+      {cards.map(({ index, x, y, rot }) => (
         <div
-          key={i}
+          key={index}
           className="absolute will-change-transform pointer-events-none"
           style={{
             width: `${W}px`,
             height: `${H}px`,
             transform: `translate3d(${x}px, ${y}px, 0) rotate(${rot}deg)`,
             transformOrigin: 'center center',
-            zIndex: i, // у центральных карт выше индекс => меньше перекрытий
-            transition: dragging ? 'none' : 'transform 90ms linear', // мгновенно во время драга, плавно после
+            zIndex: index,
+            transition: dragging ? 'none' : 'transform 90ms linear',
           }}
         >
-          <TarotCard
-            index={i}
-            width={W}
-            disabled={false}
-          />
+          <TarotCard index={index} width={W} disabled={false} />
         </div>
       ))}
     </div>
   );
-};
+}

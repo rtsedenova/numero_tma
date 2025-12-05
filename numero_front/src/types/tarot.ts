@@ -25,6 +25,10 @@ export interface TarotDrawResponse {
     ok: boolean;
     result: TarotDrawResult;
     remainingFree?: number; 
+    tarotFreePredictionsLeft?: number;
+    numerologyFreePredictionsLeft?: number;
+    credits?: number;
+    code?: string; 
 }
 
 export interface TarotDrawParams {
