@@ -10,6 +10,9 @@ type SendNumerologyResultResponse = {
   message: string;
   interpretation?: DestinyNumberData;
   predictionsLeft?: number;
+  numerologyFreePredictionsLeft?: number;
+  tarotFreePredictionsLeft?: number;
+  credits?: number;
 };
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
@@ -35,8 +38,10 @@ function toErrorMessage(err: unknown): string {
   if (anyErr?.response?.data) {
     const data = anyErr.response.data;
     if (typeof data === 'string') return data;
-    if (typeof (data as { message?: string })?.message === 'string') {
-      return (data as { message?: string }).message as string;
+
+    const maybeWithMessage = data as { message?: string };
+    if (typeof maybeWithMessage.message === 'string') {
+      return maybeWithMessage.message;
     }
   }
 
@@ -46,10 +51,11 @@ function toErrorMessage(err: unknown): string {
 export const useSendNumerologyResult = (): UseSendNumerologyResultReturn => {
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [interpretation, setInterpretation] = useState<DestinyNumberData | null>(null);
+  const [interpretation, setInterpretation] =
+    useState<DestinyNumberData | null>(null);
 
   const { user } = useTelegramUser();
-  const { decrement } = usePredictionAttempts();
+  const { updatePredictions } = usePredictionAttempts();
 
   const isLoading = status === 'loading';
   const userId = user?.id;
@@ -85,13 +91,26 @@ export const useSendNumerologyResult = (): UseSendNumerologyResultReturn => {
 
         const { data } = await api.post<SendNumerologyResultResponse>(
           API_ENDPOINTS.numerology.calculate,
-          payload
+          payload,
         );
 
         if (data?.success) {
           setStatus('success');
           setInterpretation(data.interpretation || null);
-          decrement();
+
+          if (
+            data.numerologyFreePredictionsLeft !== undefined &&
+            data.tarotFreePredictionsLeft !== undefined &&
+            data.credits !== undefined
+          ) {
+            updatePredictions({
+              numerologyFreePredictionsLeft:
+                data.numerologyFreePredictionsLeft,
+              tarotFreePredictionsLeft: data.tarotFreePredictionsLeft,
+              credits: data.credits,
+            });
+          }
+
           return true;
         }
 
@@ -100,13 +119,13 @@ export const useSendNumerologyResult = (): UseSendNumerologyResultReturn => {
         setStatus('error');
         return false;
       } catch (err) {
-        console.error('[useSendNumerologyResult]', err);
+        console.error('[Numerology] send result error', { error: err });
         setError(toErrorMessage(err));
         setStatus('error');
         return false;
       }
     },
-    [userId, decrement]
+    [userId, updatePredictions],
   );
 
   return {

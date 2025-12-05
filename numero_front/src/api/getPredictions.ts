@@ -2,19 +2,31 @@ import { api, API_ENDPOINTS } from '@/config/api';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
 
 interface GetPredictionsResponse {
-  predictions_left: number;
+  predictionsLeft?: number;
+  predictions_left?: number;
+  numerologyFreePredictionsLeft: number;
+  tarotFreePredictionsLeft: number;
+  credits: number;
 }
 
-export async function getPredictionsFromServer(telegramId: number): Promise<void> {
+export async function getPredictionsFromServer(
+  telegramId: number,
+): Promise<void> {
   try {
     const { data } = await api.get<GetPredictionsResponse>(
-      API_ENDPOINTS.db.predictions.get.replace(':telegramId', telegramId.toString())
+      API_ENDPOINTS.db.predictions.get.replace(
+        ':telegramId',
+        telegramId.toString(),
+      ),
     );
-    
-    // Update the store with the fetched predictions
-    usePredictionAttempts.getState().reset(data.predictions_left);
+
+    usePredictionAttempts.getState().updatePredictions({
+      numerologyFreePredictionsLeft: data.numerologyFreePredictionsLeft,
+      tarotFreePredictionsLeft: data.tarotFreePredictionsLeft,
+      credits: data.credits,
+    });
   } catch (error) {
-    console.error('Error fetching predictions:', error);
+    console.error('[Predictions] fetch error', { error });
     throw error;
   }
 }

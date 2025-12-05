@@ -10,5 +10,8 @@ export type NewUser = {
   export type UserFromDB = NewUser & {
     id: number;
     created_at: string;
+    numerology_free_predictions_left: number;
+    tarot_free_predictions_left: number;
+    credits: number;
   };
 
