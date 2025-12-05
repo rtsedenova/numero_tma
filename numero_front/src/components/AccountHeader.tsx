@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import type { User } from '@telegram-apps/sdk-react';
 import { useNavigate } from 'react-router-dom';
 
