@@ -19,6 +19,8 @@ interface TarotWheelProps {
   onSelectedCardChange?: (cardIndex: number) => void;
 }
 
+const CREDITS_PER_PREDICTION = 100;
+
 export function TarotWheel({
   config,
   category,
@@ -88,8 +90,6 @@ export function TarotWheel({
       return;
     }
 
-    const CREDITS_PER_PREDICTION = 100;
-
     if (
       isPredictionsLoading ||
       tarotFreePredictionsLeft === null ||
@@ -134,7 +134,7 @@ export function TarotWheel({
 
       onDrawComplete?.(resp);
     } catch (error) {
-      console.error('[TarotWheel] draw error', { error });
+      console.error('[TarotWheel] Error', { error });
 
       if (error instanceof Error) {
         const message = error.message.toLowerCase();
@@ -222,9 +222,7 @@ export function TarotWheel({
       const a = anchors.arr[k];
       const b = anchors.arr[k + 1];
       const fallback =
-        a && b
-          ? null
-          : anchors.arr[Math.max(0, Math.min(n - 1, index))];
+        a && b ? null : anchors.arr[Math.max(0, Math.min(n - 1, index))];
 
       const baseX = a && b ? a.x + (b.x - a.x) * t : fallback!.x;
       const baseY = a && b ? a.y + (b.y - a.y) * t : fallback!.y;

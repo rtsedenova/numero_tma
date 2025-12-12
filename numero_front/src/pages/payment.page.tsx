@@ -1,11 +1,11 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import WebApp from '@twa-dev/sdk';
 
 import { Page } from '@/components/Page';
 import { CurrencyChip } from '@/components/CurrencyChip';
 import { api, API_ENDPOINTS } from '@/config/api';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
-import { useTelegramUser } from '@/hooks/useTelegramUser';
+// import { useTelegramUser } from '@/hooks/useTelegramUser';
 
 type PackCode = 'SMALL' | 'LARGE';
 
@@ -161,17 +161,13 @@ export function PaymentPage() {
 const [loading, setLoading] = useState<PackCode | null>(null);
 const disableAll = loading !== null;
 
-const { user } = useTelegramUser();
+// const { user } = useTelegramUser();
 const {
     credits,
-    fetchPredictions,
+    // fetchPredictions,
     isLoading: isPredictionsLoading,
 } = usePredictionAttempts();
 
-useEffect(() => {
-    if (!user?.id) return;
-    fetchPredictions(user.id);
-}, [user?.id, fetchPredictions]);
 
 const handleBuy = useCallback(
     async (pack: PackCode) => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Page } from '@/components/Page';
@@ -9,7 +9,6 @@ import { TarotCardFlipOverlay } from '@/components/tarot/TarotCardFlipOverlay';
 import { SelectedCard } from '@/components/tarot/SelectedCard';
 import { SwipeIndicators } from '@/components/tarot/SwipeIndicators';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
-import { useTelegramUser } from '@/hooks/useTelegramUser';
 
 import type { TarotDrawResponse, TarotCategory, WheelConfig } from '@/types/tarot';
 
@@ -17,19 +16,12 @@ const CREDITS_PER_PREDICTION = 100;
 
 export function TarotPage() {
   const navigate = useNavigate();
-  const { user } = useTelegramUser();
   const {
     tarotFreePredictionsLeft,
     credits,
-    fetchPredictions,
     isLoading: isPredictionsLoading,
     updatePredictions,
   } = usePredictionAttempts();
-
-  useEffect(() => {
-    if (!user?.id) return;
-    fetchPredictions(user.id);
-  }, [user?.id, fetchPredictions]);
 
   const wheelConfig: WheelConfig = {
     radiusDesktop: 2500,
@@ -79,6 +71,7 @@ export function TarotPage() {
 
     navigate('/tarot-result', {
       state: { result, category },
+      replace: true,
     });
   };
 

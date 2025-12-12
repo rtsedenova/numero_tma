@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import type { User } from '@telegram-apps/sdk-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,16 +22,10 @@ export function AccountHeader({
   const { user: userFromHook } = useTelegramUser();
   const {
     credits,
-    fetchPredictions,
     isLoading: isPredictionsLoading,
   } = usePredictionAttempts();
 
   const user = userProp || userFromHook;
-
-  useEffect(() => {
-    if (!user?.id) return;
-    fetchPredictions(user.id);
-  }, [user?.id, fetchPredictions]);
 
   const balance = credits !== null ? credits : balanceProp ?? 0;
   const balanceText =

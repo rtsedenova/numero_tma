@@ -33,8 +33,7 @@ export const S3Interpretation: React.FC<S3InterpretationProps> = ({ s3Data, numb
   return (
     <div className="mt-4 rounded-lg">
       <h4 className="text-violet-300 font-semibold mb-4 text-lg">Интерпретация числа {number}:</h4>
-      
-      {/* Title and Description Section */}
+
       {(s3Data.title || s3Data.description) && (
         <div className="mb-6 p-4 rounded-xl shadow-md bg-gradient-to-br from-violet-300/15 to-fuchsia-600/10">
           {s3Data.title && (

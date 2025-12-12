@@ -3,7 +3,7 @@ import { db } from '../../config/dbConfig';
 import {
   consumePrediction,
   NoPredictionsLeftError,
-} from '../users/services/userPredictions.service';
+} from '../users/services/updateUserCounters.service';
 import {
   getAllCards,
   getCardById,

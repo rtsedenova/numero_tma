@@ -1,6 +1,6 @@
 import type { Telegraf } from 'telegraf';
-import { getBot } from '../../../config/telegramConfig';
-import { addCredits } from '../../users/services/userPredictions.service';
+import { getBot } from '../../config/telegramConfig';
+import { addCredits } from '../users/services/updateUserCounters.service';
 
 export const PACK_CREDITS = {
   SMALL: 1000,

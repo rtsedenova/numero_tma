@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { TelegramStarsService } from "../services/payment.service";
+import { TelegramStarsService } from "./payment.service";
 
 export class PaymentController {
   static async createInvoiceLink(req: Request, res: Response): Promise<void> {

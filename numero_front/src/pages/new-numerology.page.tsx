@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Page } from '@/components/Page';
@@ -8,7 +8,7 @@ import { NumerologyResult } from '@/components/numerology/numerology-result';
 import { calculateNumerologyNumber } from '@/helpers/calculateNumerologyNumber';
 import { useSendNumerologyResult } from '@/hooks/useSendNumerologyResult';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
-import { useTelegramUser } from '@/hooks/useTelegramUser';
+// import { useTelegramUser } from '@/hooks/useTelegramUser';
 
 const CREDITS_PER_PREDICTION = 100;
 
@@ -23,15 +23,9 @@ export function NewNumerologyPage(): JSX.Element {
   const {
     numerologyFreePredictionsLeft,
     credits,
-    fetchPredictions,
     isLoading: isPredictionsLoading,
   } = usePredictionAttempts();
-  const { user } = useTelegramUser();
-
-  useEffect(() => {
-    if (!user?.id) return;
-    fetchPredictions(user.id);
-  }, [user?.id, fetchPredictions]);
+  // const { user } = useTelegramUser();
 
   const handleDateCheck = (date: string | null) => {
     if (!date) {

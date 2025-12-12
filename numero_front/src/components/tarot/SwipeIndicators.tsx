@@ -31,13 +31,11 @@ type ArrowProps = {
   stroke: string;    // цвет линии
 };
 
-/** Универсальная пунктирная стрелка (влево/вправо), без анимаций */
 const Arrow: React.FC<ArrowProps> = ({ dir, size, stroke }) => {
   const w = Math.round(size * 2);  // ширина ~ в 2 раза выше
   const h = size;
   const mid = h / 2;
 
-  // линия: слева-направо; наконечник зеркалим по dir
   const linePath =
     dir === "right"
       ? `M 2 ${mid} L ${w - 10} ${mid}`

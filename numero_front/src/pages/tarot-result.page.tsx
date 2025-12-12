@@ -1,5 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { backButton } from '@telegram-apps/sdk-react';
 import { Page } from "@/components/Page";
 import type { TarotDrawResponse, TarotCategory } from "@/types/tarot";
 
@@ -22,9 +23,16 @@ export const TarotResultPage: FC = () => {
     }
   }, [location, navigate]);
 
+  useEffect(() => {
+    backButton.show();
+    return backButton.onClick(() => {
+      navigate("/tarot", { replace: true });
+    });
+  }, [navigate]);
+
   if (!result) {
     return (
-      <Page>
+      <Page back={false}>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-white">Загрузка...</div>
         </div>
@@ -35,11 +43,11 @@ export const TarotResultPage: FC = () => {
   const imgSrc = result.card.image_key || result.card.image;
 
   return (
-    <Page>
+    <Page back={false}>
       <div className="page tarot-result-page fixed inset-0 bg-gradient-to-b from-[#301d42] via-[#2a1838] to-[#1f0f2e] text-white overflow-y-auto">
         <div className="max-w-3xl mx-auto pb-20">
           <button
-            onClick={() => navigate("/tarot")}
+            onClick={() => navigate("/tarot", { replace: true })}
             className="mb-6 flex items-center gap-2 text-white/70 hover:text-white transition-colors"
           >
             <svg
@@ -69,7 +77,7 @@ export const TarotResultPage: FC = () => {
                     }}
                   >
                     <img
-                      src={imgSrc}
+                      src={`/prediction_mini_app/${imgSrc}`}
                       alt={result.card.name}
                       className="w-full h-full object-cover"
                     />
@@ -140,7 +148,7 @@ export const TarotResultPage: FC = () => {
 
           <div className="flex justify-center mt-8">
             <button
-              onClick={() => navigate("/tarot")}
+              onClick={() => navigate("/tarot", { replace: true })}
               className={`
                 inline-flex px-8 py-1.5 items-center gap-1 rounded-full
                 border border-violet-300/80

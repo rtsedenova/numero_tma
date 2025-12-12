@@ -4,7 +4,7 @@ import { getInterpretationForNumber } from './numerology.service';
 import {
   consumePrediction,
   NoPredictionsLeftError,
-} from '../users/services/userPredictions.service';
+} from '../users/services/updateUserCounters.service';
 
 interface CalculateRequestBody {
   telegramId: number;
@@ -21,16 +21,10 @@ const CREDITS_PER_PREDICTION = 100;
 
 export async function calculate(req: Request, res: Response): Promise<void> {
   try {
-    console.log('[Numerology] Calculate request received', {
-      body: req.body,
-    });
-
     const { telegramId, numerologyResult } = req.body as CalculateRequestBody;
 
     if (!telegramId || !numerologyResult) {
-      console.log(
-        '[Numerology] Validation failed: missing telegramId or numerologyResult',
-      );
+      console.warn('[Numerology] Missing telegramId or result');
       res.status(400).json({
         success: false,
         message:
@@ -40,9 +34,7 @@ export async function calculate(req: Request, res: Response): Promise<void> {
     }
 
     if (!numerologyResult.number || !numerologyResult.date) {
-      console.log(
-        '[Numerology] Validation failed: missing number or date in numerologyResult',
-      );
+      console.warn('[Numerology] Missing number or date');
       res.status(400).json({
         success: false,
         message:
@@ -61,7 +53,7 @@ export async function calculate(req: Request, res: Response): Promise<void> {
     const userResult = await db.query(userQuery, [telegramIdString]);
 
     if (userResult.rows.length === 0) {
-      console.log('[Numerology] User not found', { telegramId });
+      console.warn('[Numerology] User not found', { telegramId });
       res.status(404).json({
         success: false,
         message: 'User not found',
@@ -73,38 +65,26 @@ export async function calculate(req: Request, res: Response): Promise<void> {
       userResult.rows[0].numerology_free_predictions_left;
     const credits = userResult.rows[0].credits;
 
-    if (freePredictionsLeft === 0) {
-      if (credits < CREDITS_PER_PREDICTION) {
-        console.log(
-          '[Numerology] Free predictions exhausted and insufficient credits',
-          { telegramId, credits },
-        );
-        res.status(403).json({
-          success: false,
-          message:
-            'Free predictions are over. You need at least 100 credits to make a prediction. Please buy credits to continue.',
-          code: 'NO_FREE_PREDICTIONS_LEFT',
-          requiredCredits: CREDITS_PER_PREDICTION,
-        });
-        return;
-      }
-
-      console.log(
-        '[Numerology] Free predictions exhausted, using credits',
-        { telegramId, credits },
-      );
+    if (freePredictionsLeft === 0 && credits < CREDITS_PER_PREDICTION) {
+      console.warn('[Numerology] No free predictions and low credits', {
+        telegramId,
+      });
+      res.status(403).json({
+        success: false,
+        message:
+          'Free predictions are over. You need at least 100 credits to make a prediction. Please buy credits to continue.',
+        code: 'NO_FREE_PREDICTIONS_LEFT',
+        requiredCredits: CREDITS_PER_PREDICTION,
+      });
+      return;
     }
-
-    console.log('[Numerology] Fetching interpretation', {
-      number: numerologyResult.number,
-    });
 
     const interpretation = await getInterpretationForNumber(
       numerologyResult.number,
     );
 
     if (!interpretation) {
-      console.log('[Numerology] No interpretation found', {
+      console.warn('[Numerology] No interpretation', {
         number: numerologyResult.number,
       });
       res.status(404).json({
@@ -148,10 +128,9 @@ export async function calculate(req: Request, res: Response): Promise<void> {
         ]);
 
         if (updateResult.rowCount === 0) {
-          console.log(
-            '[Numerology] Insufficient credits during consumption (race condition)',
-            { telegramId },
-          );
+          console.warn('[Numerology] Insufficient credits (race)', {
+            telegramId,
+          });
           res.status(403).json({
             success: false,
             message:
@@ -168,18 +147,12 @@ export async function calculate(req: Request, res: Response): Promise<void> {
             updateResult.rows[0].tarot_free_predictions_left,
           credits: updateResult.rows[0].credits,
         };
-
-        console.log('[Numerology] Consumed credits, updated counts', {
-          telegramId,
-          predictionCounts,
-        });
       }
     } catch (error) {
       if (error instanceof NoPredictionsLeftError) {
-        console.log(
-          '[Numerology] No predictions available during consumption (race condition)',
-          { telegramId },
-        );
+        console.warn('[Numerology] No predictions left (race)', {
+          telegramId,
+        });
         res.status(403).json({
           success: false,
           message: 'No predictions available',
@@ -201,7 +174,7 @@ export async function calculate(req: Request, res: Response): Promise<void> {
       credits: predictionCounts.credits,
     };
 
-    console.log('[Numerology] Sending response', {
+    console.log('[Numerology] Success', {
       telegramId,
       numerologyFreePredictionsLeft: response.numerologyFreePredictionsLeft,
       tarotFreePredictionsLeft: response.tarotFreePredictionsLeft,
@@ -210,7 +183,7 @@ export async function calculate(req: Request, res: Response): Promise<void> {
 
     res.json(response);
   } catch (error: unknown) {
-    console.error('[Numerology] Error in calculate', error);
+    console.error('[Numerology] Error', error);
 
     const errorMessage =
       error instanceof Error ? error.message : 'Internal server error';
