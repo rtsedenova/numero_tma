@@ -8,7 +8,6 @@ import { NumerologyResult } from '@/components/numerology/numerology-result';
 import { calculateNumerologyNumber } from '@/helpers/calculateNumerologyNumber';
 import { useSendNumerologyResult } from '@/hooks/useSendNumerologyResult';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
-// import { useTelegramUser } from '@/hooks/useTelegramUser';
 
 const CREDITS_PER_PREDICTION = 100;
 
@@ -25,7 +24,6 @@ export function NewNumerologyPage(): JSX.Element {
     credits,
     isLoading: isPredictionsLoading,
   } = usePredictionAttempts();
-  // const { user } = useTelegramUser();
 
   const handleDateCheck = (date: string | null) => {
     if (!date) {

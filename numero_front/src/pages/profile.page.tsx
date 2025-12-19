@@ -1,16 +1,18 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import { Page } from '@/components/Page';
 import { useSignal } from "@telegram-apps/sdk-react";
 import { initData } from "@telegram-apps/sdk-react";
 
-import { GearSix } from "phosphor-react"; 
-import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { CurrencyChip } from "@/components/CurrencyChip";
+import { Avatar } from "@/components/Avatar";
+import { usePredictionAttempts } from "@/storage/predictionAttempts";
 
 export const ProfilePage: FC = () => {
   const initDataState = useSignal(initData.state);
   const user = initDataState?.user;
 
-  const [showSettings, setShowSettings] = useState(false);
+  const { credits, isLoading: isPredictionsLoading } = usePredictionAttempts();
 
   if (!user) {
     return (
@@ -23,14 +25,17 @@ export const ProfilePage: FC = () => {
   return (
     <Page>
       <div className="profile-page">
-        <div className="profile-page__header">
-          {user.photoUrl && (
-            <img
-              src={user.photoUrl}
-              alt="Аватар"
-              className="profile-page__avatar"
-            />
-          )}
+        <div className="profile-page__top-bar">
+          <ThemeToggle />
+        </div>
+
+        <div className="profile-page__profile-section">
+          <Avatar
+            src={user.photoUrl}
+            alt={`${user.firstName} ${user.lastName} avatar`}
+            size={120}
+            className="profile-page__avatar"
+          />
           <div className="profile-page__info">
             <div className="profile-page__name">
               {user.firstName} {user.lastName}
@@ -39,37 +44,19 @@ export const ProfilePage: FC = () => {
               <div className="profile-page__username">@{user.username}</div>
             )}
           </div>
-          <button
-            className="profile-page__settings-icon"
-            onClick={() => setShowSettings(!showSettings)}
-          >
-            <GearSix size={24} weight="bold" />
-          </button>
         </div>
 
         <div className="profile-page__coins">
-          💰 <strong>124</strong> монеты
+          <CurrencyChip
+            value={
+              isPredictionsLoading || credits === null ? '...' : String(credits)
+            }
+          />
         </div>
 
         <ul className="profile-page__settings">
-          <li>Язык: {user.languageCode?.toUpperCase() || "RU"}</li>
           {user.isPremium && <li>Премиум: Активен ✨</li>}
-          {showSettings && (
-            <li className="profile-page__theme-section">
-              <span>Тема:</span>
-              <ThemeToggle />
-            </li>
-          )}
         </ul>
-
-        <div className="profile-page__section">
-          <h3>Моя статистика</h3>
-          <ul>
-            <li>Всего предсказаний: 15</li>
-            <li>Избранные: 3</li>
-            <li>Процент совпадений: 80%</li>
-          </ul>
-        </div>
 
         <div className="profile-page__invite">
           <button className="profile-page__button">Пригласить друзей</button>

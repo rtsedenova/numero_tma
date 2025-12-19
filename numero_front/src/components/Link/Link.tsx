@@ -13,8 +13,6 @@ export const Link: FC<LinkProps> = ({
   const onClick = useCallback<MouseEventHandler<HTMLAnchorElement>>((e) => {
     propsOnClick?.(e);
 
-    // Compute if target path is external. In this case we would like to open
-    // link using TMA method.
     let path: string;
     if (typeof to === 'string') {
       path = to;

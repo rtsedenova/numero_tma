@@ -27,12 +27,12 @@ export const SwipeIndicators: React.FC<SwipeIndicatorsProps> = ({
 
 type ArrowProps = {
   dir: "left" | "right";
-  size: number;      // высота
-  stroke: string;    // цвет линии
+  size: number;      
+  stroke: string;    
 };
 
 const Arrow: React.FC<ArrowProps> = ({ dir, size, stroke }) => {
-  const w = Math.round(size * 2);  // ширина ~ в 2 раза выше
+  const w = Math.round(size * 2);  
   const h = size;
   const mid = h / 2;
 

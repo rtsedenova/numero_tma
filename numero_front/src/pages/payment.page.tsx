@@ -5,7 +5,6 @@ import { Page } from '@/components/Page';
 import { CurrencyChip } from '@/components/CurrencyChip';
 import { api, API_ENDPOINTS } from '@/config/api';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
-// import { useTelegramUser } from '@/hooks/useTelegramUser';
 
 type PackCode = 'SMALL' | 'LARGE';
 
@@ -161,10 +160,8 @@ export function PaymentPage() {
 const [loading, setLoading] = useState<PackCode | null>(null);
 const disableAll = loading !== null;
 
-// const { user } = useTelegramUser();
 const {
     credits,
-    // fetchPredictions,
     isLoading: isPredictionsLoading,
 } = usePredictionAttempts();
 

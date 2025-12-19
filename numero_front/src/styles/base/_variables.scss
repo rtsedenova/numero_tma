@@ -1,10 +1,8 @@
 :root {
-  /* Светлая тема (по умолчанию) */
-  --bg: #ffffff; /* base light */
-  --surface: #f6f3fe; /* мягкая светлая поверхность */
+  --bg: #ffffff; 
   --primary: #886abd;
   --primary-light: #cbbbe2;
-  --accent: #886abd; /* тот же, чтобы гармонировал */
+  --accent: #886abd; 
   --text: #2d1e2f;
   --text-subtle: #7c6f8e;
   --border: #ddd3ec;
@@ -23,12 +21,12 @@ body.light {
 }
 
 body.dark {
-  --bg: #0f071c; /* clr-surface-a0 */
-  --surface: #252131; /* clr-surface-a10 */
-  --primary: #cbbbe2; /* clr-primary-a50 */
-  --primary-light: #b09ad3; /* для hover и акцентов */
-  --accent: #b09ad3; /* может совпадать с primary-light */
-  --text: #ffffff; /* clr-light-a0 */
-  --text-subtle: #908c99; /* clr-surface-tonal-a50 */
-  --border: #3c3847; /* clr-surface-a20 */
+  --bg: #0f071c; 
+  --surface: #252131; 
+  --primary: #cbbbe2; 
+  --primary-light: #b09ad3; 
+  --accent: #b09ad3; 
+  --text: #ffffff; 
+  --text-subtle: #908c99; 
+  --border: #3c3847; 
 }
