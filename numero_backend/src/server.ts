@@ -2,6 +2,7 @@ import http from 'http';
 import dotenv from 'dotenv';
 import { createServer } from './app/server';
 import { TelegramStarsService } from './features/payment';
+import { initBotModule } from './features/bot';
 
 dotenv.config();
 
@@ -19,16 +20,21 @@ console.log('[ENV] PORT', PORT);
 console.log('[ENV] HOST', HOST);
 console.log('[ENV] BOT_TOKEN fingerprint', mask(process.env.BOT_TOKEN));
 
-TelegramStarsService.attachHandlers();
-
 (async () => {
   try {
+    // Initialize bot module (register commands and attach handlers)
+    await initBotModule();
+    
+    // Attach payment event handlers
+    TelegramStarsService.attachHandlers();
+    
+    // Launch the bot
     await TelegramStarsService.launchBotOnce();
     console.log('[BOT] launched and listening for updates');
   } catch (error) {
-    console.error('[BOT] launch failed', { error });
+    console.error('[BOT] Initialization or launch failed', { error });
     console.error(
-      '[BOT] payments will not work without a running bot. Check BOT_TOKEN and bot permissions.',
+      '[BOT] Bot will not work properly. Check BOT_TOKEN and bot permissions.',
     );
   }
 })();
