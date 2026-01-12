@@ -1,5 +1,4 @@
-import s3 from '../s3/awsClient';
-import { AWS_CONFIG } from '../../config/awsConfig';
+import { getFileFromS3 } from '../s3/services/s3Service';
 
 export interface NumDataEntry {
   number?: number;
@@ -21,33 +20,8 @@ interface NumData {
   [key: string]: NumDataEntry;
 }
 
-// Cache for num_data.json
 let cachedNumData: NumData | null = null;
 
-/**
- * Fetches file from S3 (reproduced logic from getFile.service.ts)
- */
-async function getFileFromS3(fileName: string) {
-  const params = {
-    Bucket: AWS_CONFIG.bucketName, 
-    Key: fileName,
-  };
-
-  try {
-    const data = await s3.getObject(params).promise();
-    return data;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      throw new Error(`Ошибка во время получения данных из S3: ${error.message}`);
-    } else {
-      throw new Error('Неизвестная ошибка во время получения файла из S3');
-    }
-  }
-}
-
-/**
- * Fetches and caches num_data.json from S3
- */
 async function getNumData(): Promise<NumData> {
   if (cachedNumData) {
     return cachedNumData;
@@ -55,35 +29,32 @@ async function getNumData(): Promise<NumData> {
 
   try {
     const s3Response = await getFileFromS3('num_data.json');
-    
+
     if (!s3Response.Body) {
-      throw new Error('No data returned from S3');
+      throw new Error('Empty S3 response');
     }
 
     const fileContent = s3Response.Body.toString('utf-8');
     cachedNumData = JSON.parse(fileContent);
-    
+
     return cachedNumData as NumData;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      throw new Error(`Failed to fetch numerology data from S3: ${error.message}`);
+      throw new Error(`Failed to load numerology data: ${error.message}`);
     }
-    throw new Error('Unknown error while fetching numerology data');
+    throw new Error('Failed to load numerology data');
   }
 }
 
-/**
- * Gets interpretation for a specific destiny number
- */
-export async function getInterpretationForNumber(number: number): Promise<NumDataEntry | null> {
+export async function getInterpretationForNumber(
+  number: number,
+): Promise<NumDataEntry | null> {
   try {
     const numData = await getNumData();
-    
-    // Convert number to string key as JSON keys are strings
     const key = number.toString();
-    
+
     if (!numData[key]) {
-      console.warn(`No interpretation found for number: ${number}`);
+      console.warn(`No interpretation for number: ${number}`);
       return null;
     }
 
@@ -92,14 +63,10 @@ export async function getInterpretationForNumber(number: number): Promise<NumDat
     if (error instanceof Error) {
       throw new Error(`Failed to get interpretation: ${error.message}`);
     }
-    throw new Error('Unknown error while getting interpretation');
+    throw new Error('Failed to get interpretation');
   }
 }
 
-/**
- * Clears the cached data (useful for testing or forcing refresh)
- */
 export function clearCache(): void {
   cachedNumData = null;
 }
-

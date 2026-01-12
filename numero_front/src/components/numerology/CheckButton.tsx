@@ -31,9 +31,7 @@ const hasValidDate = hasCompleteDate();
 const showError = showValidationError && !hasValidDate;
 
 const handleClick = () => {
-    if (onDateCheck) {
-    onDateCheck(selectedDate);
-    }
+    onDateCheck?.(selectedDate);
     onClick?.();
 };
 
@@ -44,33 +42,31 @@ return (
         onClick={handleClick}
         disabled={isDisabled}
         aria-busy={loading || undefined}
-        className={`
-        inline-flex justify-center min-w-xs items-center gap-2 px-4 py-2 rounded-full
-        border border-violet-300/70
-        shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]
-        bg-gradient-to-r from-fuchsia-500/10 via-violet-500/10 to-indigo-500/10
-        text-violet-100 font-semibold
-        transition-all
-        hover:from-fuchsia-500/30 hover:via-violet-500/20 hover:to-indigo-500/20
-        hover:text-violet-50
-        active:scale-[0.99]
-        disabled:opacity-60 disabled:cursor-not-allowed
-        ${className}
-        `}
+        className={[
+        "inline-flex items-center justify-center gap-2",
+        "px-4 py-2 rounded-full",
+        "[background-image:var(--gradient-bg)]",
+        "transition-all duration-300 ease-out",
+        "hover:[background-image:var(--gradient-bg-hover)]",
+        "active:scale-[0.99]",
+        "disabled:opacity-60 disabled:cursor-not-allowed",
+
+        "text-[var(--button-text)]",
+
+        className,
+        ].join(" ")}
     >
         {!loading && leftIcon && <span className="shrink-0">{leftIcon}</span>}
 
         {loading ? (
-        <span
-            className="
-            inline-block w-4 h-4 rounded-full
-            border-2 border-violet-200/70 border-t-transparent
-            animate-spin
-            "
+        <div
+            className="w-5 h-5 border-2 border-purple-300/30 border-t-transparent rounded-full animate-spin"
             aria-hidden="true"
         />
         ) : (
-        <span className="text-sm whitespace-nowrap select-none">{label}</span>
+        <span className="text-sm font-medium whitespace-nowrap select-none">
+            {label}
+        </span>
         )}
 
         {!loading && rightIcon && <span className="shrink-0">{rightIcon}</span>}

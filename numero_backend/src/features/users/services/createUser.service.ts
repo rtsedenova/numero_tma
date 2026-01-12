@@ -43,8 +43,8 @@ export async function createUser(user: NewUser): Promise<UserFromDB> {
 
     return selectResult.rows[0];
   } catch (error) {
-    console.error('Ошибка при создании или получении пользователя:', error);
-    throw new Error('Не удалось создать или получить пользователя');
+    console.error('Error: unable to create or get user:', error);
+    throw new Error('Unable to create or get user');
   }
 }
 

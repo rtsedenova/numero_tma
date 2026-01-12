@@ -52,11 +52,9 @@ export function createServer() {
     res.json({ ok: true, t: Date.now() });
   });
 
-  // Feature routes
   app.use('/api/numerology', numerologyRoutes);
   app.use('/api/tarot', tarotRoutes);
-  
-  // Initialize feature modules
+
   initS3Module(app);
   initUsersModule(app);
   initPaymentModule(app);

@@ -1,5 +1,5 @@
 import { Router, RequestHandler } from 'express';
-import { updatePredictionsController } from '../controllers/userPredictions.controller';
+import { updatePredictionsController } from '../controllers/updateUserCounters.controller';
 import { getUserPredictionsController } from '../controllers/getUserPredictions.controller';
 
 const router = Router();

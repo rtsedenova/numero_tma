@@ -5,6 +5,6 @@ export const initPaymentModule = (app: Express) => {
   app.use('/api/payment', paymentRoutes);
 };
 
-export { PaymentController } from './controllers/payment.controller';
-export { TelegramStarsService } from './services/payment.service';
+export { PaymentController } from './payment.controller';
+export { TelegramStarsService } from './payment.service';
 

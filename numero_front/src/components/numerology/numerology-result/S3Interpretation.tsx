@@ -31,25 +31,33 @@ export const S3Interpretation: React.FC<S3InterpretationProps> = ({ s3Data, numb
   console.log('S3Interpretation: Rendering with data:', s3Data);
 
   return (
-    <div className="mt-4 rounded-lg">
-      <h4 className="text-violet-300 font-semibold mb-4 text-lg">Интерпретация числа {number}:</h4>
-      
-      {/* Title and Description Section */}
+    <div className="mt-4 md:mt-24 rounded-lg">
+      <h4 className="text-[var(--text)] text-2xl md:text-3xl font-semibold tracking-wide text-center">
+        Интерпретация числа {number}
+      </h4>
+
       {(s3Data.title || s3Data.description) && (
-        <div className="mb-6 p-4 rounded-xl shadow-md bg-gradient-to-br from-violet-300/15 to-fuchsia-600/10">
+        <div
+          className={[
+            "mt-6 md:mt-8 mb-16 p-4 rounded-xl",
+            "[background:var(--infobox-bg)]",
+            "shadow-md",
+          ].join(" ")}
+        >
           {s3Data.title && (
-            <h5 className="text-violet-100 font-bold text-xl mb-3 bg-gradient-to-r from-violet-200 to-indigo-200 bg-clip-text">
+            <h5 className="font-bold text-xl mb-3 text-[var(--infobox-title)]">
               {s3Data.title}
             </h5>
           )}
+
           {s3Data.description && (
-            <p className="text-violet-100/90 leading-relaxed text-base font-medium">
+            <p className="leading-relaxed text-base font-medium text-[var(--infobox-text)]">
               {s3Data.description}
             </p>
           )}
         </div>
       )}
-      
+
       {(s3Data.strong_points?.length || s3Data.weak_points?.length) && (
         <StrengthsWeaknessesSection 
           strengths={s3Data.strong_points || []}
@@ -63,7 +71,7 @@ export const S3Interpretation: React.FC<S3InterpretationProps> = ({ s3Data, numb
 
       {s3Data.famous_people && s3Data.famous_people.length > 0 && (
         <CelebritySection 
-          celebrities={s3Data.famous_people}
+          celebrities={s3Data.famous_people as Array<{ name: string; birth_date: string; description: string; image_url: string; }>}
           number={number}
         />
       )}

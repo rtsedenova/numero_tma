@@ -19,9 +19,9 @@ export const NotificationIcon: FC<NotificationIconProps> = ({
         weight="regular"
         className="
           bell-icon
-          text-violet-200
+          text-[var(--button-bg)]
           transition-colors duration-300
-          group-hover:text-violet-300
+          group-hover:text-[var(--button-bg-hover)]
           drop-shadow-[0_0_6px_rgba(196,181,253,0.35)]
           cursor-pointer
         "

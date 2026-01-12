@@ -27,17 +27,15 @@ export const SwipeIndicators: React.FC<SwipeIndicatorsProps> = ({
 
 type ArrowProps = {
   dir: "left" | "right";
-  size: number;      // высота
-  stroke: string;    // цвет линии
+  size: number;      
+  stroke: string;    
 };
 
-/** Универсальная пунктирная стрелка (влево/вправо), без анимаций */
 const Arrow: React.FC<ArrowProps> = ({ dir, size, stroke }) => {
-  const w = Math.round(size * 2);  // ширина ~ в 2 раза выше
+  const w = Math.round(size * 2);  
   const h = size;
   const mid = h / 2;
 
-  // линия: слева-направо; наконечник зеркалим по dir
   const linePath =
     dir === "right"
       ? `M 2 ${mid} L ${w - 10} ${mid}`

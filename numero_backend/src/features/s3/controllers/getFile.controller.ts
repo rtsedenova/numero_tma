@@ -7,13 +7,13 @@ export const getFileController = async (req: Request, res: Response, next: NextF
     const fileData = await getFileFromS3(fileName);
 
     if (!fileData) {
-      res.status(404).json({ error: 'Файл не найден' });
+      res.status(404).json({ error: 'File not found' });
       return;
     }
 
     res.send(fileData.Body);
   } catch (error) {
-    console.error('Ошибка:', error);
+    console.error('Error:', error);
     next(error);
   }
 };

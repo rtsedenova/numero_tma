@@ -1,3 +1,7 @@
+import strengthEl from "@/assets/strength.webp";
+import weaknessEl from "@/assets/weakness.webp";
+import recommendationEl from "@/assets/recommendation.webp";
+
 export interface InfoCardProps {
   title: string;
   items: string[];
@@ -5,57 +9,55 @@ export interface InfoCardProps {
   className?: string;
 }
 
-const variantStyles = {
-  strength: {
-    container: "bg-gradient-to-br from-emerald-500/15 to-green-500/10",
-    title: "text-emerald-200",
-    dot: "text-emerald-500",
-    icon: "bg-gradient-to-r from-emerald-400 to-green-400",
-    shadow: "shadow-emerald-500/20",
-  },
-  weakness: {
-    container: "bg-gradient-to-br from-amber-500/15 to-orange-500/10",
-    title: "text-amber-200",
-    dot: "text-amber-500",
-    icon: "bg-gradient-to-r from-amber-400 to-orange-400",
-    shadow: "shadow-amber-500/20",
-  },
-  recommendation: {
-    container: "bg-gradient-to-br from-blue-500/15 to-indigo-500/10",
-    title: "text-blue-200",
-    dot: "text-blue-500",
-    icon: "bg-gradient-to-r from-blue-400 to-indigo-400",
-    shadow: "shadow-blue-500/20",
-  },
+const ICON_BY_VARIANT: Record<InfoCardProps["variant"], string> = {
+  strength: strengthEl,
+  weakness: weaknessEl,
+  recommendation: recommendationEl,
 };
 
-export const InfoCard = ({
-  title,
-  items,
-  variant,
-  className = "",
-}: InfoCardProps) => {
-  const styles = variantStyles[variant];
-
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    return null;
-  }
+export const InfoCard = ({ title, items, variant, className = "" }: InfoCardProps) => {
+  if (!Array.isArray(items) || items.length === 0) return null;
 
   return (
-    <div className={`p-5 rounded-2xl ${styles.container} ${className}`}>
-      <h6 className={`${styles.title} font-bold mb-4 flex items-center gap-3 text-lg`}>
-        {title}
-      </h6>
-      <ul className="space-y-3">
-        {items.map((item, index) => (
-          <li key={index} className="flex items-start gap-3 group">
-            <span className={`${styles.dot} text-xl leading-none`}>•</span>
-            <span className="text-violet-100 text-sm leading-relaxed font-medium">
-              {item}
-            </span>
-          </li>
-        ))}
-      </ul>
+    <div className={["info-card-wrap relative h-full flex flex-col", className].join(" ")}>
+      <img
+        src={ICON_BY_VARIANT[variant]}
+        alt=""
+        aria-hidden="true"
+        className={[
+          "absolute left-1/2 -top-1 z-20 -translate-x-1/2 -translate-y-1/2",
+          "w-24 h-24 select-none pointer-events-none",
+        ].join(" ")}
+      />
+
+        <div
+          className={[
+            "info-card overflow-hidden shadow-md flex-1 flex flex-col mb-14 md:mb-6",
+            `info-card--${variant}`,
+            "relative rounded-2xl pt-12 px-3 pb-3 md:pb-6",
+            "backdrop-blur-md",
+            "border border-transparent",
+          ].join(" ")}
+        >
+        <h6 className="mb-4 text-lg md:text-xl text-center font-bold text-[var(--infocard-title)]">
+          {title}
+        </h6>
+
+        <ul className="space-y-3 flex-1">
+          {items.map((item, index) => (
+            <li key={index} className="flex items-center gap-3">
+              <span
+                className={[
+                  "",
+                ].join(" ")}
+              />
+              <span className="text-sm md:text-base leading-normal font-medium text-[var(--text)]">
+                {item}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

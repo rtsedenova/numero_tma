@@ -23,10 +23,7 @@ export const TarotCardFlipOverlay: React.FC<TarotCardFlipOverlayProps> = ({
 
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // --- Стартовые таймеры: flip через 500мс, кнопка — через 2000мс
   useEffect(() => {
-    // Включаем анимацию появления на следующий кадр,
-    // чтобы CSS-транзишены отработали (иначе будет без анимации)
     const raf = requestAnimationFrame(() => setEnter(true));
 
     const flipTimer = setTimeout(() => setIsFlipped(true), 500);
@@ -41,7 +38,6 @@ export const TarotCardFlipOverlay: React.FC<TarotCardFlipOverlayProps> = ({
 
   const imgSrc = cardImageKey || cardImage;
 
-  // --- Быстрый фолбэк на alt, если картинка долго не грузится
   useEffect(() => {
     if (imgSrc) {
       const timeout = setTimeout(() => {
@@ -49,14 +45,11 @@ export const TarotCardFlipOverlay: React.FC<TarotCardFlipOverlayProps> = ({
         if (img && !img.complete) {
           img.src = '';
         }
-      }, 300);
+      }, 3000);
       return () => clearTimeout(timeout);
     }
   }, [imgSrc]);
 
-  // --- Комбинируем "появление" и "флип" в один transform:
-  //     - при enter=false: лёгкий translateY+scale
-  //     - rotateY управляется isFlipped независимо
   const baseEnterTransform = enter ? 'translateY(0px) scale(1)' : 'translateY(8px) scale(0.96)';
   const flipDeg = isFlipped ? 180 : 0;
   const cardTransform = `${baseEnterTransform} rotateY(${flipDeg}deg)`;
@@ -64,7 +57,6 @@ export const TarotCardFlipOverlay: React.FC<TarotCardFlipOverlayProps> = ({
   return (
     <div
       className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md"
-      // Плавный fade-in фона
       style={{
         opacity: enter ? 1 : 0,
         transition: 'opacity 300ms ease-out, backdrop-filter 300ms ease-out',
@@ -73,7 +65,6 @@ export const TarotCardFlipOverlay: React.FC<TarotCardFlipOverlayProps> = ({
       <div style={{ perspective: '1000px' }}>
         <div
           className="relative w-[240px] h-[420px]"
-          // Плавное появление карточки (opacity + translateY/scale), флип — rotateY
           style={{
             transformStyle: 'preserve-3d',
             transform: cardTransform,
@@ -81,7 +72,6 @@ export const TarotCardFlipOverlay: React.FC<TarotCardFlipOverlayProps> = ({
             transition: 'transform 500ms ease-out, opacity 360ms ease-out',
           }}
         >
-          {/* Рубашка (обратная сторона), backface скрыт */}
           <div
             className="absolute inset-0 rounded-[12px] overflow-hidden bg-[linear-gradient(180deg,#2b1b4a_0%,#3a2a60_55%,#271f44_100%)] border-2 border-[rgba(167,139,250,0.55)] shadow-2xl"
             style={{ backfaceVisibility: 'hidden' }}
@@ -94,26 +84,31 @@ export const TarotCardFlipOverlay: React.FC<TarotCardFlipOverlayProps> = ({
             </div>
           </div>
 
-          {/* Лицевая сторона. Для reversed добавляем rotate(180deg) по Z */}
-          <div
-            className="absolute inset-0 rounded-[12px] overflow-hidden shadow-2xl"
-            style={{
-              backfaceVisibility: 'hidden',
-              transform: orientation === 'reversed'
-                ? 'rotateY(180deg) rotate(180deg)'
-                : 'rotateY(180deg)',
-            }}
-          >
-            <img
-              ref={imgRef}
-              src={imgSrc}
-              alt={cardName}
-              className="w-full h-full object-cover"
-              loading="eager"
-              decoding="sync"
-              referrerPolicy="no-referrer"
-            />
-          </div>
+          {imgSrc && (
+            <div
+              className="absolute inset-0 rounded-[12px] overflow-hidden shadow-2xl"
+              style={{
+                backfaceVisibility: 'hidden',
+                transform: orientation === 'reversed'
+                  ? 'rotateY(180deg) rotate(180deg)'
+                  : 'rotateY(180deg)',
+              }}
+            >
+              <img
+                ref={imgRef}
+                src={`/prediction_mini_app/${imgSrc}`}
+                alt={cardName}
+                className="w-full h-full object-cover"
+                loading="eager"
+                decoding="sync"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  console.error('[TarotCardFlipOverlay] Image failed to load:', imgSrc);
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
 

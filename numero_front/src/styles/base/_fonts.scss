@@ -3,3 +3,11 @@
 :root {
     --font-info: 'Open Sans', sans-serif;
   }
+
+  @font-face {
+    font-family: "kudry";
+    src: url("/fonts/kudry_weird-headline.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }

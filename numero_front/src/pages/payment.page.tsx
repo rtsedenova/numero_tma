@@ -1,11 +1,10 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import WebApp from '@twa-dev/sdk';
 
 import { Page } from '@/components/Page';
 import { CurrencyChip } from '@/components/CurrencyChip';
 import { api, API_ENDPOINTS } from '@/config/api';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
-import { useTelegramUser } from '@/hooks/useTelegramUser';
 
 type PackCode = 'SMALL' | 'LARGE';
 
@@ -161,17 +160,11 @@ export function PaymentPage() {
 const [loading, setLoading] = useState<PackCode | null>(null);
 const disableAll = loading !== null;
 
-const { user } = useTelegramUser();
 const {
     credits,
-    fetchPredictions,
     isLoading: isPredictionsLoading,
 } = usePredictionAttempts();
 
-useEffect(() => {
-    if (!user?.id) return;
-    fetchPredictions(user.id);
-}, [user?.id, fetchPredictions]);
 
 const handleBuy = useCallback(
     async (pack: PackCode) => {
@@ -206,9 +199,8 @@ return (
         <section className="mb-8 w-full max-w-md text-center">
         <p className="mb-2 text-sm text-violet-200">Ваш баланс</p>
         <CurrencyChip
-            value={
-            isPredictionsLoading || credits === null ? '...' : String(credits)
-            }
+            value={credits !== null ? String(credits) : "0"}
+            isLoading={isPredictionsLoading || credits === null}
             className="border-violet-400/40 bg-violet-500/20 text-lg"
         />
         </section>

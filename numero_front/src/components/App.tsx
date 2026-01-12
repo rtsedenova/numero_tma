@@ -21,6 +21,7 @@ export function App() {
   }, [theme]);
 
   useSendInitData();
+
   useInitializePredictions();
 
   return (

@@ -12,9 +12,9 @@ export const getFileFromS3 = async (fileName: string) => {
     return data;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      throw new Error(`Ошибка во время получения данных из S3: ${error.message}`);
+      throw new Error(`Error getting file from S3: ${error.message}`);
     } else {
-      throw new Error('Неизвестная ошибка во время получения файла из S3');
+      throw new Error('Unknown error getting file from S3');
     }
   }
 };

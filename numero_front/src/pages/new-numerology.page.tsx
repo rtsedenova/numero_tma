@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Page } from '@/components/Page';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { DatePicker } from '@/components/numerology/date-picker/DatePicker';
 import { CheckButton } from '@/components/numerology/CheckButton';
 import { NumerologyResult } from '@/components/numerology/numerology-result';
 import { calculateNumerologyNumber } from '@/helpers/calculateNumerologyNumber';
 import { useSendNumerologyResult } from '@/hooks/useSendNumerologyResult';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
-import { useTelegramUser } from '@/hooks/useTelegramUser';
 
 const CREDITS_PER_PREDICTION = 100;
 
@@ -23,15 +23,8 @@ export function NewNumerologyPage(): JSX.Element {
   const {
     numerologyFreePredictionsLeft,
     credits,
-    fetchPredictions,
     isLoading: isPredictionsLoading,
   } = usePredictionAttempts();
-  const { user } = useTelegramUser();
-
-  useEffect(() => {
-    if (!user?.id) return;
-    fetchPredictions(user.id);
-  }, [user?.id, fetchPredictions]);
 
   const handleDateCheck = (date: string | null) => {
     if (!date) {
@@ -73,6 +66,10 @@ export function NewNumerologyPage(): JSX.Element {
   return (
     <Page>
       <div className="numerology-page page">
+        <div className="flex items-center justify-end mb-4">
+          <ThemeToggle />
+        </div>
+        
         <div className="mb-4">
           <DatePicker />
         </div>
@@ -94,7 +91,7 @@ export function NewNumerologyPage(): JSX.Element {
           </div>
         )}
 
-        <div className="mb-4 flex justify-center">
+        <div className="mb-4 md:mb-8 flex justify-center">
           <CheckButton
             onDateCheck={handleDateCheck}
             showValidationError={showValidationError}

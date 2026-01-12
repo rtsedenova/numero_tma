@@ -13,9 +13,9 @@ export const uploadFileToS3 = async (fileName: string, fileContent: Buffer) => {
     return data;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      throw new Error(`Ошибка во время загрузки файла в S3: ${error.message}`);
+      throw new Error(`Error uploading file to S3: ${error.message}`);
     } else {
-      throw new Error('Неизвестная ошибка во время загрузки файла в S3');
+      throw new Error('Unknown error uploading file to S3');
     }
   }
 };

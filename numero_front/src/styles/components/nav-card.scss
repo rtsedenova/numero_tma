@@ -77,7 +77,6 @@
   }
 }
 
-// Navigation list styles
 nav[aria-label="Навигация по разделам"] {
   ul {
     list-style: none;
@@ -93,7 +92,6 @@ nav[aria-label="Навигация по разделам"] {
   }
 }
 
-// Responsive adjustments
 @media (max-width: 480px) {
   .nav-card {
     padding: var(--spacing-md);
