@@ -1,32 +1,153 @@
 :root {
-  --bg: #ffffff; 
-  --primary: #886abd;
-  --primary-light: #cbbbe2;
-  --accent: #886abd; 
-  --text: #2d1e2f;
-  --text-subtle: #7c6f8e;
-  --border: #ddd3ec;
 }
 
 body.light {
-  --bg: #ffffff;
-  --surface: #f6f3fe;
-  --primary: #886abd;
-  --primary-light: #cbbbe2;
-  --accent: #a38acc;
-  --text: #2d1e2f;
-  --text-subtle: #7c6f8e;
-  --border: #ddd3ec;
-  --bordev: #623384;
+  --bg: #f5eaff;
+  --text: #57486e;
+  --text-secondary: #57486ecc;
+  --text-subtle: #745f97bb;
+
+  --button-bg: #a97ed2;
+  --button-bg-hover: #9f73c8;
+  --button-text: #fcefff;
+
+  --gradient-bg: linear-gradient(90deg, rgba(132, 88, 182, 0.6) 0%, rgba(165, 100, 202, 0.6) 45%, rgba(182, 104, 206, 0.6) 100%);
+  --gradient-bg-hover: linear-gradient(90deg, rgba(132, 88, 182, 0.7) 0%, rgba(165, 100, 202, 0.7) 45%, rgba(182, 104, 206, 0.7) 100%);
+
+  --icon-shadow: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  --el-bg: #f7f7f7;
+  --el-bg-hover: #e0e0e0;
+
+  --navcard-bg: #ffffff;
+  --navcard-title: var(--text);
+  --navcard-subtitle: var(--text-subtle);
+  --navcard-desc: var(--text-secondary);
+  --navcard-title-hover: #ffffff;
+  --navcard-subtitle-hover: rgba(255, 255, 255, 0.82);
+  --navcard-desc-hover: rgba(255, 255, 255, 0.72);
+
+  --border: rgba(192, 146, 244, 0.8);
+
+  --result-frame-color: #b17ed2;
+  --result-frame-filter: drop-shadow(0 0 8px rgba(177, 126, 210, 0.4)) drop-shadow(0 0 24px rgba(177, 126, 210, 0.3));
+  --result-number-gradient: linear-gradient(180deg, #d4a5f0 0%, #b17ed2 35%, #8b5fb8 70%, #6d4b8d 100%);
+  --result-number-highlight: radial-gradient(ellipse 60% 50% at 50% 20%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.2) 40%, transparent 70%);
+  --result-number-glow: rgba(177, 126, 210, 0.4);
+  --result-master-bg: rgba(177, 126, 210, 0.7);
+  --result-master-border: rgba(177, 126, 210, 0.5);
+  --result-master-border-glow: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(177, 126, 210, 0.6) 100%);
+  --result-master-shadow: rgba(177, 126, 210, 0.25);
+  --result-master-text: #fcefff;
+
+  --infobox-bg: linear-gradient(135deg, rgba(132, 88, 182, 0.4) 0%, rgba(165, 100, 202, 0.3) 50%, rgba(182, 104, 206, 0.3) 100%);
+  --infobox-title: var(--text);
+  --infobox-text: var(--text-secondary);
+
+  --infocard-angle: 100deg;
 }
 
 body.dark {
-  --bg: #0f071c; 
-  --surface: #252131; 
-  --primary: #cbbbe2; 
-  --primary-light: #b09ad3; 
-  --accent: #b09ad3; 
-  --text: #ffffff; 
-  --text-subtle: #908c99; 
-  --border: #3c3847; 
+  --bg: #301d42;
+  --text: #f7e7ff;
+  --text-secondary: #f7e7ffcc;
+  --text-subtle: #e0d5fb90;
+
+  --button-bg: #6d4b8d;
+  --button-bg-hover: #654385;
+  --button-text: #eee7ff;
+
+  --gradient-bg: linear-gradient(90deg, rgba(124, 76, 170, 0.6) 0%, rgba(142, 86, 186, 0.6) 45%, rgba(168, 96, 198, 0.7) 100%);
+  --gradient-bg-hover: linear-gradient(90deg, rgba(124, 76, 170, 0.7) 0%, rgba(142, 86, 186, 0.7) 45%, rgba(168, 96, 198, 0.75) 100%);
+
+  --icon-shadow: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  --el-bg: #402857;
+  --el-bg-hover: #503569;
+
+  --navcard-bg: #4c3168;
+  --navcard-title: var(--text);
+  --navcard-subtitle: var(--text-subtle);
+  --navcard-desc: var(--text-secondary);
+  --navcard-title-hover: var(--navcard-title);
+  --navcard-subtitle-hover: var(--navcard-subtitle);
+  --navcard-desc-hover: var(--navcard-desc);
+
+  --border: rgba(196, 181, 253, 0.7);
+
+  --result-frame-color: #c4a5e8;
+  --result-frame-filter: drop-shadow(0 0 12px rgba(196, 165, 232, 0.5)) drop-shadow(0 0 32px rgba(196, 165, 232, 0.35));
+  --result-number-gradient: linear-gradient(180deg, #e8d5ff 0%, #c4a5e8 30%, #a97ed2 65%, #8b5fb8 100%);
+  --result-number-highlight: radial-gradient(ellipse 60% 50% at 50% 20%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 35%, transparent 65%);
+  --result-number-glow: rgba(196, 165, 232, 0.5);
+  --result-master-bg: rgba(76, 49, 104, 0.6);
+  --result-master-border: rgba(196, 165, 232, 0.5);
+  --result-master-border-glow: linear-gradient(135deg, rgba(196, 165, 232, 0.7) 0%, rgba(142, 86, 186, 0.5) 100%);
+  --result-master-shadow: rgba(196, 165, 232, 0.3);
+  --result-master-text: #e8d5ff;
+
+  --infobox-bg: linear-gradient(135deg, rgba(143, 92, 190, 0.3) 0%, rgba(160, 100, 206, 0.2) 50%, rgba(184, 112, 216, 0.2) 100%);
+  --infobox-title: var(--text);
+  --infobox-text: var(--text-secondary);
+
+  --infocard-angle: 100deg;
+}
+
+.info-card {
+  --infocard-c1: rgba(255, 255, 255, 0);
+  --infocard-c2: rgba(255, 255, 255, 0);
+  --infocard-title: currentColor;
+  --infocard-item-bullet: var(--infocard-c1);
+}
+
+.info-card--strength {
+  --infocard-c1: rgba(255, 202, 190, 0.85);
+  --infocard-c2: rgba(240, 140, 206, 0.55);
+  --infocard-item-bullet: rgba(240, 140, 182, 0.75);
+}
+
+.info-card--weakness {
+  --infocard-c1: rgba(255, 190, 230, 0.85);
+  --infocard-c2: rgba(146, 142, 236, 0.55);
+  --infocard-item-bullet: rgba(166, 156, 238, 0.75);
+}
+
+.info-card--recommendation {
+  --infocard-c1: rgba(255, 199, 190, 0.85);
+  --infocard-c2: rgba(248, 136, 206, 0.55);
+  --infocard-item-bullet: rgba(240, 140, 182, 0.75);
+}
+
+body.light {
+  .info-card--strength { --infocard-title: #c86c94; }
+  .info-card--weakness { --infocard-title: #7c71c4; }
+  .info-card--recommendation { --infocard-title: #c86c94; }
+}
+
+body.dark {
+  .info-card--strength { --infocard-title: #e9b8c1; }
+  .info-card--weakness { --infocard-title: #d3b0da; }
+  .info-card--recommendation { --infocard-title: #e9b8c1; }
+}
+
+body.light .navcard--numerology {
+  --navcard-accent: #b17ed2ee;
+  --navcard-accent-soft: #f1dffd;
+  --navcard-glow: color-mix(in srgb, var(--navcard-accent) 48%, transparent);
+}
+
+body.light .navcard--tarot {
+  --navcard-accent: #bd7ed2ee;
+  --navcard-accent-soft: #f5dffd;
+  --navcard-glow: color-mix(in srgb, var(--navcard-accent) 48%, transparent);
+}
+
+body.dark .navcard--numerology {
+  --navcard-accent: #8259a7;
+  --navcard-accent-soft: #c4b1d9;
+  --navcard-glow: color-mix(in srgb, var(--navcard-accent) 55%, transparent);
+}
+
+body.dark .navcard--tarot {
+  --navcard-accent: #8d59a7;
+  --navcard-accent-soft: #cdb1d9;
+  --navcard-glow: color-mix(in srgb, var(--navcard-accent) 55%, transparent);
 }

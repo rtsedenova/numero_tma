@@ -1,0 +1,45 @@
+.celebrity-card {
+    background: var(--el-bg);
+    border: 1.5px solid var(--button-bg);
+
+    box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.10),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+
+    h4 {
+    color: var(--text);
+    }
+
+    p:first-of-type {
+    color: var(--text-subtle);
+    }
+
+    p:last-of-type {
+    color: var(--text-secondary);
+    }
+
+    &:hover {
+    background: var(--el-bg-hover);
+    }
+}
+
+body.light .celebrity-card {
+    position: relative;
+    background: var(--infobox-bg);
+    overflow: hidden;
+
+    &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.08);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    }
+
+    &:hover::after {
+    opacity: 1;
+    }
+}
+

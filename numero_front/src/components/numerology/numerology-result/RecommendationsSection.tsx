@@ -14,12 +14,11 @@ export const RecommendationsSection = ({
   }
 
   return (
-    <div className={`mt-6 ${className}`}>
+    <div className={`md:mt-6 ${className}`}>
       <InfoCard
         title="Рекомендации"
         items={recommendations}
         variant="recommendation"
-        className="shadow-xl"
       />
     </div>
   );

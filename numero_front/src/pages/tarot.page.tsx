@@ -95,7 +95,7 @@ export function TarotPage() {
           </div>
         )}
 
-        <div className="absolute left-1/2 top-6 z-[9999] flex -translate-x-1/2 flex-col items-center">
+        <div className="tarot-page absolute left-1/2 top-6 z-[9999] flex -translate-x-1/2 flex-col items-center">
           <TarotCategorySelect
             category={category}
             onChange={(next: TarotCategory) => {

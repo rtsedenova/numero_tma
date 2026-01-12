@@ -199,9 +199,8 @@ return (
         <section className="mb-8 w-full max-w-md text-center">
         <p className="mb-2 text-sm text-violet-200">Ваш баланс</p>
         <CurrencyChip
-            value={
-            isPredictionsLoading || credits === null ? '...' : String(credits)
-            }
+            value={credits !== null ? String(credits) : "0"}
+            isLoading={isPredictionsLoading || credits === null}
             className="border-violet-400/40 bg-violet-500/20 text-lg"
         />
         </section>

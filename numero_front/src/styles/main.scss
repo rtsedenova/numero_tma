@@ -3,8 +3,7 @@
 @import "base/_fonts"; 
 @import "layout/_page";
 
-@import "base/_datepicker"; 
-
+@import "components/avatar";
 @import "components/bottom-navbar";
 @import "components/calculation-steps";
 @import "components/buy-prediction-button";
@@ -12,7 +11,9 @@
 @import "components/destiny-result";
 @import "components/account-header";
 @import "components/notification";
-
+@import "components/numerology/result-display";
+@import "components/numerology/info-card";
+@import "components/numerology/celebrity-card";
 @import "pages/index-page"; 
 @import "pages/profile-page"; 
 @import "pages/destiny-number-page";

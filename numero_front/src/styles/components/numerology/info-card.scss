@@ -1,0 +1,41 @@
+.info-card {
+  position: relative;
+
+  border-width: 3px;
+
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--bg) 35%, transparent),
+      color-mix(in srgb, var(--bg) 65%, transparent)
+    ) padding-box,
+    linear-gradient(
+      var(--infocard-angle),
+      var(--infocard-c1) 0%,
+      var(--infocard-c2) 50%
+    ) border-box;
+
+  li > span:first-child {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+
+    border-radius: 999px;
+    background: var(--infocard-item-bullet);
+
+    box-shadow:
+      0 0 0 3px
+      color-mix(in srgb, var(--infocard-item-bullet) 25%, transparent);
+  }
+}
+
+.info-card-wrap img {
+  filter: saturate(0.8) drop-shadow(6px 2px 1px rgba(0, 0, 0, 0.35));
+}
+
+body.dark .info-card-wrap img {
+  filter: brightness(0.8) saturate(1.2);
+}
+
+.info-card--recommendation {
+  margin-bottom: 1rem;
+}

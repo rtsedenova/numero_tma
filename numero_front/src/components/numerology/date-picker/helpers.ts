@@ -1,4 +1,3 @@
-/* ===================== Types ===================== */
 export type MonthIndex = 1|2|3|4|5|6|7|8|9|10|11|12;
 
 export interface DateParts {
@@ -7,15 +6,11 @@ export interface DateParts {
   year: number | null;
 }
 
-export type OpenPanel = "day" | "month" | "year" | null;
-
-/* ===================== Month labels ===================== */
 export const RU_MONTHS: Record<MonthIndex, string> = {
   1:"Январь",2:"Февраль",3:"Март",4:"Апрель",5:"Май",6:"Июнь",
   7:"Июль",8:"Август",9:"Сентябрь",10:"Октябрь",11:"Ноябрь",12:"Декабрь"
 };
 
-/* ===================== Date helpers ===================== */
 export const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 
 export const getDaysInMonth = (month: MonthIndex, year: number | null) => {
@@ -42,7 +37,6 @@ export const parseIso = (value?: string | null): DateParts => {
   return { day: Number.isFinite(day) ? day : null, month, year: Number.isFinite(year) ? year : null };
 };
 
-/* ===================== Utility ===================== */
 export const buildYearsDesc = (
   minYear: number,
   maxYear: number,

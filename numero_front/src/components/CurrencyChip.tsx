@@ -1,32 +1,33 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import crystallIcon from "../assets/crystall_currency.svg";
+import currencyIcon from "../assets/currency_star.png";
 
 export interface CurrencyChipProps {
   value: string;
   className?: string;
+  isLoading?: boolean;
 }
 
 export const CurrencyChip: React.FC<CurrencyChipProps> = ({
   value,
   className = "",
+  isLoading = false,
 }) => (
   <Link
     to="/payment"
     className={`
-      inline-flex items-center gap-1 px-3 py-0.5 rounded-full
-      border border-violet-300/70
-      shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]
-      bg-gradient-to-r from-fuchsia-500/10 via-violet-500/10 to-indigo-500/10
-      transition-colors
-      hover:from-fuchsia-500/30 hover:via-violet-500/20 hover:to-indigo-500/20
-      text-violet-200 font-semibold whitespace-nowrap
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-400
-      cursor-pointer
+      inline-flex items-center gap-2 px-2 py-1 rounded-full
+      [background-image:var(--gradient-bg)]
+      transition-all duration-300 ease-out
+      hover:[background-image:var(--gradient-bg-hover)]
       ${className}
     `}
   >
-    <img src={crystallIcon} alt="" className="w-4 h-4" />
-    <span className="text-sm tabular-nums">{value}</span>
+    <img src={currencyIcon} className="w-4 h-4 shrink-0 [filter:var(--icon-shadow)]" />
+    {isLoading ? (
+      <div className="w-5 h-5 border-2 border-purple-300/30 border-t-transparent rounded-full animate-spin" />
+    ) : (
+      <span className="text-sm font-medium tabular-nums text-[var(--button-text)]">{value}</span>
+    )}
   </Link>
 );

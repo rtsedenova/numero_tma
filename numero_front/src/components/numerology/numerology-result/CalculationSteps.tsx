@@ -1,31 +1,42 @@
 export interface CalculationStep {
   formula: string;
   result: number;
-  isMasterNumber: boolean;
 }
 
 export interface CalculationStepsProps {
   steps: CalculationStep[];
+  className?: string;
 }
 
-export const CalculationSteps = ({ steps }: CalculationStepsProps) => {
+export const CalculationSteps = ({ steps, className = "" }: CalculationStepsProps) => {
   return (
-    <div>
-      <h4 className="text-violet-300 font-medium mb-2">
+    <div className={className}>
+      <h4 className="text-[var(--text)] font-semibold mb-2">
         Полный расчёт нумерологического числа:
       </h4>
-      <div className="bg-violet-500/10 p-3 rounded border border-violet-300/30">
+
+      <div
+        className={[
+          "rounded-lg p-3 md:mb-4",
+          "bg-[color-mix(in_srgb,var(--el-bg)_85%,transparent)]",
+          "ring-1 ring-[var(--border)]",
+        ].join(" ")}
+      >
         {steps.map((step, index) => (
           <div
             key={index}
-            className="text-violet-100 mb-1 font-medium text-sm"
+            className={[
+              "text-sm font-medium text-[var(--text-secondary)]",
+              index !== steps.length - 1
+                ? "pb-2 mb-2 border-b border-[var(--border)]"
+                : "",
+            ].join(" ")}
           >
-            <span className="tracking-[0.2em]">
+            <span className="tracking-[0.18em]">
               {step.formula} ={" "}
-              <span className="text-violet-200 font-bold">{step.result}</span>
-              {step.isMasterNumber && (
-                <span className="text-yellow-300 ml-2">(мастер-число)</span>
-              )}
+              <span className="text-[var(--text)] font-bold tabular-nums tracking-normal">
+                {step.result}
+              </span>
             </span>
           </div>
         ))}

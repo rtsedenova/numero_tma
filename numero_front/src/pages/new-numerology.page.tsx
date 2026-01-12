@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Page } from '@/components/Page';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { DatePicker } from '@/components/numerology/date-picker/DatePicker';
 import { CheckButton } from '@/components/numerology/CheckButton';
 import { NumerologyResult } from '@/components/numerology/numerology-result';
@@ -65,6 +66,10 @@ export function NewNumerologyPage(): JSX.Element {
   return (
     <Page>
       <div className="numerology-page page">
+        <div className="flex items-center justify-end mb-4">
+          <ThemeToggle />
+        </div>
+        
         <div className="mb-4">
           <DatePicker />
         </div>
@@ -86,7 +91,7 @@ export function NewNumerologyPage(): JSX.Element {
           </div>
         )}
 
-        <div className="mb-4 flex justify-center">
+        <div className="mb-4 md:mb-8 flex justify-center">
           <CheckButton
             onDateCheck={handleDateCheck}
             showValidationError={showValidationError}

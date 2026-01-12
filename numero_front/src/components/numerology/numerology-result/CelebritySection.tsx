@@ -17,7 +17,7 @@ export const CelebritySection = ({
 
   return (
     <div className={`mt-6 ${className}`}>
-      <h6 className="text-purple-200 font-bold mb-5 flex items-center gap-3 text-lg">
+      <h6 className="text-[var(--text)] mb-6 text-2xl md:text-3xl font-semibold tracking-wide text-center">
         Известные личности с числом {number}
       </h6>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">

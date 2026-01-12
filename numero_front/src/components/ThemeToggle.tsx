@@ -1,16 +1,9 @@
+import { Moon, Sun } from 'phosphor-react';
 import { useTheme } from '../hooks/useTheme';
-import { Moon, SunDim } from 'phosphor-react';
 
 export const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
-
-  const vars = {
-    ['--tt-w']: '58px',
-    ['--tt-h']: '30px',
-    ['--tt-pad']: '4px',
-    ['--tt-icon']: '18px',
-  } as React.CSSProperties;
 
   return (
     <button
@@ -19,53 +12,29 @@ export const ThemeToggle = () => {
       role="switch"
       aria-checked={isDark}
       aria-label="Переключить тему"
-      style={{ WebkitTapHighlightColor: 'transparent', ...vars }}
-      className="inline-flex items-center bg-transparent border-0 p-0 cursor-pointer focus:outline-none focus-visible:outline-none"
+      style={{ WebkitTapHighlightColor: 'transparent' }}
+      className="inline-flex items-center bg-transparent border-0 p-0 cursor-pointer focus:outline-none"
     >
       <span
         aria-hidden="true"
-        className="relative overflow-hidden rounded-full transition-[background] duration-150 ease-out"
-        style={{
-          width: 'var(--tt-w)',
-          height: 'var(--tt-h)',
-          background: isDark
-            ? 'linear-gradient(90deg,rgba(52, 43, 87, 1) 0%, rgba(68, 45, 97, 1) 100%)'
-            : 'linear-gradient(90deg,rgba(255, 226, 176, 1) 0%, rgba(250, 204, 255, 1) 100%)',
-        }}
+        className={[
+          'relative inline-flex',
+          'h-7 w-14 rounded-full p-1',
+          'transition-colors duration-200',
+          isDark ? 'bg-black/20 ring-1 ring-purple-300/15' : 'bg-purple-900/10 ring-1 ring-purple-900/20',
+        ].join(' ')}
       >
         <span
           aria-hidden="true"
-          className="absolute grid place-items-center rounded-full bg-white/95 transition-transform duration-200 ease-out will-change-transform"
-          style={{
-            top: 'var(--tt-pad)',
-            left: 'var(--tt-pad)',
-            width: 'calc(var(--tt-h) - (var(--tt-pad) * 2))',
-            height: 'calc(var(--tt-h) - (var(--tt-pad) * 2))',
-            transform: isDark ? 'translateX(calc(var(--tt-w) - var(--tt-h)))' : 'translateX(0)',
-          }}
+          className={[
+            'absolute inset-y-1 left-1',
+            'aspect-square rounded-full bg-white shadow-sm',
+            'grid place-items-center',
+            'transition-transform duration-200',
+            isDark ? 'translate-x-7' : 'translate-x-0',
+          ].join(' ')}
         >
-          {isDark ? (
-            <Moon
-              weight="bold"
-              className="block"
-              style={{
-                width: 'var(--tt-icon)',
-                height: 'var(--tt-icon)',
-                color: '#2a0f4a',
-              }}
-            />
-          ) : (
-            <SunDim
-              weight="bold"
-              className="block"
-              style={{
-                width: 'var(--tt-icon)',
-                height: 'var(--tt-icon)',
-                color: '#ffc44d',
-                filter: 'drop-shadow(0 0 2px rgba(255, 122, 183, 0.35))',
-              }}
-            />
-          )}
+          {isDark ? <Moon weight="bold" color="#39175A" className="h-3 w-3" /> : <Sun weight="bold" color="#AF89D3" className="h-3 w-3" />}
         </span>
       </span>
     </button>

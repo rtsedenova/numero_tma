@@ -1,27 +1,54 @@
+import { NumberFrame } from "./NumberFrame";
+
 export interface ResultDisplayProps {
   number: number;
   isMasterNumber: boolean;
+  className?: string;
 }
 
-export const ResultDisplay = ({ number, isMasterNumber }: ResultDisplayProps) => {
+export const ResultDisplay = ({
+  number,
+  isMasterNumber,
+  className = "",
+}: ResultDisplayProps) => {
   return (
-    <div>
-      <h4 className="text-violet-300 font-medium mb-2">Результат:</h4>
-      <div className="flex items-center gap-2">
-        <span
-          className={`text-2xl font-bold px-3 py-1 rounded-full border-2 ${
-            isMasterNumber
-              ? "text-yellow-300 border-yellow-300/50 bg-yellow-500/10"
-              : "text-violet-200 border-violet-300/50 bg-violet-500/10"
-          }`}
-        >
-          {number}
-        </span>
-        {isMasterNumber && (
-          <span className="text-yellow-300 text-sm font-medium">
-            Мастер-число
-          </span>
-        )}
+    <div
+      className={[
+        className,
+        "result-display",
+        isMasterNumber ? "result-display--master" : "",
+      ].join(" ")}
+    >
+      <div className="mt-6 md:mt-0 flex justify-center">
+        <div className="text-[var(--text)] text-2xl md:text-3xl font-semibold tracking-wide text-center">
+          Результат
+        </div>
+      </div>
+
+      <div className="relative mx-auto w-72 md:w-100 mt-3 md:mt-0 mb-8">
+        <div className="result-display__frame-container">
+          <NumberFrame className="w-full h-auto result-display__frame" />
+
+          <div className="absolute mt-4 inset-0 flex flex-col items-center justify-center">
+            <div className="mt-2 relative flex flex-col items-center">
+              <div
+                className="result-display__number text-7xl md:text-8xl mb-2 font-extrabold tabular-nums leading-none font-[kudry]"
+                data-num={number}
+              >
+                {number}
+              </div>
+
+              {isMasterNumber ? (
+                <div
+                  className="mt-4 px-4 py-1.5 rounded-full text-sm font-medium result-display__master bg-[var(--result-master-bg)] text-[var(--result-master-text)] border border-[var(--result-master-border)]"
+                  aria-label="Мастер число"
+                >
+                  Мастер число
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

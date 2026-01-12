@@ -1,0 +1,24 @@
+.result-display {
+  &__frame-container {
+    filter: drop-shadow(0 8px 32px rgba(132, 88, 182, 0.25));
+  }
+
+  &__frame {
+    color: var(--result-frame-color);
+    filter: var(--result-frame-filter);
+  }
+}
+
+.result-display__number {
+  background: var(--result-number-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 12px var(--result-number-glow));
+}
+
+.result-display__master {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px var(--result-master-shadow);
+}

@@ -28,10 +28,8 @@ export function AccountHeader({
   const user = userProp || userFromHook;
 
   const balance = credits !== null ? credits : balanceProp ?? 0;
-  const balanceText =
-    isPredictionsLoading && credits === null
-      ? '...'
-      : new Intl.NumberFormat('ru-RU').format(balance);
+  const balanceText = new Intl.NumberFormat('ru-RU').format(balance);
+  const isLoading = isPredictionsLoading && credits === null;
 
   const handleAvatarClick = () => {
     navigate('/profile');
@@ -49,19 +47,19 @@ export function AccountHeader({
         </button>
 
         <div className="flex flex-col gap-1.5 leading-tight md:flex-row md:items-center">
-          <span className="text-[15px] font-medium text-violet-200 md:text-[16px]">
+          <span className="text-[15px] font-medium text-[var(--text)] md:text-[16px]">
             {user?.firstName || 'User'}
           </span>
 
           <div className="flex md:hidden">
-            <CurrencyChip value={balanceText} />
+            <CurrencyChip value={balanceText} isLoading={isLoading} />
           </div>
         </div>
       </div>
 
       <div className="flex items-center gap-4">
         <div className="hidden md:flex">
-          <CurrencyChip value={balanceText} />
+          <CurrencyChip value={balanceText} isLoading={isLoading} />
         </div>
         <NotificationIcon size={24} />
       </div>

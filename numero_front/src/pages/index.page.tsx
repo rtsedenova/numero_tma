@@ -21,11 +21,8 @@ export const IndexPage: FC = () => {
             subtitle="Число укажет ваш путь"
             description="Рассчитайте ключевое число и получите краткое толкование по датe."
             link="/numerology-new"
-            icon={<Infinity weight="regular"/>}
-            palette={{
-              accent: "#AD67DF", 
-              light:  "#F1DFFD", 
-            }}
+            icon={<Infinity weight="regular" />}
+            className="navcard--numerology"
           />
 
           <NavCard
@@ -33,11 +30,8 @@ export const IndexPage: FC = () => {
             subtitle="Путь и выбор"
             description="Меньше тумана — больше решений. Таро по делу."
             link="/tarot"
-            icon={<HandEye weight="regular"/>}
-            palette={{
-              accent: "#CE67E6", 
-              light:  "#F4D2FC", 
-            }}
+            icon={<HandEye weight="regular" />}
+            className="navcard--tarot"
           />
         </section>
       </div>
