@@ -50,7 +50,7 @@ export class BotService {
 
     bot.command('start', async (ctx) => {
       const userId = ctx.from?.id;
-      const miniAppUrl = process.env.MINI_APP_URL || 'https://numero-tma.com/prediction_mini_app';
+      const miniAppUrl = 'https://numero-tma.com/prediction_mini_app';
 
       console.log('[BOT] /start command received', {
         userId,
