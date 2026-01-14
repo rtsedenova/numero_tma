@@ -19,7 +19,8 @@ export const API_ENDPOINTS = {
     }
   },
   payment: {
-    createInvoice: '/api/payment/create-invoice'
+    createInvoice: '/api/payment/create-invoice',
+    checkStatus: '/api/payment/check-status'
   },
   tarot: {
     draw: '/api/tarot/draw', 

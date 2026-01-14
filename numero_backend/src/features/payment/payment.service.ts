@@ -11,27 +11,21 @@ export type PackCode = keyof typeof PACK_CREDITS;
 
 export class TelegramStarsService {
   private static paidUsers: Map<number, string> = new Map();
+  private static successfulPayments: Set<string> = new Set();
   private static handlersAttached = false;
   private static launched = false;
   private static launchCount = 0;
 
   static attachHandlers() {
     if (this.handlersAttached) {
-      console.log('[BOT] attachHandlers() skipped (already attached)');
+      console.log('[PAYMENT] attachHandlers() skipped (already attached)');
       return;
     }
 
     const bot = getBot();
     this.handlersAttached = true;
 
-    console.log('[BOT] attachHandlers() attaching listeners');
-
-    bot.catch((err, ctx) => {
-      console.error('[BOT] Error in bot handler', {
-        error: err,
-        update: ctx.update,
-      });
-    });
+    console.log('[PAYMENT] attachHandlers() attaching payment event listeners');
 
     bot.on('pre_checkout_query', async (ctx) => {
       const query = ctx.update.pre_checkout_query;
@@ -95,6 +89,9 @@ export class TelegramStarsService {
           return;
         }
 
+        this.successfulPayments.add(payload);
+        console.log('[PAYMENT] Payment marked as successful', { payload });
+
         const packMatch = payload.match(/^(SMALL|LARGE)_Pack_/);
 
         if (!packMatch) {
@@ -138,6 +135,10 @@ export class TelegramStarsService {
 
   static hasPaid(userId: number): boolean {
     return this.paidUsers.has(userId);
+  }
+
+  static isPaymentSuccessful(payload: string): boolean {
+    return this.successfulPayments.has(payload);
   }
 
   static async createInvoiceLink({

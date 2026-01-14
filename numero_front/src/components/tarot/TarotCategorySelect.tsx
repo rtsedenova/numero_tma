@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import { CaretDown } from 'phosphor-react';
 import type { TarotCategoryId, TarotCategoryInfo } from "@/types/tarot";
 
 export const TAROT_CATEGORIES: TarotCategoryInfo[] = [
   { id: "love",    title: "Любовь",   subtitle: "чувства, отношения", emoji: "❤️" },
-  { id: "finance", title: "Финансы",  subtitle: "деньги, работа",     emoji: "💰" },
+  { id: "finance", title: "Финансы",  subtitle: "деньги, работа",     emoji: "💸" },
   { id: "health",  title: "Здоровье", subtitle: "баланс, энергия",    emoji: "🌿" },
   { id: "future",  title: "Будущее",  subtitle: "тенденции, путь",    emoji: "🔮" },
   { id: "yesno",   title: "Да / Нет", subtitle: "краткий ответ",      emoji: "⚖️" },
@@ -16,35 +17,14 @@ export interface TarotCategorySelectProps {
   onSelect?: (id: TarotCategoryId) => void;
 }
 
-const baseTrigger =
-  "flex items-center gap-2.5 justify-between rounded-xl border border-slate-300/20 " +
-  "bg-gradient-to-br from-slate-800/20 via-slate-800/40 to-slate-900/60 px-4 py-2.5 " +
-  "shadow-[0_0_0_1px_rgba(255,255,255,0.06)] backdrop-blur-sm hover:border-slate-300/30 " +
-  "transition-colors";
-
-const basePanel =
-  "absolute left-0 right-0 top-full mt-1 rounded-xl border border-slate-300/20 " +
-  "bg-slate-900/90 backdrop-blur-md shadow-2xl shadow-indigo-500/10 overflow-hidden origin-top";
-
-const itemStyles =
-  "flex items-center gap-2.5 px-3 py-2.5 cursor-pointer select-none transition " +
-  "hover:bg-indigo-500/10 focus:bg-indigo-500/10 outline-none";
-
 const ChevronIcon: React.FC<{ open?: boolean }> = ({ open }) => (
-  <svg
-    className={`size-4 shrink-0 text-slate-400 ${
-      open ? "rotate-180 text-slate-100" : "group-hover:text-slate-100"
-    } transition-transform`}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
+  <CaretDown
+    className={`size-4 shrink-0 text-[var(--text-subtle)] ${
+      open ? "rotate-180 text-[var(--text)]" : "group-hover:text-[var(--text)]"
+    } transition-all duration-300 ease-in-out`}
+    weight="bold"
     aria-hidden
-  >
-    <path d="M6 9l6 6 6-6" />
-  </svg>
+  />
 );
 
 const TarotCategorySelect: React.FC<TarotCategorySelectProps> = ({ className, category, onChange, onSelect }) => {
@@ -86,19 +66,22 @@ const TarotCategorySelect: React.FC<TarotCategorySelectProps> = ({ className, ca
 
         <button
           type="button"
-          className={baseTrigger}
+          className="flex items-center gap-3 justify-between w-full min-w-[200px] rounded-xl border border-[var(--select-border)] px-4 py-3 backdrop-blur-sm transition-colors hover:border-[var(--select-border-hover)] shadow-[0_0_0_1px_rgba(192,146,244,0.1),0_4px_12px_rgba(0,0,0,0.08)]"
+          style={{
+            background: 'var(--select-bg)',
+          }}
           role="combobox"
           aria-haspopup="listbox"
           aria-expanded={open}
           aria-controls="tarot-category-listbox"
           onClick={() => setOpen((v) => !v)}
         >
-          <div className="flex items-center gap-2.5 text-left">
+          <div className="flex items-center gap-4 text-left">
             <span className="text-lg leading-none">
               {selectedMeta?.emoji ?? "🔮"}
             </span>
             <div className="leading-tight">
-              <div className="text-slate-100 text-sm font-medium">
+              <div className="text-[var(--text)] text-sm font-medium">
                 {selectedMeta?.title ?? "Выбери категорию"}
               </div>
             </div>
@@ -110,14 +93,14 @@ const TarotCategorySelect: React.FC<TarotCategorySelectProps> = ({ className, ca
           id="tarot-category-listbox"
           role="listbox"
           aria-label="Список категорий таро"
-          className={
-            basePanel +
-            ` z-[9999] ${
-              open
-                ? "pointer-events-auto opacity-100 scale-100"
-                : "pointer-events-none opacity-0 scale-95"
-            } transition duration-150`
-          }
+          className={`absolute left-0 right-0 top-full mt-2 rounded-xl border border-[var(--select-border)] backdrop-blur-md overflow-hidden origin-top z-[9999] shadow-2xl ${
+            open
+              ? "pointer-events-auto opacity-100 scale-100"
+              : "pointer-events-none opacity-0 scale-95"
+          } transition duration-150`}
+          style={{
+            background: 'var(--select-panel-bg)',
+          }}
         >
           {TAROT_CATEGORIES.map((c) => {
             const active = c.id === selected;
@@ -127,7 +110,32 @@ const TarotCategorySelect: React.FC<TarotCategorySelectProps> = ({ className, ca
                 role="option"
                 aria-selected={active}
                 tabIndex={0}
-                className={itemStyles + (active ? " bg-indigo-500/10" : "")}
+                className="flex items-center gap-2.5 px-3 py-2.5 cursor-pointer select-none transition outline-none"
+                style={{
+                  backgroundColor: active 
+                    ? 'var(--select-active-bg)' 
+                    : 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.backgroundColor = 'var(--select-hover-bg)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+                onFocus={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.backgroundColor = 'var(--select-hover-bg)';
+                  }
+                }}
+                onBlur={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
                 onClick={() => handleSelect(c.id)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -138,11 +146,11 @@ const TarotCategorySelect: React.FC<TarotCategorySelectProps> = ({ className, ca
               >
                 <div className="text-xl leading-none">{c.emoji}</div>
                 <div className="flex-1">
-                  <div className="text-slate-100 text-sm font-medium tracking-wide">
+                  <div className="text-[var(--text)] text-sm font-medium tracking-wide">
                     {c.title}
                   </div>
                   {c.subtitle && (
-                    <div className="text-[11px] text-slate-400 mt-0.5">{c.subtitle}</div>
+                    <div className="text-[var(--text-subtle)] text-[11px] mt-0.5">{c.subtitle}</div>
                   )}
                 </div>
               </div>

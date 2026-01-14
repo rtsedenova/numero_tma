@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'phosphor-react';
 
 import { Page } from '@/components/Page';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { DatePicker } from '@/components/numerology/date-picker/DatePicker';
 import { CheckButton } from '@/components/numerology/CheckButton';
 import { NumerologyResult } from '@/components/numerology/numerology-result';
@@ -66,27 +66,50 @@ export function NewNumerologyPage(): JSX.Element {
   return (
     <Page>
       <div className="numerology-page page">
-        <div className="flex items-center justify-end mb-4">
-          <ThemeToggle />
-        </div>
         
         <div className="mb-4">
           <DatePicker />
         </div>
 
+        {/* {true && ( */}
         {hasNoFreePredictions && (
-          <div className="mb-4 rounded-xl border border-orange-300/30 bg-orange-500/10 p-4 text-center">
-            <span className="mb-3 block text-orange-200">
-              Бесплатные предсказания закончились. Для получения предсказания
-              необходимо минимум 100 кредитов. Пожалуйста, купите кредиты для
-              продолжения.
+          <div
+            className="mb-4 rounded-xl p-4 text-center"
+            style={{
+              border: '1px solid var(--error-border)',
+              background: 'var(--error-bg)',
+            }}
+          >
+            <span
+              className="mb-3 block"
+              style={{ color: 'var(--error-text)' }}
+            >
+              Бесплатные предсказания закончились 🤧. Для получения предсказания
+              необходимо минимум 100 алмазиков. Пожалуйста, купите алмазики для
+              продолжения 💎.
             </span>
             <button
               type="button"
               onClick={() => navigate('/payment')}
-              className="mt-3 rounded-lg bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 px-6 py-2 font-medium text-white transition hover:brightness-110 active:brightness-95"
+              className="group mt-3 inline-flex items-center gap-2 rounded-lg px-6 py-2 font-medium transition hover:brightness-110 active:brightness-95"
+              style={{
+                background: 'var(--gradient-bg)',
+                color: 'var(--button-text)',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  'var(--gradient-bg-hover)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  'var(--gradient-bg)';
+              }}
             >
               Купить кредиты
+              <ArrowRight
+                className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+                weight="regular"
+              />
             </button>
           </div>
         )}
