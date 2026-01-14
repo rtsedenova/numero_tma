@@ -44,6 +44,32 @@ body.light {
   --infobox-text: var(--text-secondary);
 
   --infocard-angle: 100deg;
+
+  --select-bg: linear-gradient(135deg, rgba(247, 247, 247, 0.9) 0%, rgba(255, 255, 255, 0.95) 50%, rgba(245, 234, 255, 0.9) 100%);
+  --select-panel-bg: rgba(255, 255, 255, 0.95);
+  --select-border: rgba(192, 146, 244, 0.4);
+  --select-border-hover: rgba(192, 146, 244, 0.6);
+  --select-hover-bg: rgba(169, 126, 210, 0.08);
+  --select-active-bg: rgba(169, 126, 210, 0.12);
+
+  --card-bg: linear-gradient(145deg, #a48cc5 0%, #dfc5ff 55%, #a48cc5 100%);
+  --card-border-base: rgba(72, 54, 108, 1);
+  --card-border: color-mix(in srgb, var(--card-border-base) 50%, transparent);
+  --card-inner-border: color-mix(in srgb, var(--card-border-base) 25%, transparent);
+  --card-corner: #9178b5;
+  --card-sigil-icon: #695188;
+
+  --error-title: #f15656;
+  --error-text: #e65252;
+  --error-border: rgba(220, 38, 38, 0.3);
+  --error-bg: rgba(239, 68, 68, 0.1);
+
+  --yesno-yes-bg: rgba(34, 197, 94, 0.2);
+  --yesno-yes-text: #1cb745;
+  --yesno-no-bg: rgba(239, 68, 68, 0.2);
+  --yesno-no-text: var(--error-text);
+  --yesno-neutral-bg: rgba(92, 124, 189, 0.2);
+  --yesno-neutral-text: #5973ac;
 }
 
 body.dark {
@@ -89,6 +115,32 @@ body.dark {
   --infobox-text: var(--text-secondary);
 
   --infocard-angle: 100deg;
+
+  --select-bg: linear-gradient(135deg, rgba(64, 40, 87, 0.6) 0%, rgba(76, 49, 104, 0.7) 50%, rgba(48, 29, 66, 0.8) 100%);
+  --select-panel-bg: rgba(64, 40, 87, 0.95);
+  --select-border: rgba(196, 181, 253, 0.3);
+  --select-border-hover: rgba(196, 181, 253, 0.5);
+  --select-hover-bg: rgba(196, 165, 232, 0.12);
+  --select-active-bg: rgba(196, 165, 232, 0.18);
+
+  --card-bg: linear-gradient(145deg, #291f44 0%, #433062 55%, #291f44 100%);
+  --card-border-base: rgba(195, 180, 252, 1);
+  --card-border: color-mix(in srgb, var(--card-border-base) 50%, transparent);
+  --card-inner-border: color-mix(in srgb, var(--card-border-base) 25%, transparent);
+  --card-corner: #524a7a;
+  --card-sigil-icon: #c1acdf;
+
+  --error-title: #ff6262;
+  --error-text: #f87171;
+  --error-border: rgba(248, 113, 113, 0.2);
+  --error-bg: rgba(239, 68, 68, 0.05);
+
+  --yesno-yes-bg: rgba(74, 222, 128, 0.2);
+  --yesno-yes-text: #4ade80;
+  --yesno-no-bg: var(--error-border);
+  --yesno-no-text: var(--error-text);
+  --yesno-neutral-bg: rgba(110, 136, 190, 0.2);
+  --yesno-neutral-text: #8da1c6;
 }
 
 .info-card {

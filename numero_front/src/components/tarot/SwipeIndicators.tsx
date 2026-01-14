@@ -1,10 +1,10 @@
 import React from "react";
 
 type SwipeIndicatorsProps = {
-  text?: string;        // надпись по центру
-  className?: string;   // доп. классы контейнера
-  size?: number;        // высота стрелки в px
-  opacity?: number;     // прозрачность белого (0..1)
+  text?: string;        
+  className?: string;  
+  size?: number;       
+  opacity?: number;     
 };
 
 export const SwipeIndicators: React.FC<SwipeIndicatorsProps> = ({
@@ -13,25 +13,28 @@ export const SwipeIndicators: React.FC<SwipeIndicatorsProps> = ({
   size = 42,
   opacity = 0.75,
 }) => {
-  const stroke = `rgba(255,255,255,${opacity})`;
-  const textColor = `rgba(255,255,255,${Math.min(opacity, 1)})`;
-
   return (
-    <div className={`flex items-center justify-center gap-4 select-none ${className}`} aria-hidden="true">
-      <Arrow dir="left"  size={size} stroke={stroke} />
-      <span style={{ color: textColor }}>{text}</span>
-      <Arrow dir="right" size={size} stroke={stroke} />
+    <div 
+      className={`flex items-center justify-center gap-4 select-none ${className}`} 
+      style={{ 
+        color: 'var(--text)',
+        opacity: opacity,
+      }}
+      aria-hidden="true"
+    >
+      <Arrow dir="left"  size={size} />
+      <span className="font-medium">{text}</span>
+      <Arrow dir="right" size={size} />
     </div>
   );
 };
 
 type ArrowProps = {
   dir: "left" | "right";
-  size: number;      
-  stroke: string;    
+  size: number;
 };
 
-const Arrow: React.FC<ArrowProps> = ({ dir, size, stroke }) => {
+const Arrow: React.FC<ArrowProps> = ({ dir, size }) => {
   const w = Math.round(size * 2);  
   const h = size;
   const mid = h / 2;
@@ -53,10 +56,11 @@ const Arrow: React.FC<ArrowProps> = ({ dir, size, stroke }) => {
       viewBox={`0 0 ${w} ${h}`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ display: "block", opacity: 0.95 }}
+      style={{ display: "block" }}
+      className="text-[var(--text)]"
     >
-      <path d={linePath} stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeDasharray="4 6" />
-      <path d={headPath} stroke={stroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={linePath} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 6" />
+      <path d={headPath} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };

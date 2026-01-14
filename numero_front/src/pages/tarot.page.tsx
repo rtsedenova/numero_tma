@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { WarningCircle } from 'phosphor-react';
 
 import { Page } from '@/components/Page';
 import { TarotStage } from '@/components/tarot/tarot-wheel/TarotStage';
@@ -9,6 +10,7 @@ import { TarotCardFlipOverlay } from '@/components/tarot/TarotCardFlipOverlay';
 import { SelectedCard } from '@/components/tarot/SelectedCard';
 import { SwipeIndicators } from '@/components/tarot/SwipeIndicators';
 import { usePredictionAttempts } from '@/storage/predictionAttempts';
+import { useTarotCategoryStore } from '@/storage/tarotCategoryStorage';
 
 import type { TarotDrawResponse, TarotCategory, WheelConfig } from '@/types/tarot';
 
@@ -23,14 +25,14 @@ export function TarotPage() {
     updatePredictions,
   } = usePredictionAttempts();
 
+  const { category, setCategory } = useTarotCategoryStore();
+
   const wheelConfig: WheelConfig = {
     radiusDesktop: 2500,
     radiusMobile: 1800,
     arcAngle: 40,
     cardCount: 78,
   };
-
-  const [category, setCategory] = useState<TarotCategory | null>(null);
   const [result, setResult] = useState<TarotDrawResponse['result'] | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const [showCategoryWarning, setShowCategoryWarning] = useState(false);
@@ -80,15 +82,15 @@ export function TarotPage() {
       <TarotStage>
         {hasNoPredictions && (
           <div className="absolute left-1/2 top-20 z-[10000] max-w-md -translate-x-1/2 rounded-xl border border-orange-300/30 bg-orange-500/10 p-4 text-center">
-            <p className="mb-3 text-orange-200">
+            <span className="mb-3 block text-orange-200">
               Бесплатные предсказания закончились. Для получения предсказания
               необходимо минимум 100 кредитов. Пожалуйста, купите кредиты для
               продолжения.
-            </p>
+            </span>
             <button
               type="button"
               onClick={() => navigate('/payment')}
-              className="rounded-lg bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 px-6 py-2 font-medium text-white transition hover:brightness-110 active:brightness-95"
+              className="mt-3 rounded-lg bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 px-6 py-2 font-medium text-white transition hover:brightness-110 active:brightness-95"
             >
               Купить кредиты
             </button>
@@ -96,21 +98,23 @@ export function TarotPage() {
         )}
 
         <div className="tarot-page absolute left-1/2 top-6 z-[9999] flex -translate-x-1/2 flex-col items-center">
-          <TarotCategorySelect
-            category={category}
-            onChange={(next: TarotCategory) => {
-              setCategory(next);
-              setShowCategoryWarning(false);
-            }}
-          />
-          {showCategoryWarning && (
-            <span className="mt-2 rounded-lg bg-red-900/30 px-3 py-1 text-sm text-red-300 backdrop-blur-sm">
-              ⚠️ Пожалуйста, выберите категорию
-            </span>
-          )}
+          <div className="flex flex-col gap-2 w-full">
+            <TarotCategorySelect
+              category={category}
+              onChange={(next: TarotCategory) => {
+                setCategory(next);
+                setShowCategoryWarning(false);
+              }}
+            />
+            {showCategoryWarning && (
+              <p className="text-red-400 text-sm whitespace-nowrap text-start flex items-center gap-1">
+                <WarningCircle size={16} /> Пожалуйста, выберите категорию.
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="absolute left-1/2 top-38 z-[9998] -translate-x-1/2">
+        <div className="absolute left-1/2 top-42 md:top-38 z-[9998] -translate-x-1/2">
           <SelectedCard
             selectedIndex={selectedCardIndex}
             totalCards={wheelConfig.cardCount}
@@ -121,7 +125,7 @@ export function TarotPage() {
           <SwipeIndicators />
         </div>
 
-        <div className="absolute -bottom-46 left-1/2 z-0 -translate-x-1/2">
+        <div className="absolute -bottom-46 md:-bottom-52 left-1/2 z-0 -translate-x-1/2">
           <TarotWheel
             config={wheelConfig}
             category={category}

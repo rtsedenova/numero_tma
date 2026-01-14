@@ -29,5 +29,32 @@ export class PaymentController {
       });
     }
   }
+
+  static async checkPaymentStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const { payload } = req.body;
+
+      if (!payload || typeof payload !== 'string') {
+        res.status(400).json({
+          success: false,
+          error: "Missing or invalid payload parameter.",
+        });
+        return;
+      }
+
+      const isSuccessful = TelegramStarsService.isPaymentSuccessful(payload);
+
+      res.json({
+        success: true,
+        successful_payment: isSuccessful,
+      });
+    } catch (error: any) {
+      console.error("Error in checkPaymentStatus:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message || "Internal server error",
+      });
+    }
+  }
 }
 
