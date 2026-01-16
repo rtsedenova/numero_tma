@@ -18,10 +18,10 @@ Users start with **free predictions** and can purchase additional credits via **
 </p>
 
 <p align="center">
-  <img src="docs/numerology_result.webp" width="25%" />
-  <img src="docs/tarot_card_wheel.webp" width="25%" />
-  <img src="docs/result_card.webp" width="25%" />
-  <img src="docs/home_page.webp" width="25%" />
+  <img src="docs/numerology_result.webp" width="20%" />
+  <img src="docs/tarot_card_wheel.webp" width="20%" />
+  <img src="docs/result_card.webp" width="20%" />
+  <img src="docs/home_page.webp" width="20%" />
 </p>
 
 ## ⚙ Tech Stack
