@@ -13,18 +13,15 @@ Users start with **free predictions** and can purchase additional credits via **
 
 <p align="center">
   <img src="docs/chat_w_bot.webp" width="30%" />
-  <img src="docs/home_page.webp" width="30%" />
+  <img src="docs/app_gif.gif" width="30%" />
   <img src="docs/date_picker.webp" width="30%" />
 </p>
 
 <p align="center">
-  <img src="docs/numerology_result.webp" width="30%" />
-  <img src="docs/tarot_card_wheel.webp" width="30%" />
-  <img src="docs/result_card.webp" width="30%" />
-</p>
-
-<p align="center">
-  <img src="docs/app_gif.gif" width="70%" />
+  <img src="docs/numerology_result.webp" width="25%" />
+  <img src="docs/tarot_card_wheel.webp" width="25%" />
+  <img src="docs/result_card.webp" width="25%" />
+  <img src="docs/home_page.webp" width="25%" />
 </p>
 
 ## ⚙ Tech Stack
