@@ -12,8 +12,8 @@ Users start with **free predictions** and can purchase additional credits via **
 **Live App**: Telegram Bot Name — @NumeroSeer_bot | [Telegram Bot Link](https://t.me/NumeroSeer_bot)
 
 <p align="center">
-  <img src="docs/chat_w_bot.webp" width="30%" />
   <img src="docs/app_gif.gif" width="30%" />
+  <img src="docs/chat_w_bot.webp" width="30%" />
   <img src="docs/date_picker.webp" width="30%" />
 </p>
 
